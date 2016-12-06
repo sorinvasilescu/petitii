@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: dev
+    active: development
   thymeleaf:
     cache: false
   datasource:
@@ -13,3 +13,23 @@ spring:
 logging.level.org.hibernate: ERROR
 server.error.whitelabel.enabled: false
 security.basic.enabled: false
+
+petitii:
+  imap:
+    server: imap.gmail.com
+    port: 993
+    ssl: true
+    username: petitii.gov@gmail.com
+    password: Q!W@E#R$T%Y^
+
+---
+spring:
+  profiles: development
+flyway:
+  locations: db/migration_prod,db/migration_dev
+
+---
+spring:
+  profiles: production
+flyway:
+  locations: db/migration_dev
