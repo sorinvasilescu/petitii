@@ -1,0 +1,15 @@
+spring:
+  profiles:
+    active: dev
+  thymeleaf:
+    cache: false
+  datasource:
+    url: jdbc:mysql://localhost/petitions
+    username: petitions
+    password: petitions
+    driver-class-name: com.mysql.jdbc.Driver
+  jpa.hibernate.ddl-auto: none
+#logging.level.org.springframework.web: DEBUG
+logging.level.org.hibernate: ERROR
+server.error.whitelabel.enabled: false
+security.basic.enabled: false
