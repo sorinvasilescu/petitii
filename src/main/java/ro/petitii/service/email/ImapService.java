@@ -5,7 +5,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ro.petitii.config.ImapConfig;
 import ro.petitii.model.Email;
+import ro.petitii.model.EmailAttachment;
 import ro.petitii.service.EmailService;
 
 import javax.mail.*;
@@ -16,9 +18,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 
 @Service
 public class ImapService {
@@ -85,7 +85,8 @@ public class ImapService {
         Date sentDate = msg.getSentDate();
 
         Object messageContent = null;
-        String attachments = "";
+
+        Collection<EmailAttachment> attachments = new ArrayList<>();
         try {
             messageContent = msg.getContent();
             if (messageContent instanceof Multipart) {
@@ -93,10 +94,9 @@ public class ImapService {
                 for (int j=0; j<multipart.getCount(); j++) {
                     BodyPart bodyPart = multipart.getBodyPart(j);
                     if ((bodyPart.getContentType() == BodyPart.ATTACHMENT)||(bodyPart.getContent() instanceof BASE64DecoderStream)) {
-                        if (attachments.length()>0) {
-                            attachments += ", ";
-                        }
-                        attachments += bodyPart.getFileName();
+                        EmailAttachment attachment = new EmailAttachment();
+                        attachment.setBodyPart(bodyPart);
+                        attachments.add(attachment);
                     } else {
                         messageContent = bodyPart.getContent().toString();
                     }
@@ -116,6 +116,7 @@ public class ImapService {
         email.setBody(messageContent.toString());
         email.setDate(sentDate);
         email.setSize((float)(msg.getSize()));
+        email.setAttachments(attachments);
         emailService.save(email);
         // print out details of each message
         System.out.println("Message #" + uid + ":");
@@ -125,7 +126,7 @@ public class ImapService {
         System.out.println("\t Subject: " + subject);
         System.out.println("\t Sent Date: " + sentDate);
         System.out.println("\t Message: " + messageContent);
-        System.out.println("\t Attachments: " + attachments);
+        System.out.println("\t Attachments: " + attachments.toString());
         System.out.println("\t Size: " + msg.getSize());
     }
 

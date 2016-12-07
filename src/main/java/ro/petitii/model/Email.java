@@ -21,7 +21,7 @@ public class Email {
     private String body;
     private float size;
 
-    @OneToMany(targetEntity = EmailAttachment.class, mappedBy = "email")
+    @OneToMany(mappedBy = "email")
     private Collection<EmailAttachment> attachments;
 
     public Email() {}
@@ -100,5 +100,13 @@ public class Email {
 
     public void setSize(float size) {
         this.size = size;
+    }
+
+    public Collection<EmailAttachment> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(Collection<EmailAttachment> attachments) {
+        this.attachments = attachments;
     }
 }

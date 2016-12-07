@@ -1,5 +1,6 @@
 package ro.petitii.model;
 
+import javax.mail.BodyPart;
 import javax.persistence.*;
 
 @Entity
@@ -18,8 +19,11 @@ public class EmailAttachment {
     private String contentType;
 
     @ManyToOne
-    @JoinColumn(name = "email_id",referencedColumnName = "id")
+    @JoinColumn(name = "email_id")
     private Email email;
+
+    @Transient
+    private BodyPart bodyPart;
 
     public  EmailAttachment() {}
 
@@ -61,5 +65,13 @@ public class EmailAttachment {
 
     public void setEmail(Email email) {
         this.email = email;
+    }
+
+    public BodyPart getBodyPart() {
+        return bodyPart;
+    }
+
+    public void setBodyPart(BodyPart bodyPart) {
+        this.bodyPart = bodyPart;
     }
 }

@@ -9,8 +9,11 @@ spring:
     password: petitions
     driver-class-name: com.mysql.jdbc.Driver
   jpa.hibernate.ddl-auto: none
+  jpa:
+    show-sql: true
+
 #logging.level.org.springframework.web: DEBUG
-logging.level.org.hibernate: ERROR
+#logging.level.org.hibernate: DEBUG
 server.error.whitelabel.enabled: false
 security.basic.enabled: false
 
@@ -22,7 +25,8 @@ petitii:
     username: petitii.gov@gmail.com
     password: Q!W@E#R$T%Y^
     startDate: 06/12/2016
-
+  emailAttachments:
+    path: E:\Work\idea\petitii\target\email_attachments
 ---
 spring:
   profiles: development

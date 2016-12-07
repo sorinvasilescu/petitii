@@ -228,7 +228,7 @@ CREATE TABLE IF NOT EXISTS `petitions`.`Email_attachments` (
   INDEX `email_idx` (`email_id` ASC),
   CONSTRAINT `email`
   FOREIGN KEY (`email_id`)
-  REFERENCES `petitions`.`Email` (`id`)
+  REFERENCES `petitions`.`Emails` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;

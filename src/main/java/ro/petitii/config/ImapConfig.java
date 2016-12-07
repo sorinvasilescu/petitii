@@ -1,4 +1,4 @@
-package ro.petitii.service.email;
+package ro.petitii.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
