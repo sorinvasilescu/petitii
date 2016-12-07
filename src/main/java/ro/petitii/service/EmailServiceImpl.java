@@ -24,19 +24,17 @@ public class EmailServiceImpl implements EmailService {
     private EmailAttachmentService attachmentService;
 
     @PersistenceContext
-    EntityManager entityManager;
+    EntityManager em;
 
     @Override
+    @Transactional
     public Email save(Email e) {
-        Collection<EmailAttachment> attachments = e.getAttachments();
-        e.setAttachments(null);
-        e = emailRepository.save(e);
-        System.out.println(e.getId());
-        for (EmailAttachment attachment : attachments) {
+        em.persist(e);
+        em.flush();
+        for (EmailAttachment attachment : e.getAttachments()) {
             attachment.setEmail(e);
             attachmentService.save(attachment);
         }
-        e.setAttachments(attachments);
         e = emailRepository.save(e);
         return e;
     }
