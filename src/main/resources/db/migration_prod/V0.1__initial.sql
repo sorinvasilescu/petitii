@@ -190,12 +190,13 @@ CREATE TABLE IF NOT EXISTS `petitions`.`Comments` (
 -- -----------------------------------------------------
 -- Table `petitions`.`Email`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `petitions`.`Email` (
+CREATE TABLE IF NOT EXISTS `petitions`.`Emails` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `sender` VARCHAR(128) NULL,
   `recipients` TEXT NULL,
   `cc` TEXT NULL,
   `bcc` TEXT NULL,
+  `date` DATETIME NULL,
   `subject` TEXT NULL,
   `body` TEXT NULL,
   `size` FLOAT NULL,

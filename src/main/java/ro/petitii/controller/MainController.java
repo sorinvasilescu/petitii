@@ -1,11 +1,16 @@
 package ro.petitii.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.ErrorController;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import ro.petitii.service.email.ImapService;
 
 @Controller
 public class MainController implements ErrorController {
+
+    @Autowired
+    ImapService imapService;
 
     @RequestMapping("/error")
     public String error() {
@@ -14,6 +19,12 @@ public class MainController implements ErrorController {
 
     @RequestMapping("/")
     public String index() {
+        return "index";
+    }
+
+    @RequestMapping("/mailtest")
+    public String maintest() {
+        imapService.getMail();
         return "index";
     }
 
