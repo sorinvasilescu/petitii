@@ -1,6 +1,7 @@
 package ro.petitii.model;
 
 import javax.persistence.*;
+import java.util.Collection;
 import java.util.Date;
 
 @Entity
@@ -8,7 +9,7 @@ import java.util.Date;
 public class Email {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    private Long id;
 
     long uid;
     private String sender;
@@ -20,9 +21,12 @@ public class Email {
     private String body;
     private float size;
 
+    @OneToMany(targetEntity = EmailAttachment.class, mappedBy = "email")
+    private Collection<EmailAttachment> attachments;
+
     public Email() {}
 
-    public Number getId() {
+    public Long getId() {
         return id;
     }
 
