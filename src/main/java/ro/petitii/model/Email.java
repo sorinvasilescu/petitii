@@ -10,6 +10,7 @@ public class Email {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
+    long uid;
     private String sender;
     private String recipients;
     private String cc;
@@ -23,6 +24,14 @@ public class Email {
 
     public Number getId() {
         return id;
+    }
+
+    public long getUid() {
+        return uid;
+    }
+
+    public void setUid(long uid) {
+        this.uid = uid;
     }
 
     public String getSender() {

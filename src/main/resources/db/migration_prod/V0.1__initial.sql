@@ -192,6 +192,7 @@ CREATE TABLE IF NOT EXISTS `petitions`.`Comments` (
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `petitions`.`Emails` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `uid` LONG,
   `sender` VARCHAR(128) NULL,
   `recipients` TEXT NULL,
   `cc` TEXT NULL,

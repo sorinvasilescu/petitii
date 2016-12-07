@@ -41,91 +41,92 @@ public class ImapService {
             store.connect(imapConfig.getUsername(),imapConfig.getPassword());
             // open folder
             Folder folder = store.getFolder("[Gmail]/All Mail");
+            UIDFolder uidFolder = (UIDFolder)folder;
             folder.open(Folder.READ_ONLY);
-            // set filters
-            SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-            df.setTimeZone(TimeZone.getTimeZone("EET"));
-            Date date;
-            try {
-                date = df.parse(imapConfig.getStartDate());
-            } catch (ParseException e) {
-                date = df.parse("07/12/2016",new ParsePosition(0));
-                LOGGER.error("Could not parse date");
-            }
-            SearchTerm newerThan = new ReceivedDateTerm(ComparisonTerm.GT, date);
-            // fetch messages
-            Message[] messages = folder.search(newerThan);
-            for (int i = 0; i < messages.length; i++) {
-                Message msg = messages[i];
-                Address[] fromAddress = msg.getFrom();
-                String from = fromAddress[0].toString();
-                String subject = msg.getSubject();
-                String toList = parseAddresses(msg.getRecipients(Message.RecipientType.TO));
-                String ccList = parseAddresses(msg.getRecipients(Message.RecipientType.CC));
-                String bccList = parseAddresses(msg.getRecipients(Message.RecipientType.BCC));
-                Date sentDate = msg.getSentDate();
-
-                Object messageContent = null;
-                String attachments = "";
+            Message[] messages;
+            long latestuid = -1;
+            if (emailService.count()<1) {
+                // set filters
+                SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+                df.setTimeZone(TimeZone.getTimeZone("EET"));
+                Date date;
                 try {
-                    messageContent = msg.getContent();
-                    if (messageContent instanceof Multipart) {
-                        Multipart multipart = (Multipart) messageContent;
-                        for (int j=0; j<multipart.getCount(); j++) {
-                            BodyPart bodyPart = multipart.getBodyPart(j);
-                            if ((bodyPart.getContentType() == BodyPart.ATTACHMENT)||(bodyPart.getContent() instanceof BASE64DecoderStream)) {
-                                if (attachments.length()>0) {
-                                    attachments += ", ";
-                                }
-                                attachments += bodyPart.getFileName();
-                            } else {
-                                messageContent = bodyPart.getContent().toString();
-                            }
-                        }
-                    }
-                } catch (IOException e) {
-                    LOGGER.error("Could not get message content");
+                    date = df.parse(imapConfig.getStartDate());
+                } catch (ParseException e) {
+                    date = df.parse("07/12/2016", new ParsePosition(0));
+                    LOGGER.error("Could not parse date");
                 }
-/*
-                if (contentType.contains("text/plain") || contentType.contains("text/html")) {
-                    try {
-                        Object content = msg.getContent();
-                        if (content != null) {
-                            messageContent = content.toString();
-                        }
-                    } catch (Exception ex) {
-                        messageContent = "[Error downloading content]";
-                        ex.printStackTrace();
-                    }
-                }
-*/
-
-                Email email = new Email();
-                email.setSender(from);
-                email.setRecipients(toList);
-                email.setCc(ccList);
-                email.setBcc(bccList);
-                email.setSubject(subject);
-                email.setBody(messageContent.toString());
-                email.setDate(sentDate);
-                email.setSize((float)(msg.getSize()));
-                emailService.save(email);
-                // print out details of each message
-                System.out.println("Message #" + (i + 1) + ":");
-                System.out.println("\t From: " + from);
-                System.out.println("\t To: " + toList);
-                System.out.println("\t CC: " + ccList);
-                System.out.println("\t Subject: " + subject);
-                System.out.println("\t Sent Date: " + sentDate);
-                System.out.println("\t Message: " + messageContent);
-                System.out.println("\t Attachments: " + attachments);
-                System.out.println("\t Size: " + msg.getSize());
+                SearchTerm newerThan = new ReceivedDateTerm(ComparisonTerm.GT, date);
+                // fetch messages
+                messages = folder.search(newerThan);
+            } else {
+                latestuid = emailService.lastUid();
+                LOGGER.info("Last uid: "+latestuid);
+                messages = uidFolder.getMessagesByUID(latestuid,UIDFolder.LASTUID);
+            }
+            for (Message msg : messages) {
+                long uid = uidFolder.getUID(msg);
+                if (uid!=latestuid) saveMessage(msg, uid);
             }
         } catch (NoSuchProviderException e) {
             LOGGER.error("No such provider: " + e.getMessage());
         } catch (MessagingException e) {
             LOGGER.error("Messaging exception:" + e.getMessage());
         }
+    }
+
+    private void saveMessage(Message msg, long uid) throws MessagingException {
+        Address[] fromAddress = msg.getFrom();
+        String from = fromAddress[0].toString();
+        String subject = msg.getSubject();
+        String toList = parseAddresses(msg.getRecipients(Message.RecipientType.TO));
+        String ccList = parseAddresses(msg.getRecipients(Message.RecipientType.CC));
+        String bccList = parseAddresses(msg.getRecipients(Message.RecipientType.BCC));
+        Date sentDate = msg.getSentDate();
+
+        Object messageContent = null;
+        String attachments = "";
+        try {
+            messageContent = msg.getContent();
+            if (messageContent instanceof Multipart) {
+                Multipart multipart = (Multipart) messageContent;
+                for (int j=0; j<multipart.getCount(); j++) {
+                    BodyPart bodyPart = multipart.getBodyPart(j);
+                    if ((bodyPart.getContentType() == BodyPart.ATTACHMENT)||(bodyPart.getContent() instanceof BASE64DecoderStream)) {
+                        if (attachments.length()>0) {
+                            attachments += ", ";
+                        }
+                        attachments += bodyPart.getFileName();
+                    } else {
+                        messageContent = bodyPart.getContent().toString();
+                    }
+                }
+            }
+        } catch (IOException e) {
+            LOGGER.error("Could not get message content");
+        }
+
+        Email email = new Email();
+        email.setUid(uid);
+        email.setSender(from);
+        email.setRecipients(toList);
+        email.setCc(ccList);
+        email.setBcc(bccList);
+        email.setSubject(subject);
+        email.setBody(messageContent.toString());
+        email.setDate(sentDate);
+        email.setSize((float)(msg.getSize()));
+        emailService.save(email);
+        // print out details of each message
+        System.out.println("Message #" + uid + ":");
+        System.out.println("\t From: " + from);
+        System.out.println("\t To: " + toList);
+        System.out.println("\t CC: " + ccList);
+        System.out.println("\t Subject: " + subject);
+        System.out.println("\t Sent Date: " + sentDate);
+        System.out.println("\t Message: " + messageContent);
+        System.out.println("\t Attachments: " + attachments);
+        System.out.println("\t Size: " + msg.getSize());
     }
 
     private Properties getServerProperties() {
