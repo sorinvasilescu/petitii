@@ -1,21 +1,60 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-    <head>
-        <title>Login page</title>
-        <meta charset="utf-8" />
-        <link rel="stylesheet" href="/css/main.css" th:href="@{/css/main.css}" />
-	</head>
+
+<head th:substituteby="head :: headTag"></head>
     <body>
-        <h1>Login page</h1>
-        <p>Example user: user / password</p>
-        <p th:if="${loginError}" class="error">Wrong user or password</p>
-        <form th:action="@{/login}" method="post">
-            <label for="username">Username</label>:
-            <input type="text" id="username" name="username" autofocus="autofocus" /> <br />
-            <label for="password">Password</label>:
-            <input type="password" id="password" name="password" /> <br />
-            <input type="submit" value="Log in" />
-        </form>
-        <p><a href="/index" th:href="@{/index}">Back to home page</a></p>
+    <div id="login-overlay" class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+
+                <h4 class="modal-title" id="myModalLabel">Autentificare</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-6">
+                        <div class="well">
+                            <form th:action="@{/login}" method="post">
+                                <div class="form-group">
+                                    <label for="username" class="control-label">Utilizator</label>
+                                    <input type="text" class="form-control" id="username" name="username" value="" required=""
+                                           title="Vă rugăm să introduceți utilizatorul" placeholder="nume.prenume@gov.ro" />
+                                    <span class="help-block"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="password" class="control-label">Parola</label>
+                                    <input type="password" class="form-control" id="password" name="password" value="" required=""
+                                           title="Vă rugăm să introduceți parola" />
+                                    <span class="help-block"></span>
+                                </div>
+                                <div id="loginErrorMsg" th:if="${loginError}" class="alert alert-error hide">Nume de utilizator sau parolă gresite !</div>
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" name="remember" id="remember" />Păstrază-mă autentificat
+                                    </label>
+
+                                </div>
+                                <button type="submit" class="btn btn-success btn-block">Autentificare</button>
+                                <a href="/forgot/" class="btn btn-default btn-block">Am uitat parola</a>
+
+                            </form>
+                        </div>
+                    </div>
+                    <div class="col-xs-6">
+
+                        <p class="lead">Managementul <span class="text-success">PETIȚIILOR</span></p>
+                        <ul class="list-unstyled" style="line-height: 2">
+                            <li><span class="fa fa-check text-success"></span> Soluție dezvoltată în cadrul proiectului Gov IT Hub</li>
+                            <li><span class="fa fa-check text-success"></span> Permite managementul de petiții primite prin posta electronică, totodată servind și ca interfață între petent și instituție</li>
+
+                        </ul>
+                        <p class="center" style="text-align:center">
+                            <img src="http://ithub.gov.ro/wp-content/uploads/2016/08/govithub000.png" title="Gob IT Hub" width="200"/>
+                    </p>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     </body>
 </html>
