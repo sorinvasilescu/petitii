@@ -29,18 +29,19 @@ public class ImapService {
     @Autowired
     EmailService emailService;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ImapConfig.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ImapService.class);
     private final static String protocol = "imap";
 
     public void getMail() {
         // open session
         Session session = Session.getInstance(getServerProperties());
+        Folder folder = null;
         try {
             // connect to the message store
             Store store = session.getStore(protocol);
             store.connect(imapConfig.getUsername(),imapConfig.getPassword());
             // open folder
-            Folder folder = store.getFolder("[Gmail]/All Mail");
+            folder = store.getFolder("[Gmail]/All Mail");
             UIDFolder uidFolder = (UIDFolder)folder;
             folder.open(Folder.READ_ONLY);
             Message[] messages;
@@ -72,6 +73,12 @@ public class ImapService {
             LOGGER.error("No such provider: " + e.getMessage());
         } catch (MessagingException e) {
             LOGGER.error("Messaging exception:" + e.getMessage());
+        } finally {
+            if (folder!=null)
+                try { folder.close(false); }
+                catch (MessagingException e) {
+                    LOGGER.error("Messaging exception:" + e.getMessage());
+                }
         }
     }
 
@@ -119,15 +126,20 @@ public class ImapService {
         email.setAttachments(attachments);
         emailService.save(email);
         // print out details of each message
-        System.out.println("Message #" + uid + ":");
-        System.out.println("\t From: " + from);
-        System.out.println("\t To: " + toList);
-        System.out.println("\t CC: " + ccList);
-        System.out.println("\t Subject: " + subject);
-        System.out.println("\t Sent Date: " + sentDate);
-        System.out.println("\t Message: " + messageContent);
-        System.out.println("\t Attachments: " + attachments.toString());
-        System.out.println("\t Size: " + msg.getSize());
+        LOGGER.info("Message #" + uid + ":");
+        LOGGER.info("\t From: " + from);
+        LOGGER.info("\t To: " + toList);
+        LOGGER.info("\t CC: " + ccList);
+        LOGGER.info("\t Subject: " + subject);
+        LOGGER.info("\t Sent Date: " + sentDate);
+        LOGGER.info("\t Message: " + messageContent);
+        String att = "";
+        for (EmailAttachment a : attachments) {
+            if (att.length()>0) att += ",";
+            att += a.getOriginalFilename();
+        }
+        LOGGER.info("\t Attachments: " + att);
+        LOGGER.info("\t Size: " + msg.getSize());
     }
 
     private Properties getServerProperties() {

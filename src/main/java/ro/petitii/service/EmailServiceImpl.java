@@ -3,16 +3,21 @@ package ro.petitii.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ro.petitii.model.Email;
 import ro.petitii.model.EmailAttachment;
+import ro.petitii.model.rest.RestEmailResponse;
+import ro.petitii.model.rest.RestEmailResponseElement;
 import ro.petitii.repository.EmailRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
-import java.util.Collection;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class EmailServiceImpl implements EmailService {
@@ -50,5 +55,32 @@ public class EmailServiceImpl implements EmailService {
         Page<Email> result = emailRepository.findAll(pr);
         if (result.getSize()>0) return result.getContent().get(0).getUid();
         else return -1;
+    }
+
+    @Override
+    public List<Email> findAll(int startIndex, int size, Sort.Direction sortDirection, String sortcolumn) {
+        PageRequest p = new PageRequest(startIndex/size, size, sortDirection, sortcolumn);
+        Page<Email> emails = emailRepository.findAll(p);
+        return emails.getContent();
+    }
+
+    @Override
+    public RestEmailResponse getTableContent(int startIndex, int size, Sort.Direction sortDirection, String sortColumn) {
+        List<Email> result = this.findAll(startIndex, size, sortDirection, sortColumn);
+        List<RestEmailResponseElement> data = new ArrayList<>();
+        SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+        for (Email e : result) {
+            RestEmailResponseElement re = new RestEmailResponseElement();
+            re.setSender(e.getSender());
+            re.setSubject(e.getSubject());
+            re.setDate(df.format(e.getDate()));
+            re.setStatus("status");
+            data.add(re);
+        }
+        RestEmailResponse response = new RestEmailResponse();
+        response.setData(data);
+        response.setRecordsFiltered(this.count());
+        response.setRecordsTotal(this.count());
+        return response;
     }
 }

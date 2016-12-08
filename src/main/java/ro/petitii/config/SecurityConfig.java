@@ -26,7 +26,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
             .authorizeRequests()
-                .antMatchers("/css/**","/js/**","/images/**","/webjars/**","/vendors/**")
+                .antMatchers("/css/**","/js/**","/images/**","/webjars/**","/vendors/**","/rest/**")
                     .permitAll()
                 .anyRequest()
                     .authenticated()
@@ -41,10 +41,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                     .logoutSuccessUrl("/login").permitAll()
             .and()
-                .csrf()
-            .and()
                 .rememberMe()
-                .tokenValiditySeconds(1209600);
+                .tokenValiditySeconds(1209600)
+            .and()
+                .csrf().disable();
     }
 
     @Override

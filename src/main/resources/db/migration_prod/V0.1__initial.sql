@@ -222,7 +222,7 @@ CREATE TABLE IF NOT EXISTS `petitions`.`Email_attachments` (
   `email_id` INT UNSIGNED NOT NULL,
   `original_filename` VARCHAR(255) NULL,
   `filename` VARCHAR(255) NULL,
-  `content_type` VARCHAR(128) NULL,
+  `content_type` TEXT NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC),
   INDEX `email_idx` (`email_id` ASC),
