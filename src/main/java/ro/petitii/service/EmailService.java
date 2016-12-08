@@ -11,5 +11,6 @@ public interface EmailService {
     long count();
     long lastUid();
     List<Email> findAll(int startIndex, int size, Sort.Direction sortDirection, String sortcolumn);
-    RestEmailResponse getTableContent(int startIndex, int size, Sort.Direction sortDirection, String sortColumn);
+    List<Email> findAllByType(Email.EmailType type, int startIndex, int size, Sort.Direction sortDirection, String sortcolumn);
+    RestEmailResponse getTableContent(Email.EmailType type, int startIndex, int size, Sort.Direction sortDirection, String sortColumn);
 }

@@ -7,6 +7,7 @@ import java.util.Date;
 @Entity
 @Table(name = "Emails")
 public class Email {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -20,6 +21,10 @@ public class Email {
     private String subject;
     private String body;
     private float size;
+
+    public enum EmailType {Inbox, Outbox, Spam}
+    @Enumerated(EnumType.STRING)
+    private EmailType type;
 
     @OneToMany(mappedBy = "email")
     private Collection<EmailAttachment> attachments;
@@ -108,5 +113,13 @@ public class Email {
 
     public void setAttachments(Collection<EmailAttachment> attachments) {
         this.attachments = attachments;
+    }
+
+    public EmailType getType() {
+        return type;
+    }
+
+    public void setType(EmailType type) {
+        this.type = type;
     }
 }

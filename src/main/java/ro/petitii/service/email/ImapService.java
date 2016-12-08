@@ -124,6 +124,7 @@ public class ImapService {
         email.setDate(sentDate);
         email.setSize((float)(msg.getSize()));
         email.setAttachments(attachments);
+        email.setType(Email.EmailType.Inbox);
         emailService.save(email);
         // print out details of each message
         LOGGER.info("Message #" + uid + ":");

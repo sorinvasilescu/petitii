@@ -65,8 +65,15 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public RestEmailResponse getTableContent(int startIndex, int size, Sort.Direction sortDirection, String sortColumn) {
-        List<Email> result = this.findAll(startIndex, size, sortDirection, sortColumn);
+    public List<Email> findAllByType(Email.EmailType type, int startIndex, int size, Sort.Direction sortDirection, String sortcolumn) {
+        PageRequest p = new PageRequest(startIndex/size, size, sortDirection, sortcolumn);
+        Page<Email> emails = emailRepository.findByType(type,p);
+        return emails.getContent();
+    }
+
+    @Override
+    public RestEmailResponse getTableContent(Email.EmailType type, int startIndex, int size, Sort.Direction sortDirection, String sortColumn) {
+        List<Email> result = this.findAllByType(type, startIndex, size, sortDirection, sortColumn);
         List<RestEmailResponseElement> data = new ArrayList<>();
         SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         for (Email e : result) {
