@@ -1,7 +1,16 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-
-<head th:substituteby="head :: headTag"></head>
+    <head>
+        <title>Petitii</title>
+        <link href="../static/vendors/bootstrap/dist/css/bootstrap.min.css" th:href="@{/vendors/bootstrap/dist/css/bootstrap.min.css}" rel="stylesheet"/>
+        <link href="../static/vendors/font-awesome/css/font-awesome.min.css" th:href="@{/vendors/font-awesome/css/font-awesome.min.css}" rel="stylesheet"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <style>
+            body { padding-top: 80px; /* 80px to make the container go all the way to the bottom of the topbar */ }
+        </style>
+        <script src="../static/vendors/jquery/dist/jquery.min.js" th:src="@{/vendors/jquery/dist/jquery.min.js}"></script>
+        <script src="../static/vendors/bootstrap/dist/js/bootstrap.min.js" th:src="@{/vendors/bootstrap/dist/js/bootstrap.min.js}"></script>
+    </head>
     <body>
     <div id="login-overlay" class="modal-dialog">
         <div class="modal-content">

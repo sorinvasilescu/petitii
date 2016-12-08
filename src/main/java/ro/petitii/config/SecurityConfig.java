@@ -17,9 +17,6 @@ import javax.sql.DataSource;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    DataSource dataSource;
-
-    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -29,7 +26,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
             .authorizeRequests()
-                .antMatchers("/css/**","/js/**","/images/**","/webjars/**")
+                .antMatchers("/css/**","/js/**","/images/**","/webjars/**","/vendors/**")
                     .permitAll()
                 .anyRequest()
                     .authenticated()

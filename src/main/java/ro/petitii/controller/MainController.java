@@ -19,7 +19,7 @@ public class MainController implements ErrorController {
 
     @RequestMapping("/")
     public String index() {
-        return "index";
+        return "redirect:/inbox";
     }
 
     @RequestMapping("/mailtest")
