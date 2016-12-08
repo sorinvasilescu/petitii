@@ -1,0 +1,21 @@
+#addBtn {
+    color:mediumseagreen;
+    font-weight: bold;
+}
+
+.top-margin {
+    margin-top: 3.5vh;
+}
+
+.addForm {
+    width: 20vh;
+    height: 3.5vh;
+}
+
+.together {
+    display: inline-block;
+}
+
+.margin-input {
+    margin-right: 2vh;
+}
