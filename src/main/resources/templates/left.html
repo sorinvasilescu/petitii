@@ -33,12 +33,14 @@
                         </li>
                         <li><a><i class="fa fa-book"></i> Registru</a>
                         </li>
+                        <li th:if="${#authentication.getPrincipal().hasRole('ADMIN')}">
+                            <a><i class="fa fa-cog"></i> Optiuni</a>
+                        </li>
                     </ul>
                 </div>
                 <div class="menu_section">
                     <ul class="nav side-menu">
-                        <li><a href="/addPetition" id="addBtn"><i class="fa fa-plus-circle"></i> Adauga o
-                            petitie</a>
+                        <li><a href="/addPetition" id="addBtn"><i class="fa fa-plus-circle"></i> Adauga opetitie</a>
                         </li>
                     </ul>
                 </div>

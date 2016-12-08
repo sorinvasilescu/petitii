@@ -34,6 +34,18 @@ public class UserDetail extends User implements UserDetails {
         return this.user.getEmail();
     }
 
+    public String getFirstName() {
+        return this.user.getFirstName();
+    }
+
+    public String getLastName() {
+        return this.user.getLastName();
+    }
+
+    public boolean hasRole(String role) {
+        return this.user.getRole().equals(role);
+    }
+
     @Override
     public boolean isAccountNonExpired() {
         return true;
