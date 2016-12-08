@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div th:fragment="menu" class="col-md-3 left_col menu_fixed">
+        <div class="left_col scroll-view">
+            <div class="navbar nav_title">
+                <div class="row">
+                    <div class="col-xs-10 col-xs-offset-1 col-md-offset-2 col-md-10">
+                        <img src="images/govithub.png"/>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-10 col-md-offset-4 col-md-7 ">
+                        <a href="email_page.html" class="site_title">Petitii</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="clearfix"></div>
+
+
+            <br />
+
+            <!-- sidebar menu -->
+            <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+                <div class="menu_section">
+                    <ul class="nav side-menu" style="margin-top: 5vh;">
+                        <li><a href="email_page.html"><i class="fa fa-envelope"></i> Email</a>
+                        </li>
+                        <li><a href="spam_page.html"><i class="fa fa-envelope-o"></i> Spam </a>
+                        </li>
+                        <li><a href="petitii_page.html"><i class="fa fa-sticky-note"></i> Petitiile mele</a>
+                        </li>
+                        <li><a><i class="fa fa-book"></i> Registru</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <!-- /sidebar menu -->
+
+            <!-- /menu footer buttons -->
+            <div class="sidebar-footer hidden-small">
+                <a data-toggle="tooltip" data-placement="top" title="Settings">
+                    <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
+                </a>
+                <a data-toggle="tooltip" data-placement="top" title="FullScreen">
+                    <span class="glyphicon glyphicon-fullscreen" aria-hidden="true"></span>
+                </a>
+                <a data-toggle="tooltip" data-placement="top" title="Lock">
+                    <span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
+                </a>
+                <a data-toggle="tooltip" data-placement="top" title="Logout">
+                    <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
+                </a>
+            </div>
+            <!-- /menu footer buttons -->
+        </div>
+    </div>
+</body>
+</html>
