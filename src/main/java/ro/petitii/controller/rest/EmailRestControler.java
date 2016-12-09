@@ -28,4 +28,17 @@ public class EmailRestControler {
         response.setDraw(sequenceNo);
         return response;
     }
+
+    @RequestMapping(value = "/rest/spam", method = RequestMethod.POST)
+    @ResponseBody
+    RestEmailResponse getSpam(@Valid DataTablesInput input) {
+        int sequenceNo = input.getDraw();
+        String sortColumn = input.getColumns().get(input.getOrder().get(0).getColumn()).getName();
+        Sort.Direction sortDirection = null;
+        if (input.getOrder().get(0).getDir().equals("asc")) sortDirection = Sort.Direction.ASC;
+        else if (input.getOrder().get(0).getDir().equals("desc")) sortDirection = Sort.Direction.DESC;
+        RestEmailResponse response = emailService.getTableContent(Email.EmailType.Spam, input.getStart(), input.getLength(), sortDirection, sortColumn);
+        response.setDraw(sequenceNo);
+        return response;
+    }
 }
