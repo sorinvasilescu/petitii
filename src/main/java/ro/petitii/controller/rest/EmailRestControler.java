@@ -72,6 +72,6 @@ public class EmailRestControler {
         } else {
             result.put("success", "false");
         }
-        return null;
+        return result;
     }
 }

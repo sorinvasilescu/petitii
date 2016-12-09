@@ -108,8 +108,9 @@
 
 <!-- Datatables -->
 <script>
+    var emailTable;
     $(document).ready(function () {
-        $('#datatable-responsive').DataTable({
+        emailTable = $('#datatable-responsive').DataTable({
             processing: true,
             serverSide: true,
             sDom: 'lrtip ',
@@ -171,19 +172,20 @@
     });
     
     function refreshMail(e) {
-        console.log('refreshing inbox');
+        //console.log('refreshing inbox');
         $(e.target).attr('data-loading-text','<i class="fa fa-circle-o-notch fa-spin"></i> Se incarca');
         $(e.target).button('loading');
         $.ajax({
             url: "/rest/refresh",
             method: 'post',
         }).done(function(data) {
-            console.log('success');
-            console.log(data);
-            location.reload();
+            //console.log('success');
+            if (data.success == 'true') {
+                emailTable.ajax.reload();
+            }
             $(e.target).button('reset');
         }).fail(function() {
-            console.log('failed');
+            //console.log('failed');
             $(e.target).button('reset');
         });
     }
