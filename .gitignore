@@ -2,3 +2,6 @@
 target/
 .mvn/
 *.iml
+.classpath
+.project
+.settings/
