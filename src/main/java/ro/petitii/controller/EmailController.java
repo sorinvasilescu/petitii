@@ -8,7 +8,7 @@ import org.springframework.web.servlet.ModelAndView;
 import ro.petitii.config.ImapConfig;
 
 @Controller
-public class EmailController {
+public class EmailController extends ControllerBase{
     
     @Autowired
     ImapConfig config;
@@ -20,6 +20,8 @@ public class EmailController {
         modelAndView.addObject("title","Email-uri primite");
         modelAndView.addObject("email", config.getUsername());
         modelAndView.addObject("restUrl","/rest/emails");
+        //modelAndView.addObject("toast",this.createToast("Lorem ipsum sit amet dolor",ToastType.info));
+
         return modelAndView;
     }
 

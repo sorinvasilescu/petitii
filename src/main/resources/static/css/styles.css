@@ -21,10 +21,17 @@
 }
 
 .page-title-petitions {
-    margin-top: 70px;
     margin-bottom: -5px;
 }
 
 .align-right {
 	text-align: right;
+}
+
+div.right_col {
+    padding-top: 70px !important;
+}
+
+.alert {
+    width: auto;
 }
