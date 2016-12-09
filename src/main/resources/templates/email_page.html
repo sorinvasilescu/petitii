@@ -128,9 +128,14 @@
                     title: 'Data'
                 },
                 {
-                    name: 'status',
-                    data: 'status',
-                    title: 'Status'
+                    name: 'petition_id',
+                    data: 'petition_id',
+                    title: 'Petitie',
+                    render: function (data,type,full,meta) {
+                        if (data!=null) return '<a href="#">Vezi petitie</a>';
+                        else return '';
+                    },
+                    sortable: false
                 },
                 {
                     data: null,

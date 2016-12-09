@@ -4,7 +4,7 @@ public class RestEmailResponseElement {
     private String sender;
     private String subject;
     private String date;
-    private String status;
+    private Long petition_id;
 
     public RestEmailResponseElement() {}
 
@@ -32,11 +32,11 @@ public class RestEmailResponseElement {
         this.date = date;
     }
 
-    public String getStatus() {
-        return status;
+    public Long getPetition_id() {
+        return petition_id;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setPetition_id(Long petition_id) {
+        this.petition_id = petition_id;
     }
 }

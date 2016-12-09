@@ -81,7 +81,7 @@ public class EmailServiceImpl implements EmailService {
             re.setSender(e.getSender());
             re.setSubject(e.getSubject());
             re.setDate(df.format(e.getDate()));
-            re.setStatus("status");
+            if (e.getPetition()!=null) re.setPetition_id(e.getPetition().getId());
             data.add(re);
         }
         RestEmailResponse response = new RestEmailResponse();
