@@ -13,10 +13,12 @@
 
         <!-- page content -->
         <div class="right_col" role="main">
-            <div class="">
-                <h2>Email-uri primite
-                    <small style="margin-left: 1.5vh;">adresa@mail.com</small>
+            <div class="page-title-petitions">
+                <h2>
+                    <span th:text="${title}">Email-uri primite</span>
+                    <small style="margin-left: 1.5vh;" th:text="${email}">adresa@mail.com</small>
                 </h2>
+                <!--
                 <ul class="nav navbar-right panel_toolbox">
                     <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                     </li>
@@ -33,6 +35,7 @@
                     <li><a class="close-link"><i class="fa fa-close"></i></a>
                     </li>
                 </ul>
+                -->
                 <div class="clearfix"></div>
             </div>
             <div class="x_content">
@@ -93,15 +96,23 @@
 
 <div th:replace="main_head::includes"></div>
 
+<!-- Variables from backend -->
+<script th:inline="javascript">
+/*<![CDATA[*/
+    var restUrl = /*[[${restUrl}]]*/ '/rest/emails';
+/*]]>*/
+</script>
+
 <!-- Datatables -->
 <script>
     $(document).ready(function () {
         $('#datatable-responsive').DataTable({
             processing: true,
             serverSide: true,
+            sDom: 'lrtip ',
             order: [[ 3, 'desc']],
             ajax: {
-                url: '/rest/emails',
+                url: restUrl,
                 type: 'POST'
             },
             columns: [
