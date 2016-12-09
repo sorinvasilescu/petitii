@@ -9,8 +9,8 @@ spring:
     password: petitions
     driver-class-name: com.mysql.jdbc.Driver
   jpa.hibernate.ddl-auto: none
-  jpa:
-    show-sql: true
+  #jpa:
+    #show-sql: true
 
 #logging.level.org.springframework.web: DEBUG
 #logging.level.org.hibernate: DEBUG

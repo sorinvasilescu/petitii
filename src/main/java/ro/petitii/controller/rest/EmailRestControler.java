@@ -7,7 +7,13 @@ import org.springframework.web.bind.annotation.*;
 import ro.petitii.model.Email;
 import ro.petitii.model.rest.RestEmailResponse;
 import ro.petitii.service.EmailService;
+import ro.petitii.service.email.ImapService;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.mail.MessagingException;
 import javax.validation.Valid;
 
 @RestController
@@ -15,6 +21,9 @@ public class EmailRestControler {
 
     @Autowired
     EmailService emailService;
+    
+    @Autowired
+    ImapService imapService;
 
     @RequestMapping(value = "/rest/emails", method = RequestMethod.POST)
     @ResponseBody
@@ -40,5 +49,29 @@ public class EmailRestControler {
         RestEmailResponse response = emailService.getTableContent(Email.EmailType.Spam, input.getStart(), input.getLength(), sortDirection, sortColumn);
         response.setDraw(sequenceNo);
         return response;
+    }
+    
+    @RequestMapping("/rest/refresh")
+    @ResponseBody
+    public Map<String,String> inboxRefresh() {
+        Map<String,String> result = new HashMap<String, String>();
+        try {
+            imapService.getMail();
+        } catch (IOException e) {
+            result.put("error", e.getClass().getName());
+            result.put("errorMsg", e.getMessage());
+        } catch (MessagingException e) {
+            result.put("error", e.getClass().getName());
+            result.put("errorMsg", e.getMessage());
+        } catch (Exception e) {
+            result.put("error", e.getClass().getName());
+            result.put("errorMsg", e.getMessage());
+        }
+        if (!result.containsKey("error")) {
+            result.put("success", "true");
+        } else {
+            result.put("success", "false");
+        }
+        return null;
     }
 }

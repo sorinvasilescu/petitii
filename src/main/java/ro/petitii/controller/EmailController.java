@@ -16,6 +16,7 @@ public class EmailController {
     @RequestMapping("/inbox")
     public ModelAndView inbox() {
         ModelAndView modelAndView = new ModelAndView("email_page");
+        modelAndView.addObject("page","inbox");
         modelAndView.addObject("title","Email-uri primite");
         modelAndView.addObject("email", config.getUsername());
         modelAndView.addObject("restUrl","/rest/emails");
@@ -25,9 +26,11 @@ public class EmailController {
     @RequestMapping("/spam")
     public ModelAndView spam() {
         ModelAndView modelAndView = new ModelAndView("email_page");
+        modelAndView.addObject("page","spam");
         modelAndView.addObject("title","Spam");
         modelAndView.addObject("email", config.getUsername());
         modelAndView.addObject("restUrl","/rest/spam");
         return modelAndView;
     }
+    
 }

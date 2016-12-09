@@ -22,12 +22,6 @@ public class MainController implements ErrorController {
         return "redirect:/inbox";
     }
 
-    @RequestMapping("/mailtest")
-    public String maintest() {
-        imapService.getMail();
-        return "index";
-    }
-
     @RequestMapping("/login")
     public String login() {
         return "login";

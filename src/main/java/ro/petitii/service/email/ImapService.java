@@ -32,7 +32,7 @@ public class ImapService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ImapService.class);
     private final static String protocol = "imap";
 
-    public void getMail() {
+    public synchronized void getMail() throws IOException, MessagingException {
         // open session
         Session session = Session.getInstance(getServerProperties());
         Folder folder = null;
@@ -71,8 +71,10 @@ public class ImapService {
             }
         } catch (NoSuchProviderException e) {
             LOGGER.error("No such provider: " + e.getMessage());
+            throw e;
         } catch (MessagingException e) {
             LOGGER.error("Messaging exception:" + e.getMessage());
+            throw e;
         } finally {
             if (folder!=null)
                 try { folder.close(false); }
@@ -82,7 +84,7 @@ public class ImapService {
         }
     }
 
-    private void saveMessage(Message msg, long uid) throws MessagingException {
+    private void saveMessage(Message msg, long uid) throws MessagingException, IOException {
         Address[] fromAddress = msg.getFrom();
         String from = fromAddress[0].toString();
         String subject = msg.getSubject();
@@ -111,6 +113,7 @@ public class ImapService {
             }
         } catch (IOException e) {
             LOGGER.error("Could not get message content");
+            throw e;
         }
 
         Email email = new Email();

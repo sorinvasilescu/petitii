@@ -39,6 +39,9 @@
                 <div class="clearfix"></div>
             </div>
             <div class="x_content">
+                <div th:if="${page=='inbox'}" class="align-right">
+                    <button type="submit" id="get-mail" class="btn btn-info">Get Email</button>
+                </div>
                 <table id="datatable-responsive" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
                     <!--
                     <thead>
@@ -160,5 +163,30 @@
     });
 </script>
 <!-- /Datatables -->
+
+<!-- Other actions -->
+<script  th:if="${page=='inbox'}" type="text/javascript">
+    $(document).ready(function(){
+        $('#get-mail').click(refreshMail);
+    });
+    
+    function refreshMail(e) {
+        console.log('refreshing inbox');
+        $(e.target).attr('data-loading-text','<i class="fa fa-circle-o-notch fa-spin"></i> Se incarca');
+        $(e.target).button('loading');
+        $.ajax({
+            url: "/rest/refresh",
+            method: 'post',
+        }).done(function(data) {
+            console.log('success');
+            console.log(data);
+            location.reload();
+            $(e.target).button('reset');
+        }).fail(function() {
+            console.log('failed');
+            $(e.target).button('reset');
+        });
+    }
+</script>
 </body>
 </html>
