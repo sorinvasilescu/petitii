@@ -10,6 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.Collection;
 
 @Entity
 @Table(name = "Users")
@@ -36,6 +37,9 @@ public class User {
     @NotEmpty
     @JsonView(DataTablesOutput.View.class)
     private String role;
+
+    @OneToMany
+    private Collection<Petition> petition;
 
     public User() {}
 

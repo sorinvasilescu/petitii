@@ -4,10 +4,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-public class PetitionsController {
+public class ListaContacteController {
 
-    @RequestMapping("/petitii")
-    public String petitii() {
-        return "petitii_page";
+    @RequestMapping("/contacte")
+    public String listContacts() {
+        return "listacontacte_page";
     }
 }

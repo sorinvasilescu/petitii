@@ -11,7 +11,7 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 -- -----------------------------------------------------
 -- Table `petitions`.`Registration_numbers`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `petitions`.`Registration_numbers` (
+CREATE TABLE IF NOT EXISTS `petitions`.`registration_numbers` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `number` VARCHAR(32) NOT NULL,
   `date` DATE NOT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `petitions`.`Registration_numbers` (
 -- -----------------------------------------------------
 -- Table `petitions`.`Petitioners`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `petitions`.`Petitioners` (
+CREATE TABLE IF NOT EXISTS `petitions`.`petitioners` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `first_name` VARCHAR(64) NULL,
   `last_name` VARCHAR(64) NULL,
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS `petitions`.`Petitioners` (
 -- -----------------------------------------------------
 -- Table `petitions`.`Users`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `petitions`.`Users` (
+CREATE TABLE IF NOT EXISTS `petitions`.`users` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `email` VARCHAR(128) NOT NULL,
   `password` BINARY(60) NOT NULL,
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS `petitions`.`Users` (
 -- -----------------------------------------------------
 -- Table `petitions`.`Petitions`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `petitions`.`Petitions` (
+CREATE TABLE IF NOT EXISTS `petitions`.`petitions` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `registration_no` INT UNSIGNED NOT NULL,
   `received_date` DATE NOT NULL,
@@ -78,17 +78,17 @@ CREATE TABLE IF NOT EXISTS `petitions`.`Petitions` (
   UNIQUE INDEX `id_UNIQUE` (`id` ASC),
   CONSTRAINT `reg_no`
   FOREIGN KEY (`registration_no`)
-  REFERENCES `petitions`.`Registration_numbers` (`id`)
+  REFERENCES `petitions`.`registration_numbers` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `petitioner`
   FOREIGN KEY (`petitioner_id`)
-  REFERENCES `petitions`.`Petitioners` (`id`)
+  REFERENCES `petitions`.`petitioners` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `responsible`
   FOREIGN KEY (`responsible_id`)
-  REFERENCES `petitions`.`Users` (`id`)
+  REFERENCES `petitions`.`users` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;
@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS `petitions`.`Petitions` (
 -- -----------------------------------------------------
 -- Table `petitions`.`Petition_status`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `petitions`.`Petition_status` (
+CREATE TABLE IF NOT EXISTS `petitions`.`petition_status` (
   `id_petition` INT UNSIGNED NOT NULL,
   `status` VARCHAR(16) NOT NULL,
   `date` TIMESTAMP NULL,
@@ -106,12 +106,12 @@ CREATE TABLE IF NOT EXISTS `petitions`.`Petition_status` (
   INDEX `user_idx` (`user_id` ASC),
   CONSTRAINT `petition`
   FOREIGN KEY (`id_petition`)
-  REFERENCES `petitions`.`Petitions` (`id`)
+  REFERENCES `petitions`.`petitions` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `user`
   FOREIGN KEY (`user_id`)
-  REFERENCES `petitions`.`Users` (`id`)
+  REFERENCES `petitions`.`users` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;
@@ -120,7 +120,7 @@ CREATE TABLE IF NOT EXISTS `petitions`.`Petition_status` (
 -- -----------------------------------------------------
 -- Table `petitions`.`Connections`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `petitions`.`Connections` (
+CREATE TABLE IF NOT EXISTS `petitions`.`connections` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `old_petition_id` INT UNSIGNED NOT NULL,
   `new_petition_id` INT UNSIGNED NOT NULL,
@@ -130,12 +130,12 @@ CREATE TABLE IF NOT EXISTS `petitions`.`Connections` (
   UNIQUE INDEX `id_UNIQUE` (`id` ASC),
   CONSTRAINT `old_petition`
   FOREIGN KEY (`old_petition_id`)
-  REFERENCES `petitions`.`Petitions` (`id`)
+  REFERENCES `petitions`.`petitions` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `new_petition`
   FOREIGN KEY (`new_petition_id`)
-  REFERENCES `petitions`.`Petitions` (`id`)
+  REFERENCES `petitions`.`petitions` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;
@@ -144,7 +144,7 @@ CREATE TABLE IF NOT EXISTS `petitions`.`Connections` (
 -- -----------------------------------------------------
 -- Table `petitions`.`Petition_attachments`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `petitions`.`Petition_attachments` (
+CREATE TABLE IF NOT EXISTS `petitions`.`petition_attachments` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `petition_id` INT UNSIGNED NULL,
   `original_filename` VARCHAR(255) NULL,
@@ -155,7 +155,7 @@ CREATE TABLE IF NOT EXISTS `petitions`.`Petition_attachments` (
   UNIQUE INDEX `id_UNIQUE` (`id` ASC),
   CONSTRAINT `attach_petition`
   FOREIGN KEY (`petition_id`)
-  REFERENCES `petitions`.`Petitions` (`id`)
+  REFERENCES `petitions`.`petitions` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;
@@ -164,7 +164,7 @@ CREATE TABLE IF NOT EXISTS `petitions`.`Petition_attachments` (
 -- -----------------------------------------------------
 -- Table `petitions`.`Comments`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `petitions`.`Comments` (
+CREATE TABLE IF NOT EXISTS `petitions`.`comments` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `petition_id` INT UNSIGNED NOT NULL,
   `comment` TEXT NOT NULL,
@@ -176,12 +176,12 @@ CREATE TABLE IF NOT EXISTS `petitions`.`Comments` (
   UNIQUE INDEX `id_UNIQUE` (`id` ASC),
   CONSTRAINT `comm_user`
   FOREIGN KEY (`user_id`)
-  REFERENCES `petitions`.`Users` (`id`)
+  REFERENCES `petitions`.`users` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `comm_petition`
   FOREIGN KEY (`petition_id`)
-  REFERENCES `petitions`.`Petitions` (`id`)
+  REFERENCES `petitions`.`petitions` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;
@@ -190,7 +190,7 @@ CREATE TABLE IF NOT EXISTS `petitions`.`Comments` (
 -- -----------------------------------------------------
 -- Table `petitions`.`Email`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `petitions`.`Emails` (
+CREATE TABLE IF NOT EXISTS `petitions`.`emails` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `uid` BIGINT UNSIGNED,
   `sender` VARCHAR(128) NULL,
@@ -208,7 +208,7 @@ CREATE TABLE IF NOT EXISTS `petitions`.`Emails` (
   INDEX `email_petition_idx` (`petition_id` ASC),
   CONSTRAINT `email_petition`
   FOREIGN KEY (`petition_id`)
-  REFERENCES `petitions`.`Petitions` (`id`)
+  REFERENCES `petitions`.`petitions` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;
@@ -217,7 +217,7 @@ CREATE TABLE IF NOT EXISTS `petitions`.`Emails` (
 -- -----------------------------------------------------
 -- Table `petitions`.`Email_attachments`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `petitions`.`Email_attachments` (
+CREATE TABLE IF NOT EXISTS `petitions`.`email_attachments` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `email_id` INT UNSIGNED NOT NULL,
   `original_filename` VARCHAR(255) NULL,
@@ -228,7 +228,7 @@ CREATE TABLE IF NOT EXISTS `petitions`.`Email_attachments` (
   INDEX `email_idx` (`email_id` ASC),
   CONSTRAINT `email`
   FOREIGN KEY (`email_id`)
-  REFERENCES `petitions`.`Emails` (`id`)
+  REFERENCES `petitions`.`emails` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;
@@ -237,7 +237,7 @@ CREATE TABLE IF NOT EXISTS `petitions`.`Email_attachments` (
 -- -----------------------------------------------------
 -- Table `petitions`.`Contacts`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `petitions`.`Contacts` (
+CREATE TABLE IF NOT EXISTS `petitions`.`contacts` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NULL,
   `email` VARCHAR(128) NULL,
