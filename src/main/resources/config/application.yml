@@ -5,8 +5,8 @@ spring:
     cache: false
   datasource:
     url: jdbc:mysql://localhost/petitions
-    username: root
-    password: ursus3
+    username: petitions
+    password: petitions
     driver-class-name: com.mysql.jdbc.Driver
   jpa.hibernate.ddl-auto: none
   #jpa:
