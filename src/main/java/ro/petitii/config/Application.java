@@ -8,8 +8,7 @@ import org.springframework.data.jpa.datatables.repository.DataTablesRepositoryFa
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication(scanBasePackages="ro.petitii")
-@EnableJpaRepositories(basePackages = {"ro.petitii"})
-
+@EnableJpaRepositories(basePackages = {"ro.petitii"},repositoryFactoryBeanClass = DataTablesRepositoryFactoryBean.class)
 @EntityScan(basePackages = {"ro.petitii"})
 public class Application {
     
