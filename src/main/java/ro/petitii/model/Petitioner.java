@@ -3,8 +3,10 @@ package ro.petitii.model;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
 @Entity
+@Table(name = "petitioners")
 public class Petitioner {
     @Id
     long id;

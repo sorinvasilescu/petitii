@@ -1,12 +1,21 @@
 package ro.petitii.model.rest;
 
 public class RestEmailResponseElement {
+    private Long id;
     private String sender;
     private String subject;
     private String date;
     private Long petition_id;
 
     public RestEmailResponseElement() {}
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getSender() {
         return sender;

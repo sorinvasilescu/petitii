@@ -5,9 +5,8 @@ import java.util.Collection;
 import java.util.Date;
 
 @Entity
-@Table(name = "Emails")
+@Table(name = "emails")
 public class Email {
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;

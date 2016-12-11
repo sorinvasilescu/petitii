@@ -15,7 +15,8 @@
         <div class="right_col" role="main">
             <!-- alert -->
             <div id="alert" class="alert alert-dismissible hidden" role="alert">
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
                 <span id="alert-content"></span>
             </div>
             <!-- end alert -->
@@ -46,9 +47,12 @@
             </div>
             <div class="x_content">
                 <div th:if="${page=='inbox'}" class="align-right">
-                    <button type="submit" id="get-mail" class="btn btn-info"><span class="glyphicon glyphicon-envelope"></span> Get Email</button>
+                    <button type="submit" id="get-mail" class="btn btn-info"><span
+                            class="glyphicon glyphicon-envelope"></span> Get Email
+                    </button>
                 </div>
-                <table id="datatable-responsive" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+                <table id="datatable-responsive" class="table table-striped table-bordered dt-responsive nowrap"
+                       cellspacing="0" width="100%">
                     <!--
                     <thead>
                     <tr>
@@ -107,10 +111,10 @@
 
 <!-- Variables from backend -->
 <script th:inline="javascript">
-/*<![CDATA[*/
+    /*<![CDATA[*/
     var restUrl = /*[[${restUrl}]]*/ '/rest/emails';
     var toastContent = /*[[${toast}]]*/ null;
-/*]]>*/
+    /*]]>*/
 </script>
 
 <!-- Datatables -->
@@ -121,7 +125,7 @@
             processing: true,
             serverSide: true,
             sDom: 'lrtip ',
-            order: [[ 3, 'desc']],
+            order: [[3, 'desc']],
             ajax: {
                 url: restUrl,
                 type: 'POST'
@@ -129,7 +133,7 @@
             columns: [
                 {
                     data: null,
-                    render: function (data,type,full,meta) {
+                    render: function (data, type, full, meta) {
                         return '<input type="checkbox"/>';
                     },
                     sortable: false
@@ -153,16 +157,20 @@
                     name: 'petition_id',
                     data: 'petition_id',
                     title: 'Petitie',
-                    render: function (data,type,full,meta) {
-                        if (data!=null) return '<a href="#">Vezi petitie</a>';
+                    render: function (data, type, full, meta) {
+                        if (data != null) return '<a href="#">Vezi petitie</a>';
                         else return '';
                     },
                     sortable: false
                 },
                 {
                     data: null,
-                    render: function (data,type,full,meta) {
-                        return 'Detalii';
+                    render: function (data, type, full, meta) {
+                        if (data != null) {
+                            return '<a href="/emailDetails?id=' + data.id + '">Detalii</a>';
+                        } else {
+                            return '';
+                        }
                     },
                     sortable: false
                 }
@@ -174,38 +182,37 @@
 
 <!-- Toast -->
 <script th:inline="javascript">
-/*<![CDATA[*/
-    console.log(toastContent);
-    if (toastContent!=null) {
+    /*<![CDATA[*/
+    if (toastContent != null) {
         $('#alert')
             .removeClass('hidden')
             .addClass(toastContent.type)
             .children('#alert-content').text(toastContent.message);
     }
-/*]]>*/
+    /*]]>*/
 </script>
 <!-- /Toast -->
 
 <!-- Other actions -->
-<script  th:if="${page=='inbox'}" type="text/javascript">
-    $(document).ready(function(){
+<script th:if="${page=='inbox'}" type="text/javascript">
+    $(document).ready(function () {
         $('#get-mail').click(refreshMail);
     });
-    
+
     function refreshMail(e) {
         //console.log('refreshing inbox');
-        $(e.target).attr('data-loading-text','<i class="fa fa-circle-o-notch fa-spin"></i> Se incarca');
+        $(e.target).attr('data-loading-text', '<i class="fa fa-circle-o-notch fa-spin"></i> Se incarca');
         $(e.target).button('loading');
         $.ajax({
             url: "/rest/refresh",
             method: 'post',
-        }).done(function(data) {
+        }).done(function (data) {
             //console.log('success');
             if (data.success == 'true') {
                 emailTable.ajax.reload();
             }
             $(e.target).button('reset');
-        }).fail(function() {
+        }).fail(function () {
             //console.log('failed');
             $(e.target).button('reset');
         });

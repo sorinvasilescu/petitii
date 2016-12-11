@@ -5,8 +5,8 @@ import java.util.Collection;
 import java.util.Date;
 
 @Entity
+@Table(name = "petitions")
 public class Petition {
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -25,11 +25,12 @@ public class Petition {
     private String origin;
     private String type;
     private String field;
+    @Column(name = "abstract")
     private String _abstract;
     private String description;
 
     @ManyToOne
-    @JoinColumn(name = "petition")
+    @JoinColumn(name = "responsible_id")
     private User responsible;
 
     @OneToMany(mappedBy = "petition")

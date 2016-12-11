@@ -4,7 +4,7 @@ import javax.mail.BodyPart;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "Email_attachments")
+@Table(name = "email_attachments")
 public class EmailAttachment {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

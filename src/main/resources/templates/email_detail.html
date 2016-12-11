@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="main_head::head"></head>
+
+<body class="nav-md">
+<div class="container body">
+    <div class="main_container">
+        <div class="col-md-3 left_col" th:substituteby="left::menu"></div>
+
+        <!-- top navigation -->
+        <div class="top_nav" th:substituteby="top::menu"></div>
+        <!-- /top navigation -->
+
+        <!-- page content -->
+        <div class="right_col" role="main">
+            <!-- alert -->
+            <div id="alert" class="alert alert-dismissible hidden" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <span id="alert-content"></span>
+            </div>
+            <!-- end alert -->
+            <div class="page-title-petitions">
+                <h2>
+                    <span th:text="${title}">Email-uri primite</span>
+                    <small style="margin-left: 1.5vh;" th:text="${email}">adresa@mail.com</small>
+                </h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <!--/*@thymesVar id="data" type="ro.petitii.model.Email"*/-->
+                <h4><b>Expeditor:</b> <span th:text="${data.sender}">Ceva interesant</span></h4>
+                <h4><b>Destinatar: </b><span th:text="${data.recipients}">Ceva interesant</span></h4>
+                <h4 th:if="${data.cc != null and data.cc.length() > 0}"><b>CC: </b><span th:text="${data.cc}">Ceva interesant</span></h4>
+                <h4 th:if="${data.bcc != null and data.bcc.length() > 0}"><b>BCC: </b><span th:text="${data.bcc}">Ceva interesant</span></h4>
+                <h4><b>Data recep&#x21b;ion&#x103;rii: </b><span th:text="${data.date}">Ceva interesant</span></h4>
+                <h4><b>Subiect: </b><span th:text="${data.subject}">Ceva interesant</span></h4>
+                <h4><b>Status: </b><!--/*@thymesVar id="status" type="java.lang.String"*/-->
+                    <span th:text="${status}">Ceva interesant</span></h4>
+                <br/>
+                <div class="align-right">
+                    <button type="submit" id="create-petition" class="btn btn-info"><span
+                            class="glyphicon glyphicon-plus"></span> Creeaz&#x103; peti&#x21b;ie
+                    </button>
+                    <button type="submit" id="mark-spam" class="btn btn-warning"><span
+                            class="glyphicon glyphicon-trash"></span> Marcheaz&#x103; ca spam
+                    </button>
+                </div>
+                <br/>
+                <span th:utext="${data.body}"></span>
+            </div>
+        </div>
+        <!-- /page content -->
+
+        <!-- footer content -->
+        <footer>
+            <div class="pull-right">
+                Gentelella - Bootstrap Admin Template by <a href="https://colorlib.com">Colorlib</a>
+            </div>
+            <div class="clearfix"></div>
+        </footer>
+        <!-- /footer content -->
+    </div>
+</div>
+
+<div th:replace="main_head::includes"></div>
+
+<!-- Variables from backend -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var restUrl = /*[[${restUrl}]]*/ '/rest/emails';
+    var toastContent = /*[[${toast}]]*/ null;
+    /*]]>*/
+</script>
+
+<!-- Toast -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    console.log(toastContent);
+    if (toastContent != null) {
+        $('#alert')
+            .removeClass('hidden')
+            .addClass(toastContent.type)
+            .children('#alert-content').text(toastContent.message);
+    }
+    /*]]>*/
+</script>
+<!-- /Toast -->
+</body>
+</html>
