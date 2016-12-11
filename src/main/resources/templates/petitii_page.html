@@ -29,9 +29,9 @@
                 </div>
                 <div class="col-md-6 col-sm-6 col-xs-12">
                 	  <div class="buttons pull-right">
-                	  	<button type="button" class="btn btn-default btn-sm" th:text="${claseaza}">Claseaza</button>
-                	  	<button type="button" class="btn btn-default btn-sm" th:text="${rezolva}">Rezolva</button>
-                	  	<button type="button" class="btn btn-default btn-sm" th:text="${redirectioneaza}">Redirectioneaza</button>
+                	  	<button type="button" class="btn btn-default btn-sm"><i class="fa fa-file-text"></i> <span th:text="${claseaza}">Claseaza</span></button>
+                	  	<button type="button" class="btn btn-default btn-sm"><i class="fa fa-check-square-o"></i> <span th:text="${rezolva}">Rezolva</span></button>
+                	  	<button type="button" class="btn btn-default btn-sm"><i class="fa fa-mail-forward"></i> <span th:text="${redirectioneaza}">Redirectioneaza</span></button>
                 	  </div>
                 </div>
                 <ul class="nav navbar-right panel_toolbox">
@@ -57,6 +57,7 @@
                        cellspacing="0" width="100%">
                     <thead>
                     <tr>
+                    	<th><input type="checkbox"/></th>
                         <th>Numar inregistrare</th>
                         <th>Nume petent</th>
                         <th>E-mail petent</th>
@@ -66,6 +67,7 @@
                     </thead>
                     <tbody>
                     <tr>
+                    	<td><input type="checkbox"/></td>
                         <td>48293</td>
                         <td>Tudor Nixon</td>
                         <td>t.nixon@datatables.net</td>
@@ -73,6 +75,7 @@
                         <td>Solutionata</td>
                     </tr>
                     <tr>
+                    	<td><input type="checkbox"/></td>
                         <td>49521</td>
                         <td>George Winters</td>
                         <td>g.winters@datatables.net</td>
@@ -80,6 +83,7 @@
                         <td>Pending</td>
                     </tr>
                     <tr>
+                    	<td><input type="checkbox"/></td>
                         <td>43131</td>
                         <td>Alex Cox</td>
                         <td>a.cox@datatables.net</td>
