@@ -11,14 +11,16 @@ public class Petition {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    // todo relation with registration number table
-    private Long regNo;
+    @OneToOne
+    @JoinColumn(name = "registration_no")
+    private RegistrationNo regNo;
 
     private Date receivedDate;
     private String relation;
 
-    // todo relation with petitioner table
-    private Long petitioner;
+    @OneToOne
+    @JoinColumn(name = "petitioner_id")
+    private Petitioner petitioner;
 
     private String origin;
     private String type;
@@ -26,8 +28,9 @@ public class Petition {
     private String _abstract;
     private String description;
 
-    // todo relation with users table
-    private Long responsible;
+    @ManyToOne
+    @JoinColumn(name = "petition")
+    private User responsible;
 
     @OneToMany(mappedBy = "petition")
     private Collection<Email> emails;
@@ -98,5 +101,21 @@ public class Petition {
 
     public void setEmails(Collection<Email> emails) {
         this.emails = emails;
+    }
+
+    public RegistrationNo getRegNo() {
+        return regNo;
+    }
+
+    public void setRegNo(RegistrationNo regNo) {
+        this.regNo = regNo;
+    }
+
+    public Petitioner getPetitioner() {
+        return petitioner;
+    }
+
+    public void setPetitioner(Petitioner petitioner) {
+        this.petitioner = petitioner;
     }
 }

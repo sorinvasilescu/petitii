@@ -4,6 +4,7 @@ import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
+import java.util.Collection;
 
 @Entity
 @Table(name = "Users")
@@ -25,6 +26,9 @@ public class User {
 
     @NotEmpty
     private String role;
+
+    @OneToMany
+    private Collection<Petition> petition;
 
     public User() {}
 
