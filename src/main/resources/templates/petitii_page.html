@@ -15,6 +15,25 @@
         <div class="right_col" role="main">
             <div class="">
                 <h2>Petitiile mele</h2>
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    <div class="radio">
+                     <label>
+                       <input type="radio" class="flat" checked name="petitiiInLucru" th:text="${petitiiInLucru}"> Petitii in lucru
+                     </label>
+                   </div>
+                   <div class="radio">
+                     <label>
+                       <input type="radio" class="flat" name="toatePetitiile" th:text="${toatePetitiile}"> Toate
+                     </label>
+                   </div>
+                </div>
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                	  <div class="buttons pull-right">
+                	  	<button type="button" class="btn btn-default btn-sm" th:text="${claseaza}">Claseaza</button>
+                	  	<button type="button" class="btn btn-default btn-sm" th:text="${rezolva}">Rezolva</button>
+                	  	<button type="button" class="btn btn-default btn-sm" th:text="${redirectioneaza}">Redirectioneaza</button>
+                	  </div>
+                </div>
                 <ul class="nav navbar-right panel_toolbox">
                     <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                     </li>
