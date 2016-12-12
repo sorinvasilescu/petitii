@@ -35,3 +35,18 @@ div.right_col {
 .alert {
     width: auto;
 }
+.form-control{
+    border-radius: 0 !important;
+}
+/*--daca este inclus css custom de la tema aceasta customizare nu mai este necesara*/
+.select2-selection--single
+{
+    border-radius: 0 !important;
+    min-height:34px !important;
+    border:1px solid #ccc !important;
+
+}
+.select2-selection__rendered
+{
+   /* line-height: 20px !important;*/
+}
