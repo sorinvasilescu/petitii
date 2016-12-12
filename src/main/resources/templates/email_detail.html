@@ -1,57 +1,124 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head th:replace="main_head::head"></head>
 
 <body class="nav-md">
-<div class="container body">
-    <div class="main_container">
-        <div class="col-md-3 left_col" th:substituteby="left::menu"></div>
-
-        <!-- top navigation -->
-        <div class="top_nav" th:substituteby="top::menu"></div>
-        <!-- /top navigation -->
-
-        <!-- page content -->
-        <div class="right_col" role="main">
-            <!-- alert -->
-            <div id="alert" class="alert alert-dismissible hidden" role="alert">
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
-                        aria-hidden="true">&times;</span></button>
-                <span id="alert-content"></span>
-            </div>
-            <!-- end alert -->
-            <div class="page-title-petitions">
-                <h2>
+    <div class="container body">
+        <div class="main_container">
+            <div class="col-md-3 left_col" th:substituteby="left::menu"></div>
+            <!-- top navigation -->
+            <div class="top_nav" th:substituteby="top::menu"></div>
+            <!-- /top navigation -->
+            <!-- page content -->
+            <div class="right_col" role="main">
+                <!-- alert -->
+                <div id="alert" class="alert alert-dismissible hidden" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <span id="alert-content"></span>
+                </div>
+                <!-- end alert -->
+                <div class="page-title-petitions">
+                    <h2>
                     <span th:text="${title}">Email-uri primite</span>
                     <small style="margin-left: 1.5vh;" th:text="${email}">adresa@mail.com</small>
                 </h2>
-                <div class="clearfix"></div>
-            </div>
-            <div class="x_content">
-                <!--/*@thymesVar id="data" type="ro.petitii.model.Email"*/-->
-                <h4><b>Expeditor:</b> <span th:text="${data.sender}">Ceva interesant</span></h4>
-                <h4><b>Destinatar: </b><span th:text="${data.recipients}">Ceva interesant</span></h4>
-                <h4 th:if="${data.cc != null and data.cc.length() > 0}"><b>CC: </b><span th:text="${data.cc}">Ceva interesant</span></h4>
-                <h4 th:if="${data.bcc != null and data.bcc.length() > 0}"><b>BCC: </b><span th:text="${data.bcc}">Ceva interesant</span></h4>
-                <h4><b>Data recep&#x21b;ion&#x103;rii: </b><span th:text="${data.date}">Ceva interesant</span></h4>
-                <h4><b>Subiect: </b><span th:text="${data.subject}">Ceva interesant</span></h4>
-                <h4><b>Status: </b><!--/*@thymesVar id="status" type="java.lang.String"*/-->
-                    <span th:text="${status}">Ceva interesant</span></h4>
-                <br/>
-                <div class="align-right">
-                    <button type="submit" id="create-petition" class="btn btn-info"><span
-                            class="glyphicon glyphicon-plus"></span> Creeaz&#x103; peti&#x21b;ie
-                    </button>
-                    <button type="submit" id="mark-spam" class="btn btn-warning"><span
-                            class="glyphicon glyphicon-trash"></span> Marcheaz&#x103; ca spam
-                    </button>
+                    <div class="clearfix"></div>
                 </div>
-                <br/>
-                <span th:utext="${data.body}"></span>
+                <div class="x_content">
+                    <div class="inbox-body">
+                        <div class="mail_heading row">
+                            <div class="col-md-8">
+                                <span>Acțiuni email selectat: </span>
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-default" type="button"><a href="#"><i class="fa fa-plus-square"></i> <span>Creeaz&#x103; peti&#x21b;ie</span></a></button>
+                                    <button class="btn btn-sm btn-default" type="button" data-placement="top" data-toggle="tooltip" data-original-title="Marcheaz&#x103; ca spam"><a href="#"><i class="fa fa-trash-o"></i></a></button>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-right">
+                                <p class="date"><span th:text="${data.date}">8:02 PM 12 FEB 2014</span></p>
+                            </div>
+                            <div class="col-md-12">
+                                <p>Status: <span th:text="${status}">Ceva interesant</span></p>
+                                <h4><span th:text="${data.subject}">Ceva interesant</span></h4>
+                            </div>
+                        </div>
+                        <div class="sender-info">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <strong></strong>
+                                    <span>(<span th:text="${data.sender}">Ceva interesant</span>)</span> to
+                                    <strong><span th:text="${data.recipients}">Ceva interesant</span></strong>
+                                    <a class="sender-dropdown"><i class="fa fa-chevron-down"></i></a>
+                                    <h6 th:if="${data.cc != null and data.cc.length() > 0}"><b>CC: </b><span th:text="${data.cc}">Ceva interesant</span></h6>
+                                    <h6 th:if="${data.bcc != null and data.bcc.length() > 0}"><b>BCC: </b><span th:text="${data.bcc}">Ceva interesant</span></h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="view-mail">
+                            <p><span th:utext="${data.body}"></span></p>
+                        </div>
+                        <div class="attachment">
+                            <p>
+                                <span><i class="fa fa-paperclip"></i> 3 attachments — </span>
+                                <a href="#">Download all attachments</a> |
+                                <a href="#">View all images</a>
+                            </p>
+                            <ul>
+                                <li>
+                                    <a href="#" class="atch-thumb">
+                                        <img src="https://colorlib.com/polygon/gentelella/images/1.png" alt="img" title="" style="" />
+                                    </a>
+                                    <div class="file-name">
+                                        image-name.jpg
+                                    </div>
+                                    <span>12KB</span>
+                                    <div class="links">
+                                        <a href="#">View</a> -
+                                        <a href="#">Download</a>
+                                    </div>
+                                </li>
+                                <li>
+                                    <a href="#" class="atch-thumb">
+                                        <img src="https://colorlib.com/polygon/gentelella/images/1.png" alt="img" title="" style="" />
+                                    </a>
+                                    <div class="file-name">
+                                        img_name.jpg
+                                    </div>
+                                    <span>40KB</span>
+                                    <div class="links">
+                                        <a href="#">View</a> -
+                                        <a href="#">Download</a>
+                                    </div>
+                                </li>
+                                <li>
+                                    <a href="#" class="atch-thumb">
+                                        <img src="https://colorlib.com/polygon/gentelella/images/1.png" alt="img" title="" style="" />
+                                    </a>
+                                    <div class="file-name">
+                                        img_name.jpg
+                                    </div>
+                                    <span>30KB</span>
+                                    <div class="links">
+                                        <a href="#">View</a> -
+                                        <a href="#">Download</a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <span>Acțiuni email selectat: </span>
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-default" type="button"><a href="#"><i class="fa fa-plus-square"></i> <span>Creează petiție</span></a></button>
+                                <button class="btn btn-sm btn-default" type="button" data-placement="top" data-toggle="tooltip" data-original-title="Marchează ca spam"><a href="#"><i class="fa fa-trash-o"></i></a></button>
+                            </div>
+                        </div>
+                    </div>
+                    <!--/*@thymesVar id="data" type="ro.petitii.model.Email"*/-->
+                </div>
             </div>
         </div>
         <!-- /page content -->
-
         <!-- footer content -->
         <footer>
             <div class="pull-right">
@@ -61,20 +128,16 @@
         </footer>
         <!-- /footer content -->
     </div>
-</div>
-
-<div th:replace="main_head::includes"></div>
-
-<!-- Variables from backend -->
-<script th:inline="javascript">
+    <div th:replace="main_head::includes"></div>
+    <!-- Variables from backend -->
+    <script th:inline="javascript">
     /*<![CDATA[*/
     var restUrl = /*[[${restUrl}]]*/ '/rest/emails';
     var toastContent = /*[[${toast}]]*/ null;
     /*]]>*/
-</script>
-
-<!-- Toast -->
-<script th:inline="javascript">
+    </script>
+    <!-- Toast -->
+    <script th:inline="javascript">
     /*<![CDATA[*/
     console.log(toastContent);
     if (toastContent != null) {
@@ -84,7 +147,8 @@
             .children('#alert-content').text(toastContent.message);
     }
     /*]]>*/
-</script>
-<!-- /Toast -->
+    </script>
+    <!-- /Toast -->
 </body>
+
 </html>
