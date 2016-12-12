@@ -1,9 +1,16 @@
 package ro.petitii.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import java.util.Collection;
 
 @Entity
@@ -12,19 +19,24 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @JsonView(DataTablesOutput.View.class)
     private Long id;
 
     @NotEmpty
     @Email
+    @JsonView(DataTablesOutput.View.class)
     private String email;
 
     @NotEmpty
     private String password;
 
+    @JsonView(DataTablesOutput.View.class)
     private String firstName;
+    @JsonView(DataTablesOutput.View.class)
     private String lastName;
 
     @NotEmpty
+    @JsonView(DataTablesOutput.View.class)
     private String role;
 
     @OneToMany
