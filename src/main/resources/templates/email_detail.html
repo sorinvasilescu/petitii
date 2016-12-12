@@ -60,49 +60,26 @@
                         </div>
                         <div class="attachment">
                             <p>
-                                <span><i class="fa fa-paperclip"></i> 3 attachments — </span>
-                                <a href="#">Download all attachments</a> |
-                                <a href="#">View all images</a>
+                                <span><i class="fa fa-paperclip"></i>
+                                    <span th:text="${data.attachments.size()}" th:remove="tag">title</span> ata&#x219;ament<span th:if="${data.attachments.size() > 1}" th:remove="tag">e</span>
+                                </span>
+                                <!--<span><i class="fa fa-paperclip"></i> 3 ata&#x219;ament(e) — </span>-->
+                                <!--<a href="#">Download all attachments</a> |-->
+                                <!--<a href="#">View all images</a>-->
                             </p>
-                            <ul>
+                            <ul th:each="attachment : ${data.attachments}">
                                 <li>
-                                    <a href="#" class="atch-thumb">
+                                    <a th:href="${attachment.filename}" href="#" class="atch-thumb">
                                         <img src="https://colorlib.com/polygon/gentelella/images/1.png" alt="img" title="" style="" />
                                     </a>
-                                    <div class="file-name">
+                                    <div class="file-name" th:text="${attachment.originalFilename}">
                                         image-name.jpg
                                     </div>
-                                    <span>12KB</span>
-                                    <div class="links">
-                                        <a href="#">View</a> -
-                                        <a href="#">Download</a>
-                                    </div>
-                                </li>
-                                <li>
-                                    <a href="#" class="atch-thumb">
-                                        <img src="https://colorlib.com/polygon/gentelella/images/1.png" alt="img" title="" style="" />
-                                    </a>
-                                    <div class="file-name">
-                                        img_name.jpg
-                                    </div>
-                                    <span>40KB</span>
-                                    <div class="links">
-                                        <a href="#">View</a> -
-                                        <a href="#">Download</a>
-                                    </div>
-                                </li>
-                                <li>
-                                    <a href="#" class="atch-thumb">
-                                        <img src="https://colorlib.com/polygon/gentelella/images/1.png" alt="img" title="" style="" />
-                                    </a>
-                                    <div class="file-name">
-                                        img_name.jpg
-                                    </div>
-                                    <span>30KB</span>
-                                    <div class="links">
-                                        <a href="#">View</a> -
-                                        <a href="#">Download</a>
-                                    </div>
+                                    <!--<span>12KB</span>-->
+                                    <!--<div class="links">-->
+                                        <!--<a href="#">View</a> - -->
+                                        <!--<a href="#">Download</a>-->
+                                    <!--</div>-->
                                 </li>
                             </ul>
                         </div>
