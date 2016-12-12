@@ -26,7 +26,7 @@ petitii:
     password: Q!W@E#R$T%Y^
     startDate: 06/12/2016
   emailAttachments:
-    path: E:\Work\idea\petitii\target\email_attachments
+    path: target/attachments
 ---
 spring:
   profiles: development
