@@ -4,7 +4,7 @@ spring:
   thymeleaf:
     cache: false
   datasource:
-    url: jdbc:mysql://localhost/petitions
+    url: jdbc:mysql://localhost/petitions?useUnicode=yes&characterEncoding=UTF-8
     username: petitions
     password: petitions
     driver-class-name: com.mysql.jdbc.Driver
