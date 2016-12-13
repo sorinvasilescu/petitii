@@ -61,24 +61,17 @@
                         <div class="attachment">
                             <p>
                                 <span><i class="fa fa-paperclip"></i>
-                                    <span th:text="${data.attachments.size()}" th:remove="tag">title</span> ata&#x219;ament<span th:if="${data.attachments.size() > 1}" th:remove="tag">e</span>
+                                    <span th:text="${data.attachments.size()}" th:remove="tag">title</span> ata&#x219;ament<span th:if="${data.attachments.size() != 1}" th:remove="tag">e</span>
                                 </span>
                                 <!--<span><i class="fa fa-paperclip"></i> 3 ata&#x219;ament(e) — </span>-->
                                 <!--<a href="#">Download all attachments</a> |-->
                                 <!--<a href="#">View all images</a>-->
                             </p>
-                            <ul th:each="attachment : ${data.attachments}">
-                                <li>
-                                    <a th:href="@{/download/__(${attachment.id})__}" href="#" class="atch-thumb">
-                                        <img src="https://colorlib.com/polygon/gentelella/images/1.png" alt="img" title="" style="" />
-                                        <div class="file-name" th:text="${attachment.originalFilename}">
-                                            image-name.jpg
-                                        </div>
-                                    <!--<span>12KB</span>-->
-                                    <!--<div class="links">-->
-                                        <!--<a href="#">View</a> - -->
-                                        <!--<a href="#">Download</a>-->
-                                    <!--</div>-->
+                            <ul>
+                                <li th:each="attachment : ${data.attachments}">
+                                    <a th:href="@{/download/__(${attachment.id})__}" href="#">
+                                        <i class="fa fa-paperclip"></i>
+                                        <span th:text="${attachment.originalFilename}" th:remove="tag">filename.jpg</span>
                                     </a>
                                 </li>
                             </ul>
