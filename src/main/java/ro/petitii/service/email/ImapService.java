@@ -1,6 +1,8 @@
 package ro.petitii.service.email;
 
 import com.sun.mail.util.BASE64DecoderStream;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,7 +114,7 @@ public class ImapService {
                         messageContent = parseAlternativeContent((Multipart) bodyPart.getContent());
                     } else if (messageContent == null) {
                         // do not override existing results
-                        messageContent = bodyPart.getContent().toString();
+                        messageContent = bodyPart.getContent();
                     }
                 }
             }
@@ -128,7 +130,11 @@ public class ImapService {
         email.setCc(ccList);
         email.setBcc(bccList);
         email.setSubject(subject);
-        email.setBody(messageContent.toString());
+        if (messageContent != null) {
+            // required to prevent image tracking and js injection in our UI
+            // if the sender did send something not parsed correctly, probably it is not important
+            email.setBody(Jsoup.clean(messageContent.toString(), Whitelist.basicWithImages()));
+        }
         email.setDate(sentDate);
         email.setSize((float) (msg.getSize()));
         email.setAttachments(attachments);

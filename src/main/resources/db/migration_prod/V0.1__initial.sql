@@ -8,7 +8,7 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 -- Schema petitions
 -- -----------------------------------------------------
 
--- CREATE DATABASE petitions CHARACTER SET = utf8mb4 COLLATE utf8mb4_unicode_ci;
+ALTER DATABASE petitions CHARACTER SET = utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------
 -- Table `petitions`.`Registration_numbers`
