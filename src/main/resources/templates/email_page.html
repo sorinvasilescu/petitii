@@ -119,6 +119,12 @@
 
 <!-- Datatables -->
 <script>
+    function strLimit(data, limit) {
+        var str = data.substr( 0, limit );
+        if (data.length > limit) str += '';
+        return str;
+    }
+
     var emailTable;
     $(document).ready(function () {
         emailTable = $('#datatable-responsive').DataTable({
@@ -141,12 +147,14 @@
                 {
                     name: 'sender',
                     data: 'sender',
-                    title: 'Expeditor'
+                    title: 'Expeditor',
+                    render: function(data) { return strLimit(data,70); }
                 },
                 {
                     name: 'subject',
                     data: 'subject',
-                    title: 'Subiect'
+                    title: 'Subiect',
+                    render: function(data) { return strLimit(data,120); }
                 },
                 {
                     name: 'date',
