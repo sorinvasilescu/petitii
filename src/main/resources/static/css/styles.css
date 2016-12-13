@@ -42,3 +42,12 @@ div.right_col {
 	margin-top: 30px;
 	margin-bottom: 30px;
 }
+.attachments ul{
+	list-style: none;
+}
+.attachments ul li {
+	padding: 5px;
+}
+.attachments ul li a:hover {
+	font-weight: bold;
+}
