@@ -35,3 +35,10 @@ div.right_col {
 .alert {
     width: auto;
 }
+.view-mail {
+	margin-top: 20px;
+}
+.attachments {
+	margin-top: 30px;
+	margin-bottom: 30px;
+}
