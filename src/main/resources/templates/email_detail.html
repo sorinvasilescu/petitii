@@ -69,17 +69,17 @@
                             </p>
                             <ul th:each="attachment : ${data.attachments}">
                                 <li>
-                                    <a th:href="${attachment.filename}" href="#" class="atch-thumb">
+                                    <a th:href="@{/download/__(${attachment.id})__}" href="#" class="atch-thumb">
                                         <img src="https://colorlib.com/polygon/gentelella/images/1.png" alt="img" title="" style="" />
-                                    </a>
-                                    <div class="file-name" th:text="${attachment.originalFilename}">
-                                        image-name.jpg
-                                    </div>
+                                        <div class="file-name" th:text="${attachment.originalFilename}">
+                                            image-name.jpg
+                                        </div>
                                     <!--<span>12KB</span>-->
                                     <!--<div class="links">-->
                                         <!--<a href="#">View</a> - -->
                                         <!--<a href="#">Download</a>-->
                                     <!--</div>-->
+                                    </a>
                                 </li>
                             </ul>
                         </div>
