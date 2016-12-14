@@ -6,6 +6,4 @@ import ro.petitii.model.EmailAttachment;
 
 @Repository
 public interface EmailAttachmentRepository extends PagingAndSortingRepository<EmailAttachment,Long> {
-    @Override
-    EmailAttachment save(EmailAttachment s);
 }

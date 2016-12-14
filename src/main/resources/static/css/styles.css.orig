@@ -35,6 +35,7 @@ div.right_col {
 .alert {
     width: auto;
 }
+<<<<<<< HEAD
 .form-control{
     border-radius: 0 !important;
 }
@@ -49,7 +50,7 @@ div.right_col {
 .select2-selection__rendered
 {
    /* line-height: 20px !important;*/
-}
+=======
 .view-mail {
 	margin-top: 20px;
 }
@@ -65,4 +66,5 @@ div.right_col {
 }
 .attachments ul li a:hover {
 	font-weight: bold;
+>>>>>>> master
 }

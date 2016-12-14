@@ -69,8 +69,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public List<Email> findAllByType(Email.EmailType type, int startIndex, int size, Sort.Direction sortDirection,
-                                     String sortcolumn) {
+    public List<Email> findAllByType(Email.EmailType type, int startIndex, int size, Sort.Direction sortDirection, String sortcolumn) {
         PageRequest p = new PageRequest(startIndex / size, size, sortDirection, sortcolumn);
         Page<Email> emails = emailRepository.findByType(type, p);
         return emails.getContent();

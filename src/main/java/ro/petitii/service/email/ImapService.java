@@ -1,6 +1,8 @@
 package ro.petitii.service.email;
 
 import com.sun.mail.util.BASE64DecoderStream;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +24,6 @@ import java.util.*;
 
 @Service
 public class ImapService {
-
     @Autowired
     ImapConfig imapConfig;
 
@@ -39,14 +40,14 @@ public class ImapService {
         try {
             // connect to the message store
             Store store = session.getStore(protocol);
-            store.connect(imapConfig.getUsername(),imapConfig.getPassword());
+            store.connect(imapConfig.getUsername(), imapConfig.getPassword());
             // open folder
             folder = store.getFolder("[Gmail]/All Mail");
-            UIDFolder uidFolder = (UIDFolder)folder;
+            UIDFolder uidFolder = (UIDFolder) folder;
             folder.open(Folder.READ_ONLY);
             Message[] messages;
             long latestuid = -1;
-            if (emailService.count()<1) {
+            if (emailService.count() < 1) {
                 // set filters
                 SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
                 df.setTimeZone(TimeZone.getTimeZone("EET"));
@@ -62,12 +63,12 @@ public class ImapService {
                 messages = folder.search(newerThan);
             } else {
                 latestuid = emailService.lastUid();
-                LOGGER.info("Last uid: "+latestuid);
-                messages = uidFolder.getMessagesByUID(latestuid,UIDFolder.LASTUID);
+                LOGGER.info("Last uid: " + latestuid);
+                messages = uidFolder.getMessagesByUID(latestuid, UIDFolder.LASTUID);
             }
             for (Message msg : messages) {
                 long uid = uidFolder.getUID(msg);
-                if (uid!=latestuid) saveMessage(msg, uid);
+                if (uid != latestuid) saveMessage(msg, uid);
             }
         } catch (NoSuchProviderException e) {
             LOGGER.error("No such provider: " + e.getMessage());
@@ -76,9 +77,8 @@ public class ImapService {
             LOGGER.error("Messaging exception:" + e.getMessage());
             throw e;
         } finally {
-            if (folder!=null)
-                try { folder.close(false); }
-                catch (MessagingException e) {
+            if (folder != null)
+                try { folder.close(false); } catch (MessagingException e) {
                     LOGGER.error("Messaging exception:" + e.getMessage());
                 }
         }
@@ -93,21 +93,28 @@ public class ImapService {
         String bccList = parseAddresses(msg.getRecipients(Message.RecipientType.BCC));
         Date sentDate = msg.getSentDate();
 
-        Object messageContent = null;
+        Object messageContent;
 
         Collection<EmailAttachment> attachments = new ArrayList<>();
         try {
             messageContent = msg.getContent();
             if (messageContent instanceof Multipart) {
                 Multipart multipart = (Multipart) messageContent;
-                for (int j=0; j<multipart.getCount(); j++) {
+                messageContent = null;
+                for (int j = 0; j < multipart.getCount(); j++) {
                     BodyPart bodyPart = multipart.getBodyPart(j);
-                    if ((bodyPart.getContentType() == BodyPart.ATTACHMENT)||(bodyPart.getContent() instanceof BASE64DecoderStream)) {
+                    // todo; check inline
+                    if (bodyPart.getContentType().equals(BodyPart.ATTACHMENT) ||
+                            bodyPart.getContent() instanceof BASE64DecoderStream) {
                         EmailAttachment attachment = new EmailAttachment();
                         attachment.setBodyPart(bodyPart);
                         attachments.add(attachment);
-                    } else {
-                        messageContent = bodyPart.getContent().toString();
+                    } else if (bodyPart.getContent() instanceof Multipart) {
+                        // inception
+                        messageContent = parseAlternativeContent((Multipart) bodyPart.getContent());
+                    } else if (messageContent == null) {
+                        // do not override existing results
+                        messageContent = bodyPart.getContent();
                     }
                 }
             }
@@ -123,9 +130,13 @@ public class ImapService {
         email.setCc(ccList);
         email.setBcc(bccList);
         email.setSubject(subject);
-        email.setBody(messageContent.toString());
+        if (messageContent != null) {
+            // required to prevent image tracking and js injection in our UI
+            // if the sender did send something not parsed correctly, probably it is not important
+            email.setBody(Jsoup.clean(messageContent.toString(), Whitelist.basicWithImages()));
+        }
         email.setDate(sentDate);
-        email.setSize((float)(msg.getSize()));
+        email.setSize((float) (msg.getSize()));
         email.setAttachments(attachments);
         email.setType(Email.EmailType.Inbox);
         emailService.save(email);
@@ -139,11 +150,24 @@ public class ImapService {
         LOGGER.info("\t Message: " + messageContent);
         String att = "";
         for (EmailAttachment a : attachments) {
-            if (att.length()>0) att += ",";
+            if (att.length() > 0) att += ",";
             att += a.getOriginalFilename();
         }
         LOGGER.info("\t Attachments: " + att);
         LOGGER.info("\t Size: " + msg.getSize());
+    }
+
+    private String parseAlternativeContent(Multipart multipart) throws IOException, MessagingException {
+        String anyResult = "";
+        for (int j = 0; j < multipart.getCount(); j++) {
+            BodyPart bodyPart = multipart.getBodyPart(j);
+            if (bodyPart.getContentType().toLowerCase().contains("text")) {
+                return bodyPart.getContent().toString();
+            } else {
+                anyResult = bodyPart.getContent().toString();
+            }
+        }
+        return anyResult;
     }
 
     private Properties getServerProperties() {
@@ -156,11 +180,11 @@ public class ImapService {
         return properties;
     }
 
-    private String parseAddresses(Address[] address) {
+    private String parseAddresses(Address[] addresses) {
         String listAddress = "";
-        if (address != null) {
-            for (int i = 0; i < address.length; i++) {
-                listAddress += address[i].toString() + ", ";
+        if (addresses != null) {
+            for (Address address : addresses) {
+                listAddress += address.toString() + ", ";
             }
         }
         if (listAddress.length() > 1) {

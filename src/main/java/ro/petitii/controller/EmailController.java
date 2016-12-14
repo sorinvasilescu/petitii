@@ -1,20 +1,47 @@
 package ro.petitii.controller;
 
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.ModelAndView;
+import ro.petitii.config.EmailAttachmentConfig;
 import ro.petitii.config.ImapConfig;
 import ro.petitii.model.Email;
+import ro.petitii.model.EmailAttachment;
+import ro.petitii.service.EmailAttachmentService;
 import ro.petitii.service.EmailService;
+
+import javax.persistence.EntityNotFoundException;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Controller
 public class EmailController extends ControllerBase {
+
     @Autowired
     ImapConfig config;
+
+    @Autowired
+    EmailAttachmentConfig attConfig;
+
     @Autowired
     EmailService emailService;
+
+    @Autowired
+    EmailAttachmentService emailAttachmentService;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(EmailController.class);
 
     @RequestMapping("/inbox")
     public ModelAndView inbox() {
@@ -63,5 +90,24 @@ public class EmailController extends ControllerBase {
         }
         modelAndView.addObject("status", status);
         return modelAndView;
+    }
+
+    @RequestMapping("/download/{id}")
+    public void download(@PathVariable("id") Long id, HttpServletResponse response) {
+        try {
+            EmailAttachment att = emailAttachmentService.findById(id);
+            Path filepath = Paths.get(att.getFilename());
+            FileInputStream is = new FileInputStream(new File(filepath.toUri()));
+            response.setContentType("application/octet-stream");
+            response.setHeader("Content-disposition", "attachment; filename="+ att.getOriginalFilename());
+            IOUtils.copy(is,response.getOutputStream());
+            response.flushBuffer();
+        } catch (IOException e) {
+            LOGGER.error("Could not find attachment with id " + id + " on disk: " + e.getMessage());
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        } catch (EntityNotFoundException e) {
+            LOGGER.error("Could not find attachment with id " + id + ": " + e.getMessage());
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        }
     }
 }

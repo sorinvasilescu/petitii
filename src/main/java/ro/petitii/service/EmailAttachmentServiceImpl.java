@@ -58,6 +58,11 @@ public class EmailAttachmentServiceImpl implements EmailAttachmentService {
         return emailAttachmentRepository.save(a);
     }
 
+    @Override
+    public EmailAttachment findById(Long id) {
+        return emailAttachmentRepository.findOne(id);
+    }
+
     private void prepFolder() {
         LOGGER.info("Preparing to save attachment in folder:" + config.getPath());
         File target = new File(config.getPath());

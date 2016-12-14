@@ -4,7 +4,7 @@ spring:
   thymeleaf:
     cache: false
   datasource:
-    url: jdbc:mysql://localhost/petitions
+    url: jdbc:mysql://localhost/petitions?useUnicode=yes&characterEncoding=UTF-8
     username: petitions
     password: petitions
     driver-class-name: com.mysql.jdbc.Driver
@@ -26,7 +26,7 @@ petitii:
     password: Q!W@E#R$T%Y^
     startDate: 06/12/2016
   emailAttachments:
-    path: E:\Work\idea\petitii\target\email_attachments
+    path: target/attachments
 ---
 spring:
   profiles: development
