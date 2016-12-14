@@ -34,6 +34,15 @@ public class ImapService {
     private final static String protocol = "imap";
 
     public synchronized void getMail() throws IOException, MessagingException {
+        // set -Djava.security.egd=file:///dev/urandom
+        LOGGER.info("Fetching mail");
+        Date startDate = new Date();
+        // set session properties
+        Properties props = new Properties();
+        props.setProperty("mail.store.protocol", "imap");
+        props.setProperty("mail.imap.partialfetch", "false");
+        props.setProperty("mail.imaps.partialfetch", "false");
+        props.setProperty("mail.imap.fetchsize", "1000000");
         // open session
         Session session = Session.getInstance(getServerProperties());
         Folder folder = null;
@@ -46,6 +55,10 @@ public class ImapService {
             UIDFolder uidFolder = (UIDFolder) folder;
             folder.open(Folder.READ_ONLY);
             Message[] messages;
+            FetchProfile fp = new FetchProfile();
+            fp.add(FetchProfile.Item.ENVELOPE);
+            fp.add(FetchProfile.Item.FLAGS);
+            fp.add(FetchProfile.Item.CONTENT_INFO);
             long latestuid = -1;
             if (emailService.count() < 1) {
                 // set filters
@@ -66,6 +79,7 @@ public class ImapService {
                 LOGGER.info("Last uid: " + latestuid);
                 messages = uidFolder.getMessagesByUID(latestuid, UIDFolder.LASTUID);
             }
+            folder.fetch(messages,fp);
             for (Message msg : messages) {
                 long uid = uidFolder.getUID(msg);
                 if (uid != latestuid) saveMessage(msg, uid);
@@ -81,6 +95,9 @@ public class ImapService {
                 try { folder.close(false); } catch (MessagingException e) {
                     LOGGER.error("Messaging exception:" + e.getMessage());
                 }
+            Date endDate = new Date();
+            float time = (float)(endDate.getTime() - startDate.getTime())/1000;
+            LOGGER.info("Fetch mail time: " + time);
         }
     }
 
@@ -192,5 +209,4 @@ public class ImapService {
         }
         return listAddress;
     }
-
 }
