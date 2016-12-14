@@ -1,5 +1,7 @@
 package ro.petitii.model;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import javax.persistence.*;
 import java.util.Collection;
 import java.util.Date;
@@ -15,6 +17,7 @@ public class Petition {
     @JoinColumn(name = "registration_no")
     private RegistrationNo regNo;
 
+    @DateTimeFormat(pattern = "dd/MM/yyyy")
     private Date receivedDate;
     private String relation;
 
@@ -118,5 +121,13 @@ public class Petition {
 
     public void setPetitioner(Petitioner petitioner) {
         this.petitioner = petitioner;
+    }
+
+    public User getResponsible() {
+        return responsible;
+    }
+
+    public void setResponsible(User responsible) {
+        this.responsible = responsible;
     }
 }

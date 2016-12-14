@@ -27,6 +27,9 @@ petitii:
     startDate: 06/12/2016
   emailAttachments:
     path: target/attachments
+  petitionId:
+    pattern: PET-%d-GOV
+
 ---
 spring:
   profiles: development
