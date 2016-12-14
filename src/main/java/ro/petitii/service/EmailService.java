@@ -9,6 +9,7 @@ import java.util.List;
 public interface EmailService {
     Email save(Email e);
     long count();
+    long count(Email.EmailType type);
     long lastUid();
     Email searchById(long emailId);
     List<Email> findAll(int startIndex, int size, Sort.Direction sortDirection, String sortcolumn);

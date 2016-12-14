@@ -32,7 +32,7 @@
                                 <span>Acțiuni email selectat: </span>
                                 <div class="btn-group">
                                     <button class="btn btn-sm btn-default" type="button"><a href="#"><i class="fa fa-plus-square"></i> <span>Creeaz&#x103; peti&#x21b;ie</span></a></button>
-                                    <button class="btn btn-sm btn-default" type="button" data-placement="top" data-toggle="tooltip" data-original-title="Marcheaz&#x103; ca spam"><a href="#"><i class="fa fa-trash-o"></i></a></button>
+                                    <button class="btn btn-sm btn-default" type="button" data-placement="top" data-toggle="tooltip" data-original-title="Marcheaz&#x103; ca spam" id="mark-spam-top"><i class="fa fa-trash-o"></i></button>
                                 </div>
                             </div>
                             <div class="col-md-4 text-right">
@@ -79,8 +79,8 @@
                         <div>
                             <span>Acțiuni email selectat: </span>
                             <div class="btn-group">
-                                <button class="btn btn-sm btn-default" type="button"><a href="#"><i class="fa fa-plus-square"></i> <span>Creează petiție</span></a></button>
-                                <button class="btn btn-sm btn-default" type="button" data-placement="top" data-toggle="tooltip" data-original-title="Marchează ca spam"><a href="#"><i class="fa fa-trash-o"></i></a></button>
+                                <button class="btn btn-sm btn-default" type="button" id="mark-spam"><a href="#"><i class="fa fa-plus-square"></i> <span>Creează petiție</span></a></button>
+                                <button class="btn btn-sm btn-default" type="button" data-placement="top" data-toggle="tooltip" data-original-title="Marchează ca spam" id="mark-spam-bottom"><i class="fa fa-trash-o"></i></button>
                             </div>
                         </div>
                     </div>
@@ -119,6 +119,34 @@
     /*]]>*/
     </script>
     <!-- /Toast -->
-</body>
+    <!-- Other actions -->
+    <script th:inline="javascript" type="text/javascript">
+        $(document).ready(function () {
+            $('#mark-spam-top').click(markSpam);
+            $('#mark-spam-bottom').click(markSpam);
+        });
 
+        function markSpam(e) {
+            if (confirm('Sunteți sigur că doriți să marcți ca Spam?')) {
+                /*<![CDATA[*/
+                var id = [[${data.id}]];
+                /*]]>*/
+
+                console.log("Id = " + id);
+                $(e.target).attr('data-loading-text', '<i class="fa fa-circle-o-notch fa-spin"></i> Se incarca');
+                $(e.target).button('loading');
+                $.ajax({
+                    url: "/rest/markSpam?id=" + id,
+                    method: 'get'
+                }).done(function (response) {
+                    location.reload();
+                    $(e.target).button('reset');
+                }).fail(function () {
+                    //console.log('failed');
+                    $(e.target).button('reset');
+                });
+            }
+        }
+    </script>
+</body>
 </html>

@@ -3,25 +3,23 @@ package ro.petitii.controller.rest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 import ro.petitii.model.Email;
 import ro.petitii.model.rest.RestEmailResponse;
 import ro.petitii.service.EmailService;
 import ro.petitii.service.email.ImapService;
 
-import java.io.IOException;
+import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.mail.MessagingException;
-import javax.validation.Valid;
-
 @RestController
-public class EmailRestControler {
-
+public class EmailRestController {
     @Autowired
     EmailService emailService;
-    
+
     @Autowired
     ImapService imapService;
 
@@ -33,7 +31,8 @@ public class EmailRestControler {
         Sort.Direction sortDirection = null;
         if (input.getOrder().get(0).getDir().equals("asc")) sortDirection = Sort.Direction.ASC;
         else if (input.getOrder().get(0).getDir().equals("desc")) sortDirection = Sort.Direction.DESC;
-        RestEmailResponse response = emailService.getTableContent(Email.EmailType.Inbox, input.getStart(), input.getLength(), sortDirection, sortColumn);
+        RestEmailResponse response = emailService
+                .getTableContent(Email.EmailType.Inbox, input.getStart(), input.getLength(), sortDirection, sortColumn);
         response.setDraw(sequenceNo);
         return response;
     }
@@ -46,23 +45,30 @@ public class EmailRestControler {
         Sort.Direction sortDirection = null;
         if (input.getOrder().get(0).getDir().equals("asc")) sortDirection = Sort.Direction.ASC;
         else if (input.getOrder().get(0).getDir().equals("desc")) sortDirection = Sort.Direction.DESC;
-        RestEmailResponse response = emailService.getTableContent(Email.EmailType.Spam, input.getStart(), input.getLength(), sortDirection, sortColumn);
+        RestEmailResponse response = emailService
+                .getTableContent(Email.EmailType.Spam, input.getStart(), input.getLength(), sortDirection, sortColumn);
         response.setDraw(sequenceNo);
         return response;
     }
-    
+
+    @RequestMapping(value = "/rest/markSpam", method = RequestMethod.GET)
+    @ResponseBody
+    public String markSpam(@RequestParam("id") Long id) {
+        Email email = emailService.searchById(id);
+        if (email == null) {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        }
+        email.setType(Email.EmailType.Spam);
+        emailService.save(email);
+        return "OK";
+    }
+
     @RequestMapping("/rest/refresh")
     @ResponseBody
-    public Map<String,String> inboxRefresh() {
-        Map<String,String> result = new HashMap<String, String>();
+    public Map<String, String> inboxRefresh() {
+        Map<String, String> result = new HashMap<String, String>();
         try {
             imapService.getMail();
-        } catch (IOException e) {
-            result.put("error", e.getClass().getName());
-            result.put("errorMsg", e.getMessage());
-        } catch (MessagingException e) {
-            result.put("error", e.getClass().getName());
-            result.put("errorMsg", e.getMessage());
         } catch (Exception e) {
             result.put("error", e.getClass().getName());
             result.put("errorMsg", e.getMessage());

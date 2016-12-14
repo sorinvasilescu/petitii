@@ -69,7 +69,7 @@ public class EmailController extends ControllerBase {
     public ModelAndView emailDetails(@RequestParam("id") Long id) {
         Email email = emailService.searchById(id);
         if (email == null) {
-            throw new IllegalArgumentException("Invalid email id");
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
         }
 
         ModelAndView modelAndView = new ModelAndView("email_detail");
@@ -99,8 +99,8 @@ public class EmailController extends ControllerBase {
             Path filepath = Paths.get(att.getFilename());
             FileInputStream is = new FileInputStream(new File(filepath.toUri()));
             response.setContentType("application/octet-stream");
-            response.setHeader("Content-disposition", "attachment; filename="+ att.getOriginalFilename());
-            IOUtils.copy(is,response.getOutputStream());
+            response.setHeader("Content-disposition", "attachment; filename=" + att.getOriginalFilename());
+            IOUtils.copy(is, response.getOutputStream());
             response.flushBuffer();
         } catch (IOException e) {
             LOGGER.error("Could not find attachment with id " + id + " on disk: " + e.getMessage());
@@ -110,4 +110,6 @@ public class EmailController extends ControllerBase {
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
         }
     }
+
+
 }

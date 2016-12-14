@@ -49,6 +49,11 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
+    public long count(Email.EmailType type) {
+        return emailRepository.countByType(type);
+    }
+
+    @Override
     public long lastUid() {
         PageRequest pr = new PageRequest(0, 1, Sort.Direction.DESC, "uid");
         Page<Email> result = emailRepository.findAll(pr);
@@ -92,8 +97,8 @@ public class EmailServiceImpl implements EmailService {
         }
         RestEmailResponse response = new RestEmailResponse();
         response.setData(data);
-        response.setRecordsFiltered(this.count());
-        response.setRecordsTotal(this.count());
+        response.setRecordsFiltered(this.count(type));
+        response.setRecordsTotal(this.count(type));
         return response;
     }
 }
