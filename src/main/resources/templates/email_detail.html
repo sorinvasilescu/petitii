@@ -32,7 +32,8 @@
                                 <span>Acțiuni email selectat: </span>
                                 <div class="btn-group">
                                     <button class="btn btn-sm btn-default" type="button"><a href="#"><i class="fa fa-plus-square"></i> <span>Creeaz&#x103; peti&#x21b;ie</span></a></button>
-                                    <button class="btn btn-sm btn-default" type="button" data-placement="top" data-toggle="tooltip" data-original-title="Marcheaz&#x103; ca spam" id="mark-spam-top"><i class="fa fa-trash-o"></i></button>
+                                    <button th:if="${data.type.name() == 'Inbox'}" class="btn btn-sm btn-default" type="button" data-placement="top" data-toggle="tooltip" data-original-title="Marcheaz&#x103; ca spam" id="mark-spam-top"><i class="fa fa-trash-o"></i></button>
+                                    <button th:if="${data.type.name() == 'Spam'}" class="btn btn-sm btn-default" type="button" data-placement="top" data-toggle="tooltip" data-original-title="Marcheaz&#x103; ca email" id="mark-email-top"><i class="fa fa-envelope"></i></button>
                                 </div>
                             </div>
                             <div class="col-md-4 text-right">
@@ -61,15 +62,17 @@
                         <div class="attachments">
                         	<p>
                                 <span><i class="fa fa-paperclip"></i>
-                                    <span th:text="${data.attachments.size()}" th:remove="tag">title</span> ata&#x219;ament<span th:if="${data.attachments.size() != 1}" th:remove="tag">e</span>
+                                    <span th:text="${data.attachments.size()}" th:remove="tag">title</span> atașament<span th:if="${data.attachments.size() != 1}" th:remove="tag">e</span>
+                                    <span th:if="${data.attachments.size() > 1}" th:remove="tag"> - </span>
                                 </span>
-                                <!--<span><i class="fa fa-paperclip"></i> 3 ata&#x219;ament(e) — </span>-->
-                                <!--<a href="#">Download all attachments</a> |-->
-                                <!--<a href="#">View all images</a>-->
+                                <a th:if="${data.attachments.size() > 1}"
+                                   th:href="@{/action/download/email/__(${data.id})__}" href="#">
+                                    Salvează toate atașamentele
+                                </a>
                             </p>
                             <ul>
                                 <li th:each="attachment : ${data.attachments}">
-                                    <a th:href="@{/download/__(${attachment.id})__}" href="#">
+                                    <a th:href="@{/action/download/__(${attachment.id})__}" href="#">
                                         <i class="fa fa-paperclip"></i>
                                         <span th:text="${attachment.originalFilename}" th:remove="tag">filename.jpg</span>
                                     </a>
@@ -80,7 +83,8 @@
                             <span>Acțiuni email selectat: </span>
                             <div class="btn-group">
                                 <button class="btn btn-sm btn-default" type="button" id="mark-spam"><a href="#"><i class="fa fa-plus-square"></i> <span>Creează petiție</span></a></button>
-                                <button class="btn btn-sm btn-default" type="button" data-placement="top" data-toggle="tooltip" data-original-title="Marchează ca spam" id="mark-spam-bottom"><i class="fa fa-trash-o"></i></button>
+                                <button th:if="${data.type.name() == 'Inbox'}" class="btn btn-sm btn-default" type="button" data-placement="top" data-toggle="tooltip" data-original-title="Marchează ca spam" id="mark-spam-bottom"><i class="fa fa-trash-o"></i></button>
+                                <button th:if="${data.type.name() == 'Spam'}" class="btn btn-sm btn-default" type="button" data-placement="top" data-toggle="tooltip" data-original-title="Marchează ca email" id="mark-email-bottom"><i class="fa fa-envelope"></i></button>
                             </div>
                         </div>
                     </div>
@@ -124,21 +128,46 @@
         $(document).ready(function () {
             $('#mark-spam-top').click(markSpam);
             $('#mark-spam-bottom').click(markSpam);
+            $('#mark-email-top').click(markEmail);
+            $('#mark-email-bottom').click(markEmail);
         });
 
         function markSpam(e) {
-            if (confirm('Sunteți sigur că doriți să marcți ca Spam?')) {
+            var msg = 'Sunteți sigur că doriți să marcați ca Spam?';
+            if (confirm(msg)) {
                 /*<![CDATA[*/
-                var id = [[${data.id}]];
+                var actionUrl = /*[[@{/rest/markAs/(type='spam',id=${data.id})}]]*/ '#';
                 /*]]>*/
 
-                console.log("Id = " + id);
                 $(e.target).attr('data-loading-text', '<i class="fa fa-circle-o-notch fa-spin"></i> Se incarca');
                 $(e.target).button('loading');
                 $.ajax({
-                    url: "/rest/markSpam?id=" + id,
+                    url: actionUrl,
                     method: 'get'
-                }).done(function (response) {
+                }).done(function () {
+                    location.reload();
+                    $(e.target).button('reset');
+                }).fail(function () {
+                    //console.log('failed');
+                    $(e.target).button('reset');
+                });
+            }
+        }
+
+        function markEmail(e) {
+            var msg = 'Sunteți sigur că doriți să mutați înapoi în Email?';
+            if (confirm(msg)) {
+                /*<![CDATA[*/
+                var actionUrl = /*[[@{/rest/markAs/(type='email',id=${data.id})}]]*/ '#';
+                /*]]>*/
+
+                console.log("Action url = " + actionUrl);
+                $(e.target).attr('data-loading-text', '<i class="fa fa-circle-o-notch fa-spin"></i> Se incarca');
+                $(e.target).button('loading');
+                $.ajax({
+                    url: actionUrl,
+                    method: 'get'
+                }).done(function () {
                     location.reload();
                     $(e.target).button('reset');
                 }).fail(function () {

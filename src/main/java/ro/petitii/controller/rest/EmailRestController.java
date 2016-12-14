@@ -51,14 +51,25 @@ public class EmailRestController {
         return response;
     }
 
-    @RequestMapping(value = "/rest/markSpam", method = RequestMethod.GET)
+    @RequestMapping(value = "/rest/markAs", method = RequestMethod.GET)
     @ResponseBody
-    public String markSpam(@RequestParam("id") Long id) {
+    public String markSpam(@RequestParam("type") String type, @RequestParam("id") Long id) {
+        Email.EmailType emailType = null;
+        if ("email".equalsIgnoreCase(type)) {
+            emailType = Email.EmailType.Inbox;
+        } else if ("spam".equalsIgnoreCase(type)) {
+            emailType = Email.EmailType.Spam;
+        }
+
+        if (emailType == null) {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        }
+
         Email email = emailService.searchById(id);
         if (email == null) {
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
         }
-        email.setType(Email.EmailType.Spam);
+        email.setType(emailType);
         emailService.save(email);
         return "OK";
     }
