@@ -94,11 +94,18 @@
     </div>
     <div th:replace="main_head::includes"></div>
     <!-- Datatables -->
-    <script>
-    $(document).ready(function() {
+    <script th:inline="javascript" type="application/javascript">
+        /*<![CDATA[*/
+        var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
+        /*]]>*/
 
-        $('#datatable-responsive').DataTable();
-    });
+        $(document).ready(function () {
+            $('#datatable-responsive').DataTable({
+                language: {
+                    url: languageUrl
+                }
+            });
+        });
     </script>
     <!-- /Datatables -->
 </body>

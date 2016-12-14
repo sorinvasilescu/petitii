@@ -118,12 +118,16 @@
 </script>
 
 <!-- Datatables -->
-<script>
+<script th:inline="javascript" type="application/javascript">
     function strLimit(data, limit) {
-        var str = data.substr( 0, limit );
+        var str = data.substr(0, limit);
         if (data.length > limit) str += '';
         return str;
     }
+
+    /*<![CDATA[*/
+    var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
+    /*]]>*/
 
     var emailTable;
     $(document).ready(function () {
@@ -135,6 +139,9 @@
             ajax: {
                 url: restUrl,
                 type: 'POST'
+            },
+            language: {
+                url: languageUrl
             },
             columns: [
                 {
@@ -148,13 +155,17 @@
                     name: 'sender',
                     data: 'sender',
                     title: 'Expeditor',
-                    render: function(data) { return strLimit(data,70); }
+                    render: function (data) {
+                        return strLimit(data, 70);
+                    }
                 },
                 {
                     name: 'subject',
                     data: 'subject',
                     title: 'Subiect',
-                    render: function(data) { return strLimit(data,120); }
+                    render: function (data) {
+                        return strLimit(data, 120);
+                    }
                 },
                 {
                     name: 'date',
