@@ -133,7 +133,7 @@ public class ImapService {
         if (messageContent != null) {
             // required to prevent image tracking and js injection in our UI
             // if the sender did send something not parsed correctly, probably it is not important
-            email.setBody(Jsoup.clean(messageContent.toString(), Whitelist.basicWithImages()));
+            email.setBody(Jsoup.clean(preserveNewLines(messageContent.toString()), Whitelist.relaxed()));
         }
         email.setDate(sentDate);
         email.setSize((float) (msg.getSize()));
@@ -147,7 +147,7 @@ public class ImapService {
         LOGGER.info("\t CC: " + ccList);
         LOGGER.info("\t Subject: " + subject);
         LOGGER.info("\t Sent Date: " + sentDate);
-        LOGGER.info("\t Message: " + messageContent);
+        LOGGER.info("\t Message: " + email.getBody());
         String att = "";
         for (EmailAttachment a : attachments) {
             if (att.length() > 0) att += ",";
@@ -168,6 +168,10 @@ public class ImapService {
             }
         }
         return anyResult;
+    }
+
+    private String preserveNewLines(String content) {
+        return content.replaceAll("\n", "<br />");
     }
 
     private Properties getServerProperties() {
