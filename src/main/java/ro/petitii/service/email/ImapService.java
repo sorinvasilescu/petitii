@@ -93,35 +93,8 @@ public class ImapService {
         String bccList = parseAddresses(msg.getRecipients(Message.RecipientType.BCC));
         Date sentDate = msg.getSentDate();
 
-        Object messageContent;
-
         Collection<EmailAttachment> attachments = new ArrayList<>();
-        try {
-            messageContent = msg.getContent();
-            if (messageContent instanceof Multipart) {
-                Multipart multipart = (Multipart) messageContent;
-                messageContent = null;
-                for (int j = 0; j < multipart.getCount(); j++) {
-                    BodyPart bodyPart = multipart.getBodyPart(j);
-                    // todo; check inline
-                    if (bodyPart.getContentType().equals(BodyPart.ATTACHMENT) ||
-                            bodyPart.getContent() instanceof BASE64DecoderStream) {
-                        EmailAttachment attachment = new EmailAttachment();
-                        attachment.setBodyPart(bodyPart);
-                        attachments.add(attachment);
-                    } else if (bodyPart.getContent() instanceof Multipart) {
-                        // inception
-                        messageContent = parseAlternativeContent((Multipart) bodyPart.getContent());
-                    } else if (messageContent == null) {
-                        // do not override existing results
-                        messageContent = bodyPart.getContent();
-                    }
-                }
-            }
-        } catch (IOException e) {
-            LOGGER.error("Could not get message content");
-            throw e;
-        }
+        Object messageContent = parseBody(msg.getContent(), attachments);
 
         Email email = new Email();
         email.setUid(uid);
@@ -157,17 +130,47 @@ public class ImapService {
         LOGGER.info("\t Size: " + msg.getSize());
     }
 
-    private String parseAlternativeContent(Multipart multipart) throws IOException, MessagingException {
-        String anyResult = "";
-        for (int j = 0; j < multipart.getCount(); j++) {
-            BodyPart bodyPart = multipart.getBodyPart(j);
-            if (bodyPart.getContentType().toLowerCase().contains("text")) {
-                return bodyPart.getContent().toString();
-            } else {
-                anyResult = bodyPart.getContent().toString();
+    private String parseBody(Object content, Collection<EmailAttachment> attachments)
+            throws IOException, MessagingException {
+        String body = null;
+        try {
+            if (content != null) {
+                if (content instanceof Multipart) {
+                    Multipart multipart = (Multipart) content;
+                    for (int j = 0; j < multipart.getCount(); j++) {
+                        BodyPart bodyPart = multipart.getBodyPart(j);
+                        // todo; check inline
+                        if (isTextBody(bodyPart)) {
+                            body = bodyPart.getContent().toString();
+                        } else if (isAttachment(bodyPart)) {
+                            EmailAttachment attachment = new EmailAttachment();
+                            attachment.setBodyPart(bodyPart);
+                            attachments.add(attachment);
+                        } else if (bodyPart.getContent() instanceof Multipart) {
+                            // inception
+                            body = parseBody(bodyPart.getContent(), attachments);
+                        } else if (body == null) {
+                            // do not override existing results
+                            body = bodyPart.getContent().toString();
+                        }
+                    }
+                } else {
+                    body = content.toString();
+                }
             }
+        } catch (IOException e) {
+            LOGGER.error("Could not get message content");
         }
-        return anyResult;
+
+        return body;
+    }
+
+    private boolean isTextBody(BodyPart bodyPart) throws MessagingException {
+        return bodyPart.getContentType().toLowerCase().contains("text");
+    }
+
+    private boolean isAttachment(BodyPart bodyPart) throws MessagingException, IOException {
+        return bodyPart.getContentType().equals(BodyPart.ATTACHMENT) || bodyPart.getContent() instanceof BASE64DecoderStream;
     }
 
     private String preserveNewLines(String content) {
