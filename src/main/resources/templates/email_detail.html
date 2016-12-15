@@ -166,7 +166,10 @@
                 $(e.target).button('loading');
                 $.ajax({
                     url: actionUrl,
-                    method: 'get'
+                    method: 'get',
+                    data: {
+                        /*[[${_csrf.parameterName}]]: [[${_csrf.token}]]*/
+                    }
                 }).done(function () {
                     location.reload();
                     $(e.target).button('reset');

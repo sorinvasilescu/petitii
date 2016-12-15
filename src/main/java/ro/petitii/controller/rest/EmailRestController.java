@@ -68,7 +68,7 @@ public class EmailRestController {
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
         }
         email.setType(emailType);
-        emailService.save(email);
+        emailService.saveAlone(email);
         return "OK";
     }
 
