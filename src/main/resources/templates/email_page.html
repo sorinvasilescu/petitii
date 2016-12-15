@@ -51,7 +51,7 @@
                             class="glyphicon glyphicon-envelope"></span> Get Email
                     </button>
                 </div>
-                <table id="datatable-responsive" class="table table-striped table-bordered dt-responsive nowrap"
+                <table id="datatable-responsive" class="table jambo_table bulk_action table-striped table-bordered dt-responsive nowrap"
                        cellspacing="0" width="100%">
                     <!--
                     <thead>
@@ -149,13 +149,17 @@
             language: {
                 url: languageUrl
             },
+            fixedColumns: true,
             columns: [
                 {
                     data: null,
                     render: function (data, type, full, meta) {
-                        return '<input type="checkbox"/>';
+                        return '<input type="checkbox" class="flat" name="email_records"/>';
                     },
-                    sortable: false
+                    title: '<input type="checkbox" id="check-all" class="flat"/>',
+                    sortable: false,
+                    'className': 'text-center',
+                    'width': '15px'
                 },
                 {
                     name: 'sender',
@@ -163,41 +167,53 @@
                     title: 'Expeditor',
                     render: function (data) {
                         return strLimit(data, 70);
-                    }
+                    },
+                    'className': 'text-center',
+                    'width': '180px'
                 },
                 {
                     name: 'subject',
                     data: 'subject',
                     title: 'Subiect',
                     render: function (data) {
-                        return strLimit(data, 120);
-                    }
+                        return '<div class="elipsis-subiect">'+data+'</div>';
+                    	//return strLimit(data, 120);
+                    },
+                    'className': "elipsis-subiect",
+                    'width': '900px'
                 },
                 {
                     name: 'date',
                     data: 'date',
-                    title: 'Data'
+                    title: 'Data',
+                    'className': 'text-center',
+                    'width': '120px',
                 },
                 {
                     name: 'petition_id',
                     data: 'petition_id',
                     title: 'Petitie',
                     render: function (data, type, full, meta) {
-                        if (data != null) return '<a href="#">Vezi petitie</a>';
+                        if (data != null) return '<a href="#"><i class="fa fa-info-circle"></i> Vezi petitie</a>';
                         else return '';
                     },
-                    sortable: false
+                    sortable: false,
+                    'className': 'text-center',
+                    'width': '115px'
                 },
                 {
                     data: null,
+                    title: 'Email',
                     render: function (data, type, full, meta) {
                         if (data != null) {
-                            return '<a href="/emailDetails?id=' + data.id + '">Detalii</a>';
+                            return '<a href="/emailDetails?id=' + data.id + '"><i class="fa fa-envelope-square"></i> Detalii</a>';
                         } else {
                             return '';
                         }
                     },
-                    sortable: false
+                    sortable: false,
+                    'className': 'text-center',
+                    'width': '80px'
                 }
             ]
         });

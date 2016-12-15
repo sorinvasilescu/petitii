@@ -66,3 +66,9 @@ div.right_col {
 .attachments ul li a:hover {
 	font-weight: bold;
 }
+div.elipsis-subiect {
+  overflow:hidden; 
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 990px;
+}
