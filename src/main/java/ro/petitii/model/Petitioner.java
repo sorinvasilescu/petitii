@@ -1,15 +1,13 @@
 package ro.petitii.model;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "petitioners")
 public class Petitioner {
     @Id
-    long id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    Long id;
 
     private String firstName;
     private String lastName;
@@ -20,12 +18,13 @@ public class Petitioner {
     private String country;
     private String county;
     private String city;
+    private String address;
     private String title;
 
     @OneToOne(mappedBy = "petitioner")
     Petition petition;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
@@ -101,6 +100,14 @@ public class Petitioner {
         this.city = city;
     }
 
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
     public String getTitle() {
         return title;
     }
@@ -115,5 +122,24 @@ public class Petitioner {
 
     public void setPetition(Petition petition) {
         this.petition = petition;
+    }
+
+    @Override
+    public String toString() {
+        return "Petitioner{" +
+                "id=" + id +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", organization='" + organization + '\'' +
+                ", entity_type='" + entity_type + '\'' +
+                ", email='" + email + '\'' +
+                ", phone='" + phone + '\'' +
+                ", country='" + country + '\'' +
+                ", county='" + county + '\'' +
+                ", city='" + city + '\'' +
+                ", address='" + address + '\'' +
+                ", title='" + title + '\'' +
+                ", petition=" + petition +
+                '}';
     }
 }

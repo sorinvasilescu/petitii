@@ -15,7 +15,7 @@ ALTER DATABASE petitions CHARACTER SET = utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `petitions`.`registration_numbers` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `number` VARCHAR(32) NOT NULL,
+  `number` VARCHAR(32),
   `date` DATE NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC))

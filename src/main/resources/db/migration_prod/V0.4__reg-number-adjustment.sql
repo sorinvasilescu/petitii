@@ -1,0 +1,1 @@
+ALTER TABLE `petitions`.`registration_numbers` CHANGE COLUMN `number` `number` VARCHAR(32) COLLATE 'utf8mb4_unicode_ci' NULL ;

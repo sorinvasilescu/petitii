@@ -130,4 +130,22 @@ public class Petition {
     public void setResponsible(User responsible) {
         this.responsible = responsible;
     }
+
+    @Override
+    public String toString() {
+        return "Petition{" +
+                "id=" + id +
+                ", regNo=" + regNo +
+                ", receivedDate=" + receivedDate +
+                ", relation='" + relation + '\'' +
+                ", petitioner=" + petitioner +
+                ", origin='" + origin + '\'' +
+                ", type='" + type + '\'' +
+                ", field='" + field + '\'' +
+                ", _abstract='" + _abstract + '\'' +
+                ", description='" + description + '\'' +
+                ", responsible=" + responsible +
+                ", emails=" + emails +
+                '}';
+    }
 }

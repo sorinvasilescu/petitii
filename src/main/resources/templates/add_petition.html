@@ -5,12 +5,12 @@
 <body class="nav-md">
 <div class="container body">
     <div class="main_container">
-        <div class="col-md-3 left_col" th:substituteby="left::menu"></div>
-        <div class="top_nav" th:substituteby="top::menu"></div>
-        <div class="right_col" role="main">
-            <div>
-                <!--/*@thymesVar id="data" type="ro.petitii.model.Petition"*/-->
-                <form class="form-horizontal form-label-left input_mask" th:object="${data}" method="post">
+        <!--/*@thymesVar id="data" type="ro.petitii.model.Petition"*/-->
+        <form class="form-horizontal form-label-left input_mask" th:object="${petition}" th:action="@{/petition}" method="post">
+            <div class="col-md-3 left_col" th:substituteby="left::menu"></div>
+            <div class="top_nav" th:substituteby="top::menu"></div>
+            <div class="right_col" role="main">
+                <div>
                     <div class="row">
                         <div class="col-md-6 col-xs-12">
                             <div class="x_panel">
@@ -22,9 +22,8 @@
                                     <div class="form-group">
                                         <label class="control-label col-md-3 col-sm-3 col-xs-12">Responsabil</label>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <select class="form-control" name="responsible" id="responsible">
-                                                <option th:each="user : ${user_options}" th:value="${user}"
-                                                        th:text="${user.getFullName()}">Responsabil
+                                            <select class="form-control" name="responsible" id="responsible" th:field="*{responsible}">
+                                                <option th:each="user : ${user_list}" th:value="${user.getId()}" th:text="${user.getFullName()}">Responsabil
                                                 </option>
                                             </select>
                                         </div>
@@ -34,8 +33,7 @@
                                         <label class="control-label col-md-3 col-sm-3 col-xs-12">Nr.
                                             înregistrare</label>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <input type="text" name="nr_inreg" class="form-control col-md-10"
-                                                   th:field="*{regNo.number}"/>
+                                            <input type="text" name="nr_inreg" class="form-control col-md-10" th:field="*{regNo.number}" disabled="disabled"/>
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -134,15 +132,13 @@
                                 <div class="form-group">
                                     <label class="control-label col-md-3 col-sm-3 col-xs-12">Nume</label>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
-                                        <input type="text" name="first_name" placeholder="Numele de familie"
-                                               class="form-control col-md-10" required="required"/>
+                                        <input type="text" name="first_name" placeholder="Numele de familie" class="form-control col-md-10" required="required" th:field="*{petitioner.firstName}"/>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="control-label col-md-3 col-sm-3 col-xs-12">Prenume</label>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
-                                        <input type="text" name="last_name" placeholder="Prenumele"
-                                               class="form-control col-md-10" required="required"/>
+                                        <input type="text" name="last_name" placeholder="Prenumele" class="form-control col-md-10" required="required" th:field="*{petitioner.lastName}"/>
                                     </div>
                                 </div>
 
@@ -150,8 +146,7 @@
                                 <div class="form-group">
                                     <label class="control-label col-md-3 col-sm-3 col-xs-12">Tara</label>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
-                                        <select class="form-control" name="country" id="country" tabindex="-1">
-                                            <option></option>
+                                        <select class="form-control" name="country" id="country" tabindex="-1" th:field="*{petitioner.country}">
                                             <option value="AF">Afghanistan</option>
                                             <option value="AX">Åland Islands</option>
                                             <option value="AL">Albania</option>
@@ -407,46 +402,39 @@
                                 <div class="form-group">
                                     <label class="control-label col-md-3 col-sm-3 col-xs-12">Judet</label>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
-                                        <input type="text" name="county" placeholder="Judetul"
-                                               class="form-control col-md-10"/>
+                                        <input type="text" name="county" placeholder="Judetul" class="form-control col-md-10" th:field="*{petitioner.county}"/>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="control-label col-md-3 col-sm-3 col-xs-12">Localitate</label>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
-                                        <input type="text" name="city" placeholder="Localitatea"
-                                               class="form-control col-md-10"/>
+                                        <input type="text" name="city" placeholder="Localitatea" class="form-control col-md-10" th:field="*{petitioner.city}"/>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="control-label col-md-3 col-sm-3 col-xs-12">Adresa</label>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
-                                        <textarea class="form-control" rows="2" name="address" id="address"
-                                                  placeholder="Adresa"></textarea>
+                                        <textarea class="form-control" rows="2" name="address" id="address" placeholder="Adresa" th:field="*{petitioner.address}"></textarea>
                                     </div>
                                 </div>
                                 <div class="form-group  has-feedback">
                                     <label class="control-label col-md-3 col-sm-3 col-xs-12">Telefon</label>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
-                                        <input type="text" class="form-control has-feedback-left" id="phone"
-                                               name="phone" placeholder="Nr. de telefon"/>
+                                        <input type="text" class="form-control has-feedback-left" id="phone" name="phone" placeholder="Nr. de telefon" th:field="*{petitioner.phone}"/>
                                         <span class="fa fa-phone form-control-feedback left" aria-hidden="true"></span>
                                     </div>
                                 </div>
                                 <div class="form-group  has-feedback">
                                     <label class="control-label col-md-3 col-sm-3 col-xs-12">Email</label>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
-                                        <input type="text" class="form-control has-feedback-left" id="email"
-                                               name="email" placeholder="Adresa de email" required="required"/>
-                                        <span class="fa fa-envelope form-control-feedback left"
-                                              aria-hidden="true"></span>
+                                        <input type="text" class="form-control has-feedback-left" id="email" name="email" placeholder="Adresa de email" required="required" th:field="*{petitioner.email}"/>
+                                        <span class="fa fa-envelope form-control-feedback left" aria-hidden="true"></span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="clear"></div>
-
 
                     <div class="" role="tabpanel" data-example-id="togglable-tabs">
                         <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
@@ -471,15 +459,13 @@
                                 <div class="form-group">
                                     <label class="control-label col-md-3 col-sm-3 col-xs-12">Rezumat</label>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
-                                        <input type="text" name="abstract" placeholder="Descrierea pe scurt"
-                                               class="form-control col-md-10"/>
+                                        <input type="text" name="abstract" placeholder="Descrierea pe scurt" class="form-control col-md-10" th:field="*{_abstract}"/>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="control-label col-md-3 col-sm-3 col-xs-12">Descriere</label>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
-                                        <textarea name="descr" id="descriprion" rows="10"
-                                                  style="width:520px"></textarea>
+                                        <textarea name="descr" id="descriprion" rows="10" style="width:520px" th:field="*{description}"></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -519,8 +505,6 @@
                                     </tr>
                                     </tbody>
                                 </table>
-
-
                             </div>
                             <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="profile-tab">
                                 <button type="button" class="btn btn-default btn-sm">Conexeaza petitie</button>
@@ -612,12 +596,11 @@
                             <button type="submit" class="btn btn-success">Salveaza</button>
                         </div>
                     </div>
-                </form>
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                </div>
+                <!-- /page content -->
             </div>
-            <!-- /page content -->
-
-        </div>
-
+        </form>
     </div>
 </div>
 
