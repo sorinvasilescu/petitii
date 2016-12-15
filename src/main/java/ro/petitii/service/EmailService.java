@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface EmailService {
     Email save(Email e);
+    Email saveAlone(Email e);
     long count();
     long count(Email.EmailType type);
     long lastUid();

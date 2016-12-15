@@ -25,28 +25,26 @@ public class EmailRestController {
 
     @RequestMapping(value = "/rest/emails", method = RequestMethod.POST)
     @ResponseBody
-    RestEmailResponse getInbox(@Valid DataTablesInput input) {
+    public RestEmailResponse getInbox(@Valid DataTablesInput input) {
         int sequenceNo = input.getDraw();
         String sortColumn = input.getColumns().get(input.getOrder().get(0).getColumn()).getName();
         Sort.Direction sortDirection = null;
         if (input.getOrder().get(0).getDir().equals("asc")) sortDirection = Sort.Direction.ASC;
         else if (input.getOrder().get(0).getDir().equals("desc")) sortDirection = Sort.Direction.DESC;
-        RestEmailResponse response = emailService
-                .getTableContent(Email.EmailType.Inbox, input.getStart(), input.getLength(), sortDirection, sortColumn);
+        RestEmailResponse response = emailService.getTableContent(Email.EmailType.Inbox, input.getStart(), input.getLength(), sortDirection, sortColumn);
         response.setDraw(sequenceNo);
         return response;
     }
 
     @RequestMapping(value = "/rest/spam", method = RequestMethod.POST)
     @ResponseBody
-    RestEmailResponse getSpam(@Valid DataTablesInput input) {
+    public RestEmailResponse getSpam(@Valid DataTablesInput input) {
         int sequenceNo = input.getDraw();
         String sortColumn = input.getColumns().get(input.getOrder().get(0).getColumn()).getName();
         Sort.Direction sortDirection = null;
         if (input.getOrder().get(0).getDir().equals("asc")) sortDirection = Sort.Direction.ASC;
         else if (input.getOrder().get(0).getDir().equals("desc")) sortDirection = Sort.Direction.DESC;
-        RestEmailResponse response = emailService
-                .getTableContent(Email.EmailType.Spam, input.getStart(), input.getLength(), sortDirection, sortColumn);
+        RestEmailResponse response = emailService.getTableContent(Email.EmailType.Spam, input.getStart(), input.getLength(), sortDirection, sortColumn);
         response.setDraw(sequenceNo);
         return response;
     }
@@ -70,7 +68,7 @@ public class EmailRestController {
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
         }
         email.setType(emailType);
-        emailService.save(email);
+        emailService.saveAlone(email);
         return "OK";
     }
 

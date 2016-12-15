@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: development
+    active: development,fast
   thymeleaf:
     cache: false
   datasource:

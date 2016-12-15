@@ -21,7 +21,7 @@ public class Petition {
     private Date receivedDate;
     private String relation;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "petitioner_id")
     private Petitioner petitioner;
 

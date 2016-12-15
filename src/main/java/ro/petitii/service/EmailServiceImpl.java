@@ -44,6 +44,11 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
+    public Email saveAlone(Email e) {
+        return emailRepository.save(e);
+    }
+
+    @Override
     public long count() {
         return emailRepository.count();
     }
