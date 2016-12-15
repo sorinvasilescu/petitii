@@ -119,13 +119,15 @@
 
 <!-- Datatables -->
 <script th:inline="javascript" type="text/javascript">
+    /*<![CDATA[*/
     function strLimit(data, limit) {
-        var str = data.substr(0, limit);
-        if (data.length > limit) str += '';
-        return str;
+        if ((data!=null) && (data.length > limit)){
+            data = data.substr(0, limit);
+            data += '...';
+        }
+        return data;
     }
 
-    /*<![CDATA[*/
     var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
     /*]]>*/
 

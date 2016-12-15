@@ -3,13 +3,21 @@ package ro.petitii.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ro.petitii.model.Petition;
 import ro.petitii.model.Petitioner;
+import ro.petitii.model.User;
+import ro.petitii.model.rest.RestPetitionResponse;
+import ro.petitii.model.rest.RestPetitionResponseElement;
 import ro.petitii.repository.PetitionRepository;
 import ro.petitii.service.email.ImapService;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Service
 public class PetitionServiceImpl implements PetitionService {
@@ -22,6 +30,9 @@ public class PetitionServiceImpl implements PetitionService {
 
     @Autowired
     PetitionerService petitionerService;
+
+    @Autowired
+    UserService userService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ImapService.class);
 
@@ -54,5 +65,30 @@ public class PetitionServiceImpl implements PetitionService {
     @Override
     public Petition findById(Long id) {
         return petitionRepository.findOne(id);
+    }
+
+    @Override
+    public List<Petition> findByResponsible(User user, int startIndex, int size, Sort.Direction sortDirection, String sortcolumn) {
+        PageRequest p = new PageRequest(startIndex / size, size, sortDirection, sortcolumn);
+        Page<Petition> petitions = petitionRepository.findByResponsible(user,p);
+        return petitions.getContent();
+    }
+
+    @Override
+    public RestPetitionResponse getTableContent(User user, int startIndex, int size, Sort.Direction sortDirection, String sortColumn) {
+        List<Petition> petitions = this.findByResponsible(user, startIndex, size, sortDirection, sortColumn);
+        RestPetitionResponse response = new RestPetitionResponse();
+        List<RestPetitionResponseElement> data = new ArrayList<>();
+        for (Petition petition : petitions) {
+            RestPetitionResponseElement element = new RestPetitionResponseElement();
+            element.set_abstract(petition.get_abstract());
+            element.setPetitionerEmail(petition.getPetitioner().getEmail());
+            element.setPetitionerName(petition.getPetitioner().getFirstName() + " " + petition.getPetitioner().getLastName());
+            element.setRegNo(petition.getRegNo().getNumber());
+            element.setStatus("TODO: Status");
+            data.add(element);
+        }
+        response.setData(data);
+        return response;
     }
 }

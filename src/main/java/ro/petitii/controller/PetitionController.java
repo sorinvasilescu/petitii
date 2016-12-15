@@ -13,7 +13,6 @@ import ro.petitii.service.PetitionService;
 import ro.petitii.service.UserService;
 import ro.petitii.service.email.ImapService;
 
-import java.util.Collection;
 import java.util.Date;
 
 @Controller

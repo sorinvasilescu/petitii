@@ -1,6 +1,7 @@
 package ro.petitii.model;
 
 import javax.persistence.*;
+import java.util.Collection;
 
 @Entity
 @Table(name = "petitioners")
@@ -21,8 +22,8 @@ public class Petitioner {
     private String address;
     private String title;
 
-    @OneToOne(mappedBy = "petitioner")
-    Petition petition;
+    @OneToMany(mappedBy = "petitioner")
+    Collection<Petition> petitions;
 
     public Long getId() {
         return id;
@@ -116,12 +117,8 @@ public class Petitioner {
         this.title = title;
     }
 
-    public Petition getPetition() {
-        return petition;
-    }
-
-    public void setPetition(Petition petition) {
-        this.petition = petition;
+    public Collection<Petition> getPetitions() {
+        return petitions;
     }
 
     @Override
@@ -139,7 +136,7 @@ public class Petitioner {
                 ", city='" + city + '\'' +
                 ", address='" + address + '\'' +
                 ", title='" + title + '\'' +
-                ", petition=" + petition +
+                ", petition=" + petitions +
                 '}';
     }
 }

@@ -5,12 +5,7 @@ import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Collection;
 
 @Entity
@@ -39,7 +34,7 @@ public class User {
     @JsonView(DataTablesOutput.View.class)
     private String role;
 
-    @OneToMany
+    @OneToMany(mappedBy = "responsible")
     private Collection<Petition> petition;
 
     public User() {}
