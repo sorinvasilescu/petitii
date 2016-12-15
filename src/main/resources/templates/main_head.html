@@ -58,5 +58,21 @@
             <script src="../static/js/theme.min.js" th:src="@{/js/theme.min.js}"></script>
             <script src="../static/js/jquery-spring-friendly.min.js" th:src="@{/js/jquery-spring-friendly.min.js}"></script>
         </div>
+
+        <div th:fragment="toast">
+            <!-- Toast -->
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                console.log(toastContent);
+                if (toastContent!=null) {
+                    $('#alert')
+                        .removeClass('hidden')
+                        .addClass(toastContent.type)
+                        .children('#alert-content').text(toastContent.message);
+                }
+                /*]]>*/
+            </script>
+            <!-- /Toast -->
+        </div>
     </body>
 </html>

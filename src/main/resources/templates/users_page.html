@@ -72,8 +72,6 @@
 /*]]>*/
 </script>
 
-
-
 <!-- Datatables -->
 <script>
     var emailTable;
@@ -131,20 +129,7 @@
 </script>
 <!-- /Datatables -->
 
-<!-- Toast -->
-<script th:inline="javascript">
-/*<![CDATA[*/
-    console.log(toastContent);
-    if (toastContent!=null) {
-        $('#alert')
-            .removeClass('hidden')
-            .addClass(toastContent.type)
-            .children('#alert-content').text(toastContent.message);
-    }
-/*]]>*/
-</script>
-<!-- /Toast -->
-
+<div th:replace="main_head::toast"></div>
 
 </body>
 </html>
