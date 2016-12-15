@@ -46,4 +46,9 @@ public class PetitionController {
     public String listPetitions() {
         return "petitii_page";
     }
+
+    @RequestMapping("/redirectionare")
+    public String redirectPetition() {
+        return "redirectioneaza_petition_page";
+    }
 }
