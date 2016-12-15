@@ -3,19 +3,8 @@
 <body>
     <div th:fragment="menu" class="col-md-3 left_col menu_fixed">
         <div class="left_col scroll-view">
-            <div class="navbar nav_title">
-                <div class="row top-margin">
-                    <!--
-                    <div class="col-xs-10 col-xs-offset-1 col-md-offset-2 col-md-10">
-                        <img src="../static/img/GovIThub_Logo_500x500px%20(1).png" th:src="@{/img/GovIThub_Logo_500x500px%20(1).png}"/>
-                    </div>
-                    -->
-                </div>
-                <div class="row">
-                    <div class="col-xs-12 col-md-12 text-center">
-                        <a href="/inbox" class="site_title">Petiții</a>
-                    </div>
-                </div>
+            <div class="navbar nav_title top-margin" style="border: 0;">
+              <a href="/inbox" class="site_title"><i class="fa fa-comments-o"></i> <span>Petiții</span></a>
             </div>
 
             <div class="clearfix"></div>
