@@ -118,7 +118,7 @@
 </script>
 
 <!-- Datatables -->
-<script th:inline="javascript" type="application/javascript">
+<script th:inline="javascript" type="text/javascript">
     function strLimit(data, limit) {
         var str = data.substr(0, limit);
         if (data.length > limit) str += '';
@@ -138,7 +138,13 @@
             order: [[3, 'desc']],
             ajax: {
                 url: restUrl,
-                type: 'POST'
+                type: 'POST',
+                data: function(d) {
+                    /*[+
+                    varName = [[${_csrf.parameterName}]];
+                    d[varName] = [[${_csrf.token}]]; +]*/
+                    /*[- */ d.csrfToken = "TOKEN"; /* -]*/
+                }
             },
             language: {
                 url: languageUrl

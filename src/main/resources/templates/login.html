@@ -38,10 +38,11 @@
                                 <div id="loginErrorMsg" th:if="${loginError}" class="alert alert-error hide">Nume de utilizator sau parolă gresite !</div>
                                 <div class="checkbox">
                                     <label>
-                                        <input type="checkbox" name="remember" id="remember" />Păstrază-mă autentificat
+                                        <input type="checkbox" name="remember-me" id="remember"/>Păstrază-mă autentificat
                                     </label>
 
                                 </div>
+                                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                                 <button type="submit" class="btn btn-success btn-block">Autentificare</button>
                                 <a href="/forgot/" class="btn btn-default btn-block">Am uitat parola</a>
 
