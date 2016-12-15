@@ -219,7 +219,7 @@
 <!-- /Toast -->
 
 <!-- Other actions -->
-<script th:if="${page=='inbox'}" type="text/javascript">
+<script th:if="${page=='inbox'}" type="text/javascript" th:inline="javascript">
     $(document).ready(function () {
         $('#get-mail').click(refreshMail);
     });
@@ -231,6 +231,9 @@
         $.ajax({
             url: "/rest/refresh",
             method: 'post',
+            data: {
+                /*[[${_csrf.parameterName}]]: [[${_csrf.token}]]*/
+            }
         }).done(function (data) {
             //console.log('success');
             if (data.success == 'true') {
