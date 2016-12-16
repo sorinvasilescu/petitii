@@ -3,8 +3,7 @@ package ro.petitii.model;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
-import java.util.Collection;
-import java.util.Date;
+import java.util.*;
 
 @Entity
 @Table(name = "petitions")
@@ -38,6 +37,9 @@ public class Petition {
 
     @OneToMany(mappedBy = "petition")
     private Collection<Email> emails;
+
+    @OneToMany(mappedBy = "petition")
+    private Collection<PetitionStatus> statuses;
 
     public Long getId() {
         return id;
@@ -129,6 +131,21 @@ public class Petition {
 
     public void setResponsible(User responsible) {
         this.responsible = responsible;
+    }
+
+    public String statusString() {
+        if (statuses.size() > 0) {
+            List<PetitionStatus> statuses = new ArrayList<>(this.statuses);
+            Comparator<PetitionStatus> comparator = new Comparator<PetitionStatus>() {
+                @Override
+                public int compare(PetitionStatus o1, PetitionStatus o2) {
+                    if (o1.getDate().before(o2.getDate())) return -1;
+                    else return 1;
+                }
+            };
+            Collections.sort(statuses, comparator);
+            return statuses.get(0).getStatus().toString();
+        } else return "";
     }
 
     @Override

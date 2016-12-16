@@ -6,8 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import ro.petitii.model.Petition;
+import ro.petitii.model.PetitionStatus;
 import ro.petitii.model.Petitioner;
 import ro.petitii.model.User;
 import ro.petitii.model.rest.RestPetitionResponse;
@@ -33,6 +36,9 @@ public class PetitionServiceImpl implements PetitionService {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    PetitionStatusService psService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ImapService.class);
 
@@ -68,8 +74,14 @@ public class PetitionServiceImpl implements PetitionService {
             petitioner = petitioners.iterator().next();
         }
         petition.setPetitioner(petitioner);
+        petition = petitionRepository.save(petition);
 
-        return petitionRepository.save(petition);
+        // if petition status does not exist, generate one
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.findUserByEmail(auth.getName()).get(0);
+        psService.create(PetitionStatus.Status.RECEIVED,petition, user);
+
+        return petition;
     }
 
     @Override
