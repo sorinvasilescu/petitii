@@ -93,6 +93,14 @@
 
 <div th:replace="main_head::includes"></div>
 
+<!-- Variables from backend -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var restUrl = /*[[${restUrl}]]*/ '/rest/emails';
+    var toastContent = /*[[${toast}]]*/ null;
+    /*]]>*/
+</script>
+
 <!-- Datatables -->
 <script th:inline="javascript" type="text/javascript">
     /*<![CDATA[*/
@@ -115,7 +123,7 @@
             sDom: 'lrtip ',
             order: [[2, 'desc']],
             ajax: {
-                url: "/rest/petitions",
+                url: restUrl,
                 type: 'POST',
                 data: function(d) {
                     /*[+
@@ -145,7 +153,7 @@
                     data: 'petitionerName',
                     title: 'Nume petent',
                     render: function (data) {
-                        return strLimit(data, 120);
+                        return strLimit(data, 30);
                     }
                 },
                 {
@@ -172,5 +180,7 @@
     });
 </script>
 <!-- /Datatables -->
+
+<div th:replace="main_head::toast"></div>
 </body>
 </html>

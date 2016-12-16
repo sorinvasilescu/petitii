@@ -10,12 +10,12 @@
             <div class="col-md-3 left_col" th:substituteby="left::menu"></div>
             <div class="top_nav" th:substituteby="top::menu"></div>
             <div class="right_col" role="main">
-                <form class="form-horizontal form-label-left input_mask" th:object="${petition}" th:action="@{/petition}" method="post">
+                <form id="petition-form" class="form-horizontal form-label-left input_mask" th:object="${petition}" th:action="@{/petition}" method="post">
                     <div>
                         <div class="row">
                             <div class="col-md-12 col-sm-12 col-xs-12">
                                 <div class="buttons pull-right">
-                                    <button type="button" class="btn btn-success btn-sm"><i class="fa fa-paste"></i> <span>Salvează</span></button>
+                                    <button id="top-submit" type="button" class="btn btn-success btn-sm"><i class="fa fa-paste"></i> <span>Salvează</span></button>
                                     <button type="button" class="btn btn-default btn-sm"><i class="fa fa-file-text"></i> <span>Clasează</span></button>
                                     <button type="button" class="btn btn-default btn-sm"><i class="fa fa-check-square-o"></i> <span>Rezolvă</span></button>
                                     <button type="button" class="btn btn-default btn-sm"><i class="fa fa-mail-forward"></i> <span>Redirecționează</span></button>
@@ -573,7 +573,7 @@
 						<div class="row">
                             <div class="col-md-12 col-sm-12 col-xs-12">
                                 <div class="buttons pull-right">
-                                    <button type="button" class="btn btn-success btn-sm"><i class="fa fa-paste"></i> <span>Salvează</span></button>
+                                    <button id="bottom-submit" type="button" class="btn btn-success btn-sm"><i class="fa fa-paste"></i> <span>Salvează</span></button>
                                     <button type="button" class="btn btn-default btn-sm"><i class="fa fa-file-text"></i> <span>Clasează</span></button>
                                     <button type="button" class="btn btn-default btn-sm"><i class="fa fa-check-square-o"></i> <span>Rezolvă</span></button>
                                     <button type="button" class="btn btn-default btn-sm"><i class="fa fa-mail-forward"></i> <span>Redirecționează</span></button>
@@ -621,10 +621,14 @@
             allowClear: true
         });
 
+        $('#bottom-submit,#top-submit').click(function(){
+            $('#petition-form').submit();
+        });
 
     });
     </script>
     <!-- /Datatables -->
+    <div th:replace="main_head::toast"></div>
 </body>
 
 </html>

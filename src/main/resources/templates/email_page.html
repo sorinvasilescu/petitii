@@ -178,8 +178,8 @@
                     data: 'subject',
                     title: 'Subiect',
                     render: function (data) {
-                        return '<div class="elipsis-subiect">'+data+'</div>';
-                    	//return strLimit(data, 120);
+                        //return '<div class="elipsis-subiect">'+data+'</div>';
+                    	return strLimit(data, 120);
                     },
                     'className': "elipsis-subiect",
                     'width': '900px'
