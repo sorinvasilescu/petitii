@@ -32,7 +32,7 @@ public class PetitionRestController {
 
     @RequestMapping(value = "/rest/petitions", method = RequestMethod.POST)
     @ResponseBody
-    public RestPetitionResponse getPetitions(@Valid DataTablesInput input) {
+    public RestPetitionResponse getUserPetitions(@Valid DataTablesInput input) {
         int sequenceNo = input.getDraw();
 
         String sortColumn = input.getColumns().get(input.getOrder().get(0).getColumn()).getName();
@@ -46,6 +46,24 @@ public class PetitionRestController {
         User user = userService.findUserByEmail(auth.getName()).get(0);
 
         RestPetitionResponse response = petitionService.getTableContent(user, input.getStart(), input.getLength(), sortDirection, sortColumn);
+        response.setDraw(sequenceNo);
+
+        return response;
+    }
+
+    @RequestMapping(value = "/rest/petitions/all")
+    @ResponseBody
+    public RestPetitionResponse getAllPetitions(@Valid DataTablesInput input) {
+        int sequenceNo = input.getDraw();
+
+        String sortColumn = input.getColumns().get(input.getOrder().get(0).getColumn()).getName();
+        LOGGER.info("Attempting to sort on: " + sortColumn);
+
+        Sort.Direction sortDirection = null;
+        if (input.getOrder().get(0).getDir().equals("asc")) sortDirection = Sort.Direction.ASC;
+        else if (input.getOrder().get(0).getDir().equals("desc")) sortDirection = Sort.Direction.DESC;
+
+        RestPetitionResponse response = petitionService.getTableContent(null, input.getStart(), input.getLength(), sortDirection, sortColumn);
         response.setDraw(sequenceNo);
 
         return response;

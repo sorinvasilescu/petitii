@@ -223,19 +223,6 @@
 </script>
 <!-- /Datatables -->
 
-<!-- Toast -->
-<script th:inline="javascript">
-    /*<![CDATA[*/
-    if (toastContent != null) {
-        $('#alert')
-            .removeClass('hidden')
-            .addClass(toastContent.type)
-            .children('#alert-content').text(toastContent.message);
-    }
-    /*]]>*/
-</script>
-<!-- /Toast -->
-
 <!-- Other actions -->
 <script th:if="${page=='inbox'}" type="text/javascript" th:inline="javascript">
     $(document).ready(function () {
@@ -264,5 +251,6 @@
         });
     }
 </script>
+<div th:replace="main_head::toast"></div>
 </body>
 </html>
