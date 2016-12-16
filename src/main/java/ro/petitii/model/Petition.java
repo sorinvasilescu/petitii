@@ -133,7 +133,7 @@ public class Petition {
         this.responsible = responsible;
     }
 
-    public String statusString() {
+    public PetitionStatus.Status getStatus() {
         if ((statuses!=null) && (statuses.size() > 0)) {
             List<PetitionStatus> statuses = new ArrayList<>(this.statuses);
             Comparator<PetitionStatus> comparator = new Comparator<PetitionStatus>() {
@@ -144,7 +144,14 @@ public class Petition {
                 }
             };
             Collections.sort(statuses, comparator);
-            return statuses.get(0).getStatus().toString();
+            return statuses.get(0).getStatus();
+        } else return null;
+    }
+
+    public String statusString() {
+        PetitionStatus.Status status = this.getStatus();
+        if (status != null) {
+            return status.toString();
         } else return "NEW";
     }
 
