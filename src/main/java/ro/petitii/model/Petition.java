@@ -134,7 +134,7 @@ public class Petition {
     }
 
     public String statusString() {
-        if (statuses.size() > 0) {
+        if ((statuses!=null) && (statuses.size() > 0)) {
             List<PetitionStatus> statuses = new ArrayList<>(this.statuses);
             Comparator<PetitionStatus> comparator = new Comparator<PetitionStatus>() {
                 @Override
@@ -145,7 +145,7 @@ public class Petition {
             };
             Collections.sort(statuses, comparator);
             return statuses.get(0).getStatus().toString();
-        } else return "";
+        } else return "NEW";
     }
 
     @Override
