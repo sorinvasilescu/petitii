@@ -3,199 +3,184 @@
 <head th:replace="main_head::head"></head>
 
 <body class="nav-md">
-    <div class="container body">
-        <div class="main_container">
-            <div class="col-md-3 left_col" th:substituteby="left::menu"></div>
+<div class="container body">
+    <div class="main_container">
+        <div class="col-md-3 left_col" th:substituteby="left::menu"></div>
 
-            <!-- top navigation -->
-            <div class="top_nav" th:substituteby="top::menu"></div>
-            <!-- /top navigation -->
+        <!-- top navigation -->
+        <div class="top_nav" th:substituteby="top::menu"></div>
+        <!-- /top navigation -->
 
-            <!-- page content -->
-            <div class="right_col" role="main">
-                <div class="">
-                    <h2>Petițiile mele</h2>
-                    <div class="col-md-6 col-sm-6 col-xs-12">
-                        <div class="radio">
-                         <label>
-                           <input type="radio" class="flat" checked="true" name="iCheck" th:text="${petitiiInLucru}"/> Petiții în lucru
-                         </label>
-                       </div>
-                       <div class="radio">
-                         <label>
-                           <input type="radio" class="flat" name="iCheck" th:text="${toatePetitiile}"/> Toate
-                         </label>
-                       </div>
-                    </div>
-                    <div class="col-md-6 col-sm-6 col-xs-12">
-                          <div class="buttons pull-right">
-                            <button type="button" class="btn btn-default btn-sm"><i class="fa fa-file-text"></i> <span>Clasează</span></button>
-                            <button type="button" class="btn btn-default btn-sm"><i class="fa fa-check-square-o"></i> <span>Rezolvă</span></button>
-                            <button type="button" class="btn btn-default btn-sm"><i class="fa fa-mail-forward"></i> <span>Redirecționează</span></button>
-                          </div>
-                    </div>
-                    <ul class="nav navbar-right panel_toolbox">
-                        <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                        </li>
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
-                               aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                            <ul class="dropdown-menu" role="menu">
-                                <li><a href="#">Settings 1</a>
-                                </li>
-                                <li><a href="#">Settings 2</a>
-                                </li>
-                            </ul>
-                        </li>
-                        <li><a class="close-link"><i class="fa fa-close"></i></a>
-                        </li>
-                    </ul>
-                    <div class="clearfix"></div>
+        <!-- page content -->
+        <div class="right_col" role="main">
+            <div class="">
+                <h2>Petițiile mele</h2>
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    <div class="radio">
+                     <label>
+                       <input type="radio" class="flat" checked="true" name="iCheck" th:text="${petitiiInLucru}"/> Petiții în lucru
+                     </label>
+                   </div>
+                   <div class="radio">
+                     <label>
+                       <input type="radio" class="flat" name="iCheck" th:text="${toatePetitiile}"/> Toate
+                     </label>
+                   </div>
                 </div>
-                <div class="x_content">
-                    <table id="datatable-responsive" class="table table-striped table-bordered dt-responsive nowrap"
-                           cellspacing="0" width="100%">
-                        <thead>
-                        <tr>
-                            <th><input type="checkbox"/></th>
-                            <th>Numar inregistrare</th>
-                            <th>Nume petent</th>
-                            <th>E-mail petent</th>
-                            <th>Rezumat petitie</th>
-                            <th>Status</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td><input type="checkbox"/></td>
-                            <td>48293</td>
-                            <td>Tudor Nixon</td>
-                            <td>t.nixon@datatables.net</td>
-                            <td>Some random text</td>
-                            <td>Solutionata</td>
-                        </tr>
-                        <tr>
-                            <td><input type="checkbox"/></td>
-                            <td>49521</td>
-                            <td>George Winters</td>
-                            <td>g.winters@datatables.net</td>
-                            <td>Some other random</td>
-                            <td>Pending</td>
-                        </tr>
-                        <tr>
-                            <td><input type="checkbox"/></td>
-                            <td>43131</td>
-                            <td>Alex Cox</td>
-                            <td>a.cox@datatables.net</td>
-                            <td>Bla bla bla</td>
-                            <td>Nesolutionata</td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <!-- /page content -->
-
-            <!-- footer content -->
-            <footer>
-                <div class="pull-right">
-                    Gentelella - Bootstrap Admin Template by <a href="https://colorlib.com">Colorlib</a>
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                	  <div class="buttons pull-right">
+                	  	<button type="button" class="btn btn-default btn-sm"><i class="fa fa-file-text"></i> <span>Clasează</span></button>
+                	  	<button type="button" class="btn btn-default btn-sm"><i class="fa fa-check-square-o"></i> <span>Rezolvă</span></button>
+                	  	<button type="button" class="btn btn-default btn-sm"><i class="fa fa-mail-forward"></i> <span>Redirecționează</span></button>
+                	  </div>
                 </div>
                 <div class="clearfix"></div>
-            </footer>
-            <!-- /footer content -->
+            </div>
+            <div class="x_content">
+                <table id="datatable-responsive" class="table table-striped table-bordered dt-responsive nowrap"
+                       cellspacing="0" width="100%">
+                    <thead>
+                    <tr>
+                    	<th><input type="checkbox"/></th>
+                        <th>Numar inregistrare</th>
+                        <th>Nume petent</th>
+                        <th>E-mail petent</th>
+                        <th>Rezumat petitie</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                    	<td><input type="checkbox"/></td>
+                        <td>48293</td>
+                        <td>Tudor Nixon</td>
+                        <td>t.nixon@datatables.net</td>
+                        <td>Some random text</td>
+                        <td>Solutionata</td>
+                    </tr>
+                    <tr>
+                    	<td><input type="checkbox"/></td>
+                        <td>49521</td>
+                        <td>George Winters</td>
+                        <td>g.winters@datatables.net</td>
+                        <td>Some other random</td>
+                        <td>Pending</td>
+                    </tr>
+                    <tr>
+                    	<td><input type="checkbox"/></td>
+                        <td>43131</td>
+                        <td>Alex Cox</td>
+                        <td>a.cox@datatables.net</td>
+                        <td>Bla bla bla</td>
+                        <td>Nesolutionata</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
+        <!-- /page content -->
+
+        <!-- footer content -->
+        <footer>
+            <div class="pull-right">
+                Gentelella - Bootstrap Admin Template by <a href="https://colorlib.com">Colorlib</a>
+            </div>
+            <div class="clearfix"></div>
+        </footer>
+        <!-- /footer content -->
     </div>
+</div>
 
-    <div th:replace="main_head::includes"></div>
+<div th:replace="main_head::includes"></div>
 
-    <!-- Variables from backend -->
-    <script th:inline="javascript">
-        /*<![CDATA[*/
-        var restUrl = /*[[${restUrl}]]*/ '/rest/petitions';
-        var toastContent = /*[[${toast}]]*/ null;
-        /*]]>*/
-    </script>
+<!-- Variables from backend -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var restUrl = /*[[${restUrl}]]*/ '/rest/emails';
+    var toastContent = /*[[${toast}]]*/ null;
+    /*]]>*/
+</script>
 
-    <!-- Datatables -->
-    <script th:inline="javascript" type="text/javascript">
-        /*<![CDATA[*/
-        function strLimit(data, limit) {
-            if ((data!=null) && (data.length > limit)){
-                data = data.substr(0, limit);
-                data += '...';
-            }
-            return data;
+<!-- Datatables -->
+<script th:inline="javascript" type="text/javascript">
+    /*<![CDATA[*/
+    function strLimit(data, limit) {
+        if ((data!=null) && (data.length > limit)){
+            data = data.substr(0, limit);
+            data += '...';
         }
+        return data;
+    }
 
-        var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
-        /*]]>*/
+    var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
+    /*]]>*/
 
-        var emailTable;
-        $(document).ready(function () {
-            emailTable = $('#datatable-responsive').DataTable({
-                processing: true,
-                serverSide: true,
-                sDom: 'lrtip ',
-                order: [[2, 'desc']],
-                ajax: {
-                    url: restUrl,
-                    type: 'POST',
-                    data: function(d) {
-                        /*[+
-                         varName = [[${_csrf.parameterName}]];
-                         d[varName] = [[${_csrf.token}]]; +]*/
-                        /*[- */ d.csrfToken = "TOKEN"; /* -]*/
+    var emailTable;
+    $(document).ready(function () {
+        emailTable = $('#datatable-responsive').DataTable({
+            processing: true,
+            serverSide: true,
+            sDom: 'lrtip ',
+            order: [[2, 'desc']],
+            ajax: {
+                url: restUrl,
+                type: 'POST',
+                data: function(d) {
+                    /*[+
+                     varName = [[${_csrf.parameterName}]];
+                     d[varName] = [[${_csrf.token}]]; +]*/
+                    /*[- */ d.csrfToken = "TOKEN"; /* -]*/
+                }
+            },
+            language: {
+                url: languageUrl
+            },
+            columns: [
+                {
+                    data: null,
+                    render: function (data, type, full, meta) {
+                        return '<input type="checkbox"/>';
+                    },
+                    sortable: false
+                },
+                {
+                    name: 'regNo',
+                    data: 'regNo',
+                    title: 'Numar inregistrare'
+                },
+                {
+                    name: 'petitioner.lastName',
+                    data: 'petitionerName',
+                    title: 'Nume petent',
+                    render: function (data) {
+                        return strLimit(data, 30);
                     }
                 },
-                language: {
-                    url: languageUrl
+                {
+                    name: 'petitionerEmail',
+                    data: 'petitionerEmail',
+                    title: 'Email petent'
                 },
-                columns: [
-                    {
-                        data: null,
-                        render: function (data, type, full, meta) {
-                            return '<input type="checkbox"/>';
-                        },
-                        sortable: false
+                {
+                    name: '_abstract',
+                    data: '_abstract',
+                    title: 'Rezumat petitie',
+                    render: function (data) {
+                        return strLimit(data, 70);
                     },
-                    {
-                        name: 'regNo',
-                        data: 'regNo',
-                        title: 'Numar inregistrare'
-                    },
-                    {
-                        name: 'petitioner.lastName',
-                        data: 'petitionerName',
-                        title: 'Nume petent',
-                        render: function (data) {
-                            return strLimit(data, 120);
-                        }
-                    },
-                    {
-                        name: 'petitionerEmail',
-                        data: 'petitionerEmail',
-                        title: 'Email petent'
-                    },
-                    {
-                        name: '_abstract',
-                        data: '_abstract',
-                        title: 'Rezumat petitie',
-                        render: function (data) {
-                            return strLimit(data, 70);
-                        },
-                        sortable: false
-                    },
-                    {
-                        name: 'status',
-                        data: 'status',
-                        title: 'Status'
-                    },
-                ]
-            });
+                    sortable: false
+                },
+                {
+                    name: 'status',
+                    data: 'status',
+                    title: 'Status'
+                },
+            ]
         });
-    </script>
-    <!-- /Datatables -->
-    <div th:replace="main_head::toast"></div>
+    });
+</script>
+<!-- /Datatables -->
+
+<div th:replace="main_head::toast"></div>
 </body>
 </html>
