@@ -73,7 +73,7 @@
 </script>
 
 <!-- Datatables -->
-<script>
+<script type="text/javascript" th:inline="javascript">
     var emailTable;
     $(document).ready(function () {
         emailTable = $('#datatable-responsive').DataTable({
@@ -83,7 +83,13 @@
             order: [[ 3, 'desc']],
             ajax: {
                 url: restUrl,
-                type: 'POST'
+                type: 'POST',
+                data: function(d) {
+                    /*[+
+                     varName = [[${_csrf.parameterName}]];
+                     d[varName] = [[${_csrf.token}]]; +]*/
+                    /*[- */ d.csrfToken = "TOKEN"; /* -]*/
+                }
             },
             columns: [
                 {
