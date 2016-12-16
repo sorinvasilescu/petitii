@@ -37,6 +37,16 @@ public class PetitionServiceImpl implements PetitionService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ImapService.class);
 
     @Override
+    public Long count() {
+        return petitionRepository.count();
+    }
+
+    @Override
+    public Long countByResponsible(User responsible) {
+        return petitionRepository.countByResponsible(responsible);
+    }
+
+    @Override
     public Petition save(Petition petition) {
 
         // if registration number does not exist, generate one
@@ -99,6 +109,12 @@ public class PetitionServiceImpl implements PetitionService {
             data.add(element);
         }
         response.setData(data);
+        Long count;
+        if (user!=null) count = this.countByResponsible(user);
+        else count = this.count();
+        response.setRecordsTotal(count);
+        response.setRecordsFiltered(count);
+
         return response;
     }
 }

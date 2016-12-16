@@ -10,5 +10,6 @@ import ro.petitii.model.User;
 
 @Repository
 public interface PetitionRepository extends DataTablesRepository<Petition,Long> {
-    Page<Petition> findByResponsible(@Param("responsible") User user, Pageable p);
+    Page<Petition> findByResponsible(User user, Pageable p);
+    Long countByResponsible(User responsible);
 }

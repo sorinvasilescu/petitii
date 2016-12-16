@@ -86,8 +86,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public RestEmailResponse getTableContent(Email.EmailType type, int startIndex, int size,
-                                             Sort.Direction sortDirection, String sortColumn) {
+    public RestEmailResponse getTableContent(Email.EmailType type, int startIndex, int size, Sort.Direction sortDirection, String sortColumn) {
         List<Email> result = this.findAllByType(type, startIndex, size, sortDirection, sortColumn);
         List<RestEmailResponseElement> data = new ArrayList<>();
         SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
@@ -102,8 +101,9 @@ public class EmailServiceImpl implements EmailService {
         }
         RestEmailResponse response = new RestEmailResponse();
         response.setData(data);
-        response.setRecordsFiltered(this.count(type));
-        response.setRecordsTotal(this.count(type));
+        Long count = this.count(type);
+        response.setRecordsFiltered(count);
+        response.setRecordsTotal(count);
         return response;
     }
 }

@@ -57,7 +57,6 @@ public class PetitionRestController {
         int sequenceNo = input.getDraw();
 
         String sortColumn = input.getColumns().get(input.getOrder().get(0).getColumn()).getName();
-        LOGGER.info("Attempting to sort on: " + sortColumn);
 
         Sort.Direction sortDirection = null;
         if (input.getOrder().get(0).getDir().equals("asc")) sortDirection = Sort.Direction.ASC;
