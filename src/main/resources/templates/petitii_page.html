@@ -112,7 +112,7 @@
     <!-- Variables from backend -->
     <script th:inline="javascript">
         /*<![CDATA[*/
-        var restUrl = /*[[${restUrl}]]*/ '/rest/emails';
+        var restUrl = /*[[${restUrl}]]*/ '/rest/petitions';
         var toastContent = /*[[${toast}]]*/ null;
         /*]]>*/
     </script>
@@ -139,7 +139,7 @@
                 sDom: 'lrtip ',
                 order: [[2, 'desc']],
                 ajax: {
-                    url: "/rest/petitions",
+                    url: restUrl,
                     type: 'POST',
                     data: function(d) {
                         /*[+

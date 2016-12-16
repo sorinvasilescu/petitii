@@ -75,8 +75,17 @@ public class PetitionServiceImpl implements PetitionService {
     }
 
     @Override
+    public List<Petition> findAll(int startIndex, int size, Sort.Direction sortDirection, String sortcolumn) {
+        PageRequest p = new PageRequest(startIndex / size, size, sortDirection, sortcolumn);
+        Page<Petition> petitions = petitionRepository.findAll(p);
+        return petitions.getContent();
+    }
+
+    @Override
     public RestPetitionResponse getTableContent(User user, int startIndex, int size, Sort.Direction sortDirection, String sortColumn) {
-        List<Petition> petitions = this.findByResponsible(user, startIndex, size, sortDirection, sortColumn);
+        List<Petition> petitions;
+        if (user != null) petitions = this.findByResponsible(user, startIndex, size, sortDirection, sortColumn);
+        else petitions = this.findAll(startIndex,size,sortDirection,sortColumn);
         RestPetitionResponse response = new RestPetitionResponse();
         List<RestPetitionResponseElement> data = new ArrayList<>();
         for (Petition petition : petitions) {
@@ -85,6 +94,7 @@ public class PetitionServiceImpl implements PetitionService {
             element.setPetitionerEmail(petition.getPetitioner().getEmail());
             element.setPetitionerName(petition.getPetitioner().getFirstName() + " " + petition.getPetitioner().getLastName());
             element.setRegNo(petition.getRegNo().getNumber());
+            // TODO status
             element.setStatus("TODO: Status");
             data.add(element);
         }

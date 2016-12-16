@@ -11,5 +11,6 @@ public interface PetitionService {
     Petition save(Petition petition);
     Petition findById(Long id);
     List<Petition> findByResponsible(User user, int startIndex, int size, Sort.Direction sortDirection, String sortcolumn);
+    List<Petition> findAll(int startIndex, int size, Sort.Direction sortDirection, String sortcolumn);
     RestPetitionResponse getTableContent(User user, int startIndex, int size, Sort.Direction sortDirection, String sortColumn);
 }
