@@ -45,6 +45,10 @@ public class Petition {
         return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public Date getReceivedDate() {
         return receivedDate;
     }
