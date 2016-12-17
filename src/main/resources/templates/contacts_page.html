@@ -33,19 +33,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                            	<td><input type="checkbox"/></td>
-                                <td>Tudor Nixon</td>
-                                <td>user@datatables.net</td>
-                                <td>0231000000</td>
-                            </tr>
-                            <tr>
-                            	<td><input type="checkbox"/></td>
-                                <td>George Winters</td>
-                                <td>g.winters@datatables.net</td>
-                                <td>09852200000</td>
-                            </tr>
-                      
+                            
                         </tbody>
                     </table>
                 </div>
@@ -62,17 +50,71 @@
         </div>
     </div>
     <div th:replace="main_head::includes"></div>
-    <!-- Datatables -->
+    <!-- Variables from backend -->
     <script th:inline="javascript" type="application/javascript">
         /*<![CDATA[*/
-        var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
+        var toastContent = /*[[${toast}]]*/ null;
         /*]]>*/
+	</script>
 
-        $(document).ready(function () {
-            $('#datatable-responsive').DataTable({
+	<!-- Datatables -->
+	<script th:inline="javascript" type="text/javascript">
+    /*<![CDATA[*/
+    function strLimit(data, limit) {
+        if ((data!=null) && (data.length > limit)){
+            data = data.substr(0, limit);
+            data += '...';
+        }
+        return data;
+    }
+
+    var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
+    /*]]>*/
+    
+    var contactTable;
+    $(document).ready(function () {
+        	contactTable = $('#datatable-responsive').DataTable({
+                processing: true,
+                serverSide: true,
+                sDom: 'lrtip ',
+                order: [[2, 'desc']],
+                ajax: {
+                    url: '/rest/contacts',
+                    type: 'POST',
+                    data: function(d) {
+                        /*[+
+                         varName = [[${_csrf.parameterName}]];
+                         d[varName] = [[${_csrf.token}]]; +]*/
+                        /*[- */ d.csrfToken = "TOKEN"; /* -]*/
+                    }
+                },
                 language: {
                     url: languageUrl
-                }
+                },
+                columns: [
+                    {
+                        data: null,
+                        render: function (data, type, full, meta) {
+                            return '<input type="checkbox"/>';
+                        },
+                        sortable: false
+                    },
+                    {
+                        name: 'name',
+                        data: 'name',
+                        title: 'Institutie'
+                    },
+                    {
+                        name: 'email',
+                        data: 'email',
+                        title: 'Email'
+                    },
+                    {
+                        name: 'phone',
+                        data: 'phone',
+                        title: 'Telefon'
+                    },
+                ]
             });
         });
     </script>
