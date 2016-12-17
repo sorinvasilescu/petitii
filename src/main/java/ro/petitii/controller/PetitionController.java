@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
+import ro.petitii.model.Email;
 import ro.petitii.model.Petition;
+import ro.petitii.service.EmailService;
 import ro.petitii.service.PetitionService;
 import ro.petitii.service.UserService;
 import ro.petitii.service.email.ImapService;
@@ -23,6 +25,9 @@ public class PetitionController extends ControllerBase {
 
     @Autowired
     PetitionService petitionService;
+
+    @Autowired
+    EmailService emailService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ImapService.class);
 
@@ -43,7 +48,26 @@ public class PetitionController extends ControllerBase {
         ModelAndView modelAndView = new ModelAndView("add_petition");
 
         Petition petition = petitionService.findById(id);
-        modelAndView.addObject("petition",petition);
+        modelAndView.addObject("petition", petition);
+        modelAndView.addObject("user_list", userService.getAllUsers());
+
+        return modelAndView;
+    }
+
+    @RequestMapping(path = "/petition/fromEmail/{id}", method = RequestMethod.GET)
+    public ModelAndView createPetitionFromEmail(@PathVariable("id") Long id) {
+        Email email = emailService.searchById(id);
+
+        Petition petition = new Petition();
+        petition.setReceivedDate(new Date());
+        petition.setDescription(email.getBody());
+        petition.set_abstract(email.getSubject());
+
+        //todo; move petitioner details
+
+        ModelAndView modelAndView = new ModelAndView("add_petition");
+        modelAndView.addObject("petition", petition);
+        modelAndView.addObject("user_list", userService.getAllUsers());
 
         return modelAndView;
     }
@@ -55,7 +79,9 @@ public class PetitionController extends ControllerBase {
 
         ModelAndView modelAndView = new ModelAndView("add_petition");
         modelAndView.addObject("petition", petition);
-        createToast("Petitie salvata cu succes",ToastType.success);
+        modelAndView.addObject("user_list", userService.getAllUsers());
+
+        createToast("Petitie salvata cu succes", ToastType.success);
 
         return modelAndView;
     }
@@ -63,14 +89,14 @@ public class PetitionController extends ControllerBase {
     @RequestMapping("/petitii")
     public ModelAndView listUserPetitions() {
         ModelAndView modelAndView = new ModelAndView("petitii_page");
-        modelAndView.addObject("restUrl","/rest/petitions");
+        modelAndView.addObject("restUrl", "/rest/petitions");
         return modelAndView;
     }
 
     @RequestMapping("/petitii/toate")
     public ModelAndView listAllPetitions() {
         ModelAndView modelAndView = new ModelAndView("petitii_page");
-        modelAndView.addObject("restUrl","/rest/petitions/all");
+        modelAndView.addObject("restUrl", "/rest/petitions/all");
         return modelAndView;
     }
 

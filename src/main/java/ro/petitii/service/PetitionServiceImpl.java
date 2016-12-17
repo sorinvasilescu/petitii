@@ -112,6 +112,7 @@ public class PetitionServiceImpl implements PetitionService {
         List<RestPetitionResponseElement> data = new ArrayList<>();
         for (Petition petition : petitions) {
             RestPetitionResponseElement element = new RestPetitionResponseElement();
+            element.setId(petition.getId());
             element.set_abstract(petition.get_abstract());
             element.setPetitionerEmail(petition.getPetitioner().getEmail());
             element.setPetitionerName(petition.getPetitioner().getFirstName() + " " + petition.getPetitioner().getLastName());

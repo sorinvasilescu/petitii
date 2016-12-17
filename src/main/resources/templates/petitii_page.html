@@ -13,6 +13,7 @@
 
         <!-- page content -->
         <div class="right_col" role="main">
+            <div id="error-messages"></div>
             <div class="">
                 <h2>Petițiile mele</h2>
                 <div class="col-md-6 col-sm-6 col-xs-12">
@@ -29,53 +30,17 @@
                 </div>
                 <div class="col-md-6 col-sm-6 col-xs-12">
                 	  <div class="buttons pull-right">
-                	  	<button type="button" class="btn btn-default btn-sm"><i class="fa fa-file-text"></i> <span>Clasează</span></button>
-                	  	<button type="button" class="btn btn-default btn-sm"><i class="fa fa-check-square-o"></i> <span>Rezolvă</span></button>
-                	  	<button type="button" class="btn btn-default btn-sm"><i class="fa fa-mail-forward"></i> <span>Redirecționează</span></button>
+                	  	<button id="add" type="button" class="btn btn-default btn-md"><i class="fa fa-plus-square-o"></i>&nbsp;<span>Adaugă</span></button>
+                	  	<button id="modify" type="button" class="btn btn-default btn-md"><i class="fa fa-pencil-square-o"></i>&nbsp;<span>Modifică</span></button>
+                	  	<button id="classify" type="button" class="btn btn-default btn-md"><i class="fa fa-share-square-o"></i>&nbsp;<span>Clasează</span></button>
+                	  	<button id="resolve" type="button" class="btn btn-default btn-md"><i class="fa fa-check-square-o"></i>&nbsp;<span>Rezolvă</span></button>
+                	  	<button id="redirect" type="button" class="btn btn-default btn-md"><i class="fa fa-mail-forward"></i>&nbsp;<span>Redirecționează</span></button>
                 	  </div>
                 </div>
                 <div class="clearfix"></div>
             </div>
             <div class="x_content">
                 <table id="datatable-responsive" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
-                    <!--
-                    <thead>
-                    <tr>
-                    	<th><input type="checkbox"/></th>
-                        <th>Numar inregistrare</th>
-                        <th>Nume petent</th>
-                        <th>E-mail petent</th>
-                        <th>Rezumat petitie</th>
-                        <th>Status</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                    	<td><input type="checkbox"/></td>
-                        <td>48293</td>
-                        <td>Tudor Nixon</td>
-                        <td>t.nixon@datatables.net</td>
-                        <td>Some random text</td>
-                        <td>Solutionata</td>
-                    </tr>
-                    <tr>
-                    	<td><input type="checkbox"/></td>
-                        <td>49521</td>
-                        <td>George Winters</td>
-                        <td>g.winters@datatables.net</td>
-                        <td>Some other random</td>
-                        <td>Pending</td>
-                    </tr>
-                    <tr>
-                    	<td><input type="checkbox"/></td>
-                        <td>43131</td>
-                        <td>Alex Cox</td>
-                        <td>a.cox@datatables.net</td>
-                        <td>Bla bla bla</td>
-                        <td>Nesolutionata</td>
-                    </tr>
-                    </tbody>
-                    -->
                 </table>
             </div>
         </div>
@@ -102,7 +67,6 @@
     /*]]>*/
 </script>
 
-<!-- Datatables -->
 <script th:inline="javascript" type="text/javascript">
     /*<![CDATA[*/
     function strLimit(data, limit) {
@@ -118,11 +82,16 @@
 
     var emailTable;
     $(document).ready(function () {
-        emailTable = $('#datatable-responsive').DataTable({
+        <!-- Datatables -->
+        var dtable = $('#datatable-responsive').DataTable({
+            select: {
+                style: 'multi'
+            },
             processing: true,
             serverSide: true,
             sDom: 'lrtip ',
             order: [[1, 'desc']],
+            rowId: "id",
             ajax: {
                 url: restUrl,
                 type: 'POST',
@@ -134,7 +103,8 @@
                 }
             },
             language: {
-                url: languageUrl
+                url: languageUrl,
+                select: selectTranslation()
             },
             columns: [
                 {
@@ -142,7 +112,9 @@
                     render: function (data, type, full, meta) {
                         return '<input type="checkbox"/>';
                     },
-                    sortable: false
+                    sortable: false,
+                    className: 'text-center',
+                    width: '15px'
                 },
                 {
                     name: 'regNo',
@@ -175,12 +147,27 @@
                     name: 'status',
                     data: 'status',
                     title: 'Status'
-                },
+                }
             ]
+        });
+
+        selectActions(dtable);
+
+        $("#add").click(function () {
+            window.location.href = '/petition';
+        });
+
+        $("#modify").click(function () {
+            var selectedRows = dtable.rows({selected: true}).data().toArray();
+            if (selectedRows.length != 1) {
+                addWarning("#error-messages", "Pentru modificări selectați o singură petiție");
+                this.blur()
+            } else {
+                window.location.href = '/petition/' + selectedRows[0].id;
+            }
         });
     });
 </script>
-<!-- /Datatables -->
 
 <div th:replace="main_head::toast"></div>
 </body>

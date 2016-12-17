@@ -20,6 +20,9 @@
                 <span id="alert-content"></span>
             </div>
             <!-- end alert -->
+
+            <div id="error-messages"></div>
+
             <div class="page-title-petitions">
                 <h2>
                     <span th:text="${title}">Email-uri primite</span>
@@ -47,50 +50,11 @@
             </div>
             <div class="x_content">
                 <div th:if="${page=='inbox'}" class="align-right">
-                    <button type="submit" id="get-mail" class="btn btn-info"><span
-                            class="glyphicon glyphicon-envelope"></span> Get Email
-                    </button>
+                    <button type="submit" id="get-mail" class="btn btn-info btn-md"><span class="glyphicon glyphicon-envelope"></span> Get Email</button>
+                    <button id="add" type="button" class="btn btn-default btn-md" title="Creează o petiție din e-mailul selectat"><i class="fa fa-plus-square-o"></i>&nbsp;<span>Creează petiție</span></button>
                 </div>
                 <table id="datatable-responsive" class="table jambo_table bulk_action table-striped table-bordered dt-responsive nowrap"
                        cellspacing="0" width="100%">
-                    <!--
-                    <thead>
-                    <tr>
-                        <th>Del</th>
-                        <th>Expeditor</th>
-                        <th>Subiect</th>
-                        <th>Data primire</th>
-                        <th>Status</th>
-                        <th>Details</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td><input type="checkbox"/></td>
-                        <td>t.nixon@datatables.net</td>
-                        <td>Sub1</td>
-                        <td>2011/04/25</td>
-                        <td>Nou</td>
-                        <td>Detalii</td>
-                    </tr>
-                    <tr>
-                        <td><input type="checkbox"/></td>
-                        <td>g.winters@datatables.net</td>
-                        <td>Sub1</td>
-                        <td>2011/07/25</td>
-                        <td>Necitit</td>
-                        <td>Detalii</td>
-                    </tr>
-                    <tr>
-                        <td><input type="checkbox"/></td>
-                        <td>a.cox@datatables.net</td>
-                        <td>Sub1</td>
-                        <td>2009/01/12</td>
-                        <td>Citit</td>
-                        <td>Detalii</td>
-                    </tr>
-                    </tbody>
-                    -->
                 </table>
             </div>
         </div>
@@ -134,9 +98,13 @@
     var emailTable;
     $(document).ready(function () {
         emailTable = $('#datatable-responsive').DataTable({
+            select: {
+                style: 'single'
+            },
             processing: true,
             serverSide: true,
             sDom: 'lrtip ',
+            rowId: "id",
             order: [[3, 'desc']],
             ajax: {
                 url: restUrl,
@@ -149,7 +117,8 @@
                 }
             },
             language: {
-                url: languageUrl
+                url: languageUrl,
+                select: selectTranslation()
             },
             fixedColumns: true,
             columns: [
@@ -219,6 +188,7 @@
                 }
             ]
         });
+        selectActions(emailTable);
     });
 </script>
 <!-- /Datatables -->
@@ -227,6 +197,16 @@
 <script th:if="${page=='inbox'}" type="text/javascript" th:inline="javascript">
     $(document).ready(function () {
         $('#get-mail').click(refreshMail);
+
+        $("#add").click(function () {
+            var selectedRows = emailTable.rows({selected: true}).data().toArray();
+            if (selectedRows.length != 1) {
+                addWarning("#error-messages", "Pentru creare selectați un e-mail");
+                this.blur()
+            } else {
+                window.location.href = '/petition/fromEmail/' + selectedRows[0].id;
+            }
+        });
     });
 
     function refreshMail(e) {
