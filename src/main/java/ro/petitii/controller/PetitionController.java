@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import ro.petitii.model.Email;
 import ro.petitii.model.Petition;
+import ro.petitii.model.Petitioner;
 import ro.petitii.service.EmailService;
 import ro.petitii.service.PetitionService;
 import ro.petitii.service.UserService;
@@ -33,8 +34,12 @@ public class PetitionController extends ControllerBase {
 
     @RequestMapping(path = "/petition", method = RequestMethod.GET)
     public ModelAndView addPetition() {
+        Petitioner petitioner = new Petitioner();
+        petitioner.setCountry("RO");
+
         Petition petition = new Petition();
         petition.setReceivedDate(new Date());
+        petition.setPetitioner(petitioner);
 
         ModelAndView modelAndView = new ModelAndView("add_petition");
         modelAndView.addObject("petition", petition);
@@ -75,15 +80,13 @@ public class PetitionController extends ControllerBase {
     @RequestMapping(path = "/petition", method = RequestMethod.POST)
     public ModelAndView savePetition(Petition petition) {
         LOGGER.info(petition.toString());
-        petitionService.save(petition);
+        petition = petitionService.save(petition);
 
         ModelAndView modelAndView = new ModelAndView("add_petition");
         modelAndView.addObject("petition", petition);
         modelAndView.addObject("user_list", userService.getAllUsers());
 
-        createToast("Petitie salvata cu succes", ToastType.success);
-
-        return modelAndView;
+        return createToast(modelAndView, "Petitie salvata cu succes", ToastType.success);
     }
 
     @RequestMapping("/petitii")
