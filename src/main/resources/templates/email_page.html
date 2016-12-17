@@ -13,13 +13,6 @@
 
         <!-- page content -->
         <div class="right_col" role="main">
-            <!-- alert -->
-            <div id="alert" class="alert alert-dismissible hidden" role="alert">
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
-                        aria-hidden="true">&times;</span></button>
-                <span id="alert-content"></span>
-            </div>
-            <!-- end alert -->
 
             <div id="error-messages"></div>
 
@@ -77,7 +70,6 @@
 <script th:inline="javascript">
     /*<![CDATA[*/
     var restUrl = /*[[${restUrl}]]*/ '/rest/emails';
-    var toastContent = /*[[${toast}]]*/ null;
     /*]]>*/
 </script>
 
@@ -231,6 +223,6 @@
         });
     }
 </script>
-<div th:replace="main_head::toast"></div>
+<div th:substituteby="main_head::toast"></div>
 </body>
 </html>

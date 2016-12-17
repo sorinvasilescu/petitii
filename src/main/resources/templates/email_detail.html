@@ -107,7 +107,6 @@
     <script th:inline="javascript">
     /*<![CDATA[*/
     var restUrl = /*[[${restUrl}]]*/ '/rest/emails';
-    var toastContent = /*[[${toast}]]*/ null;
     /*]]>*/
     </script>
 
@@ -168,6 +167,6 @@
             }
         }
     </script>
-    <div th:replace="main_head::toast"></div>
+    <div th:substituteby="main_head::toast"></div>
 </body>
 </html>

@@ -70,12 +70,10 @@
             <!-- Toast -->
             <script th:inline="javascript">
                 /*<![CDATA[*/
+                var toastContent = /*[[${toast}]]*/ null;
                 console.log(toastContent);
                 if (toastContent!=null) {
-                    $('#alert')
-                        .removeClass('hidden')
-                        .addClass(toastContent.type)
-                        .children('#alert-content').text(toastContent.message);
+                    showToast($('.right_col'),toastContent.message,toastContent.type);
                 }
                 /*]]>*/
             </script>

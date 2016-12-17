@@ -14,7 +14,7 @@ public abstract class ControllerBase {
         Map<String, String> toast = new HashMap<>();
         toast.put("message", message);
         toast.put("type", "alert-" + type.name());
-        modelAndView.addObject("toastContent", toast);
+        modelAndView.addObject("toast", toast);
         return modelAndView;
     }
 }

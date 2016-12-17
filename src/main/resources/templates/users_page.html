@@ -68,7 +68,6 @@
 <script th:inline="javascript">
 /*<![CDATA[*/
     var restUrl = /*[[${restUrl}]]*/ '/rest/users';
-    var toastContent = /*[[${toast}]]*/ null;
 /*]]>*/
 </script>
 
@@ -135,7 +134,7 @@
 </script>
 <!-- /Datatables -->
 
-<div th:replace="main_head::toast"></div>
+<div th:substituteby="main_head::toast"></div>
 
 </body>
 </html>
