@@ -6,11 +6,13 @@
 <body class="nav-md">
     <div class="container body">
         <div class="main_container">
-            <!--/*@thymesVar id="data" type="ro.petitii.model.Petition"*/-->
+            <!--/*@thymesVar id="petition" type="ro.petitii.model.Petition"*/-->
+            <!--/*@thymesVar id="user_list" type="java.util.List<ro.petitii.model.User>"*/-->
             <div class="col-md-3 left_col" th:substituteby="left::menu"></div>
             <div class="top_nav" th:substituteby="top::menu"></div>
             <div class="right_col" role="main">
                 <form id="petition-form" class="form-horizontal form-label-left input_mask" th:object="${petition}" th:action="@{/petition}" method="post">
+                    <input type="hidden" name="id" th:field="*{id}"/>
                     <div>
                         <div class="row">
                             <div class="col-md-12 col-sm-12 col-xs-12">

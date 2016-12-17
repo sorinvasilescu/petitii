@@ -136,7 +136,6 @@ public class Petitioner {
                 ", city='" + city + '\'' +
                 ", address='" + address + '\'' +
                 ", title='" + title + '\'' +
-                ", petition=" + petitions +
                 '}';
     }
 }
