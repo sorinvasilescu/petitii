@@ -66,7 +66,7 @@ public class PetitionController extends ControllerBase {
         Petition petition = new Petition();
         petition.setReceivedDate(new Date());
         petition.setDescription(email.getBody());
-        petition.set_abstract(email.getSubject());
+        petition.setSubject(email.getSubject());
 
         //todo; move petitioner details
 

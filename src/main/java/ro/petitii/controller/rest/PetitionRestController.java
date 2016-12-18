@@ -28,8 +28,6 @@ public class PetitionRestController {
     @Autowired
     PetitionService petitionService;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ImapService.class);
-
     @RequestMapping(value = "/rest/petitions", method = RequestMethod.POST)
     @ResponseBody
     public RestPetitionResponse getUserPetitions(@Valid DataTablesInput input) {

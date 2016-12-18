@@ -28,8 +28,10 @@ public class Petition {
     private String type;
     private String field;
     @Column(name = "abstract")
-    private String _abstract;
+    private String subject;
     private String description;
+    @Column(name = "problem_type")
+    private String problemType;
 
     @ManyToOne
     @JoinColumn(name = "responsible_id")
@@ -89,12 +91,12 @@ public class Petition {
         this.field = field;
     }
 
-    public String get_abstract() {
-        return _abstract;
+    public String getSubject() {
+        return subject;
     }
 
-    public void set_abstract(String _abstract) {
-        this._abstract = _abstract;
+    public void setSubject(String _abstract) {
+        this.subject = _abstract;
     }
 
     public String getDescription() {
@@ -103,6 +105,14 @@ public class Petition {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getProblemType() {
+        return problemType;
+    }
+
+    public void setProblemType(String problemType) {
+        this.problemType = problemType;
     }
 
     public Collection<Email> getEmails() {
@@ -170,7 +180,7 @@ public class Petition {
                 ", origin='" + origin + '\'' +
                 ", type='" + type + '\'' +
                 ", field='" + field + '\'' +
-                ", _abstract='" + _abstract + '\'' +
+                ", _abstract='" + subject + '\'' +
                 ", description='" + description + '\'' +
                 ", responsible=" + responsible +
                 ", emails=" + emails +

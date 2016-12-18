@@ -61,6 +61,7 @@ public class PetitionServiceImpl implements PetitionService {
         }
 
         // find petitioners from database
+        Petitioner existingPetitioner;
         Collection<Petitioner> petitioners = petitionerService.findByEmail(petition.getPetitioner().getEmail());
         LOGGER.info("Petitioners size: " + petitioners.size());
 
@@ -71,8 +72,12 @@ public class PetitionServiceImpl implements PetitionService {
             petitioner = petitionerService.save(petitioner);
             LOGGER.info("Petitioner saved: " + petitioner.toString());
         } else {
-            petitioner = petitioners.iterator().next();
+            existingPetitioner = petitioners.iterator().next();
+            // check if the two petitioners are identical, if not, insert the new one in the db
+            if (existingPetitioner.equals(petition.getPetitioner())) petitioner = existingPetitioner;
+            else petitioner = petitionerService.save(petition.getPetitioner());
         }
+
         petition.setPetitioner(petitioner);
         petition = petitionRepository.save(petition);
 
@@ -113,7 +118,7 @@ public class PetitionServiceImpl implements PetitionService {
         for (Petition petition : petitions) {
             RestPetitionResponseElement element = new RestPetitionResponseElement();
             element.setId(petition.getId());
-            element.set_abstract(petition.get_abstract());
+            element.set_abstract(petition.getSubject());
             element.setPetitionerEmail(petition.getPetitioner().getEmail());
             element.setPetitionerName(petition.getPetitioner().getFirstName() + " " + petition.getPetitioner().getLastName());
             element.setRegNo(petition.getRegNo().getNumber());

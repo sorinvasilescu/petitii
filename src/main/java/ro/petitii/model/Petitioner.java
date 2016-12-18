@@ -1,5 +1,8 @@
 package ro.petitii.model;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import javax.persistence.*;
 import java.util.Collection;
 
@@ -141,5 +144,32 @@ public class Petitioner {
                 ", address='" + address + '\'' +
                 ", title='" + title + '\'' +
                 '}';
+    }
+
+    @Override
+    public int hashCode() {
+        HashCodeBuilder hb = new HashCodeBuilder(17,23);
+        hb
+            .append(firstName)
+            .append(lastName)
+            .append(organization)
+            .append(email)
+            .append(title);
+        return hb.toHashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Petitioner)) return false;
+        if (obj == this) return true;
+        Petitioner p = (Petitioner) obj;
+        EqualsBuilder eb = new EqualsBuilder();
+        eb
+            .append(firstName, p.firstName)
+            .append(lastName, p.lastName)
+            .append(organization, p.organization)
+            .append(email, p.email)
+            .append(title, p.title);
+        return eb.isEquals();
     }
 }

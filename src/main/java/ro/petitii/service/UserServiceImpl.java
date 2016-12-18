@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import ro.petitii.model.User;
 import ro.petitii.repository.UserRepository;
 
-import java.util.Iterator;
 import java.util.List;
 
 @Service
