@@ -1,7 +1,5 @@
 package ro.petitii.controller.rest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
@@ -15,7 +13,6 @@ import ro.petitii.model.User;
 import ro.petitii.model.rest.RestPetitionResponse;
 import ro.petitii.service.PetitionService;
 import ro.petitii.service.UserService;
-import ro.petitii.service.email.ImapService;
 
 import javax.validation.Valid;
 
