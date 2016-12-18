@@ -22,6 +22,8 @@ public class PetitionStatusServiceImpl implements PetitionStatusService {
 
     @Override
     public PetitionStatus create(PetitionStatus.Status status, Petition petition, User user) {
+        petition.setCurrentStatus(status);
+
         PetitionStatus petitionStatus = new PetitionStatus();
         petitionStatus.setDate(new Date());
         petitionStatus.setPetition(petition);

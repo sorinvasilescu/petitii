@@ -92,16 +92,16 @@ public class PetitionController extends ControllerBase {
         }
     }
 
-    @RequestMapping("/petitii")
+    @RequestMapping("/petitions")
     public ModelAndView listUserPetitions() {
-        ModelAndView modelAndView = new ModelAndView("petitii_page");
-        modelAndView.addObject("restUrl", "/rest/petitions");
+        ModelAndView modelAndView = new ModelAndView("petitions_page");
+        modelAndView.addObject("restUrl", "/rest/petitions/user");
         return modelAndView;
     }
 
-    @RequestMapping("/petitii/toate")
+    @RequestMapping("/petitions/all")
     public ModelAndView listAllPetitions() {
-        ModelAndView modelAndView = new ModelAndView("petitii_page");
+        ModelAndView modelAndView = new ModelAndView("petitions_page");
         modelAndView.addObject("restUrl", "/rest/petitions/all");
         return modelAndView;
     }

@@ -12,7 +12,7 @@ import java.util.Collection;
 public class Petitioner {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id;
+    private Long id;
 
     @Size(min = 1)
     private String firstName;
@@ -34,7 +34,7 @@ public class Petitioner {
     private String title;
 
     @OneToMany(mappedBy = "petitioner")
-    Collection<Petition> petitions;
+    private Collection<Petition> petitions;
 
     public Long getId() {
         return id;
@@ -136,6 +136,10 @@ public class Petitioner {
         return petitions;
     }
 
+    public void setPetitions(Collection<Petition> petitions) {
+        this.petitions = petitions;
+    }
+
     @Override
     public String toString() {
         return "Petitioner{" +
@@ -156,13 +160,12 @@ public class Petitioner {
 
     @Override
     public int hashCode() {
-        HashCodeBuilder hb = new HashCodeBuilder(17,23);
-        hb
-            .append(firstName)
-            .append(lastName)
-            .append(organization)
-            .append(email)
-            .append(title);
+        HashCodeBuilder hb = new HashCodeBuilder(17, 23);
+        hb.append(firstName)
+          .append(lastName)
+          .append(organization)
+          .append(email)
+          .append(title);
         return hb.toHashCode();
     }
 
@@ -172,12 +175,11 @@ public class Petitioner {
         if (obj == this) return true;
         Petitioner p = (Petitioner) obj;
         EqualsBuilder eb = new EqualsBuilder();
-        eb
-            .append(firstName, p.firstName)
-            .append(lastName, p.lastName)
-            .append(organization, p.organization)
-            .append(email, p.email)
-            .append(title, p.title);
+        eb.append(firstName, p.firstName)
+          .append(lastName, p.lastName)
+          .append(organization, p.organization)
+          .append(email, p.email)
+          .append(title, p.title);
         return eb.isEquals();
     }
 }

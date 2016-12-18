@@ -7,6 +7,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,11 @@ import ro.petitii.service.email.ImapService;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-import java.util.*;
+import javax.persistence.criteria.Predicate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
 
 @Service
 public class PetitionServiceImpl implements PetitionService {
@@ -101,7 +106,7 @@ public class PetitionServiceImpl implements PetitionService {
         // if petition status does not exist, generate one
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = userService.findUserByEmail(auth.getName()).get(0);
-        psService.create(PetitionStatus.Status.RECEIVED,petition, user);
+        psService.create(PetitionStatus.Status.RECEIVED, petition, user);
 
         return petition;
     }
@@ -142,9 +147,26 @@ public class PetitionServiceImpl implements PetitionService {
     }
 
     @Override
-    public List<Petition> findByResponsible(User user, int startIndex, int size, Sort.Direction sortDirection, String sortcolumn) {
-        PageRequest p = new PageRequest(startIndex / size, size, sortDirection, sortcolumn);
-        Page<Petition> petitions = petitionRepository.findByResponsible(user,p);
+    public List<Petition> findByResponsible(User user, int startIndex, int size,
+                                            Sort.Direction sortDirection, String sortColumn) {
+        PageRequest p = new PageRequest(startIndex / size, size, sortDirection, sortColumn);
+        Page<Petition> petitions = petitionRepository.findByResponsible(user, p);
+        return petitions.getContent();
+    }
+
+    @Override
+    public List<Petition> findByResponsibleAndStatus(User user, PetitionStatus.Status status, int startIndex, int size,
+                                                     Sort.Direction sortDirection, String sortColumn) {
+        PageRequest p = new PageRequest(startIndex / size, size, sortDirection, sortColumn);
+        Page<Petition> petitions = petitionRepository.findByResponsibleAndCurrentStatus(user, status, p);
+        return petitions.getContent();
+    }
+
+    @Override
+    public List<Petition> findByStatus(PetitionStatus.Status status, int startIndex, int size,
+                                       Sort.Direction sortDirection, String sortColumn) {
+        PageRequest p = new PageRequest(startIndex / size, size, sortDirection, sortColumn);
+        Page<Petition> petitions = petitionRepository.findByCurrentStatus(status, p);
         return petitions.getContent();
     }
 
@@ -156,10 +178,22 @@ public class PetitionServiceImpl implements PetitionService {
     }
 
     @Override
-    public RestPetitionResponse getTableContent(User user, int startIndex, int size, Sort.Direction sortDirection, String sortColumn) {
+    public RestPetitionResponse getTableContent(User user, PetitionStatus.Status status, int startIndex, int size,
+                                                Sort.Direction sortDirection, String sortColumn) {
         List<Petition> petitions;
-        if (user != null) petitions = this.findByResponsible(user, startIndex, size, sortDirection, sortColumn);
-        else petitions = this.findAll(startIndex,size,sortDirection,sortColumn);
+        if (user != null) {
+            if (status == null) {
+                petitions = this.findByResponsible(user, startIndex, size, sortDirection, sortColumn);
+            } else {
+                petitions = this.findByResponsibleAndStatus(user, status, startIndex, size, sortDirection, sortColumn);
+            }
+        } else {
+            if (status == null) {
+                petitions = this.findAll(startIndex, size, sortDirection, sortColumn);
+            } else {
+                petitions = this.findByStatus(status, startIndex, size, sortDirection, sortColumn);
+            }
+        }
         RestPetitionResponse response = new RestPetitionResponse();
         List<RestPetitionResponseElement> data = new ArrayList<>();
         for (Petition petition : petitions) {
@@ -167,14 +201,15 @@ public class PetitionServiceImpl implements PetitionService {
             element.setId(petition.getId());
             element.set_abstract(petition.getSubject());
             element.setPetitionerEmail(petition.getPetitioner().getEmail());
-            element.setPetitionerName(petition.getPetitioner().getFirstName() + " " + petition.getPetitioner().getLastName());
+            element.setPetitionerName(petition.getPetitioner().getFirstName() + " " +
+                                              petition.getPetitioner().getLastName());
             element.setRegNo(petition.getRegNo().getNumber());
-            element.setStatus(messageSource.getMessage(petition.statusString(),null , new Locale("ro")));
+            element.setStatus(messageSource.getMessage(petition.statusString(), null, new Locale("ro")));
             data.add(element);
         }
         response.setData(data);
         Long count;
-        if (user!=null) count = this.countByResponsible(user);
+        if (user != null) count = this.countByResponsible(user);
         else count = this.count();
         response.setRecordsTotal(count);
         response.setRecordsFiltered(count);

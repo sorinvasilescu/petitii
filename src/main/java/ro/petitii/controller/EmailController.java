@@ -87,7 +87,9 @@ public class EmailController extends ControllerBase {
         modelAndView.addObject("title", "Email-uri primite");
         modelAndView.addObject("email", config.getUsername());
         modelAndView.addObject("data", email);
-        if (email.getPetition()!=null) modelAndView.addObject("status", messageSource.getMessage(email.getPetition().getStatus().toString(), null , new Locale("ro")));
+        if (email.getPetition()!=null) {
+            modelAndView.addObject("status", messageSource.getMessage(email.getPetition().statusString(), null , new Locale("ro")));
+        }
         return modelAndView;
     }
 

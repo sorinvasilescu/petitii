@@ -6,7 +6,10 @@ import javax.persistence.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "petitions")
@@ -52,6 +55,9 @@ public class Petition {
 
     @OneToMany(mappedBy = "petition")
     private Collection<PetitionStatus> statuses;
+
+    @Column(name = "status")
+    private PetitionStatus.Status currentStatus;
 
     public Long getId() {
         return id;
@@ -157,23 +163,20 @@ public class Petition {
         this.responsible = responsible;
     }
 
-    public PetitionStatus.Status getStatus() {
-        if ((statuses!=null) && (statuses.size() > 0)) {
-            List<PetitionStatus> statuses = new ArrayList<>(this.statuses);
-            Comparator<PetitionStatus> comparator = new Comparator<PetitionStatus>() {
-                @Override
-                public int compare(PetitionStatus o1, PetitionStatus o2) {
-                    if (o1.getDate().before(o2.getDate())) return -1;
-                    else return 1;
-                }
-            };
-            Collections.sort(statuses, comparator);
-            return statuses.get(0).getStatus();
-        } else return null;
+    public PetitionStatus.Status getCurrentStatus() {
+        return currentStatus;
+    }
+
+    public void setCurrentStatus(PetitionStatus.Status currentStatus) {
+        this.currentStatus = currentStatus;
+    }
+
+    public Collection<PetitionStatus> getStatuses() {
+        return statuses;
     }
 
     public String statusString() {
-        PetitionStatus.Status status = this.getStatus();
+        PetitionStatus.Status status = this.getCurrentStatus();
         if (status != null) {
             return status.toString();
         } else return "NEW";

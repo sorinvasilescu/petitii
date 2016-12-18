@@ -19,12 +19,12 @@
                 <div class="col-md-6 col-sm-6 col-xs-12">
                     <div class="radio">
                      <label>
-                       <input type="radio" class="flat" checked="true" name="iCheck" th:text="${petitiiInLucru}"/> Petiții în lucru
+                       <input type="radio" class="flat" name="iCheck" id="started"/> Petiții în lucru
                      </label>
                    </div>
                    <div class="radio">
                      <label>
-                       <input type="radio" class="flat" name="iCheck" th:text="${toatePetitiile}"/> Toate
+                       <input type="radio" class="flat" name="iCheck" id="all" checked="true"/> Toate
                      </label>
                    </div>
                 </div>
@@ -81,6 +81,8 @@
 
     var emailTable;
     $(document).ready(function () {
+        var statusFilter = "all";
+
         <!-- Datatables -->
         var dtable = $('#datatable-responsive').DataTable({
             select: {
@@ -99,6 +101,7 @@
                      varName = [[${_csrf.parameterName}]];
                      d[varName] = [[${_csrf.token}]]; +]*/
                     /*[- */ d.csrfToken = "TOKEN"; /* -]*/
+                    d["status"] = statusFilter;
                 }
             },
             language: {
@@ -164,6 +167,11 @@
             } else {
                 window.location.href = '/petition/' + selectedRows[0].id;
             }
+        });
+
+        $('input[name=iCheck]').on('ifChecked', function (event) {
+            statusFilter = event.target.id;
+            dtable.ajax.reload();
         });
     });
 </script>
