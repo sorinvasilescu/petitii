@@ -27,7 +27,7 @@ petitii:
     startDate: 06/12/2016
   emailAttachments:
     path: target/attachments
-  petitionId:
+  regNo:
     pattern: PET-%d-GOV
   smtp:
       server: smtp.gmail.com

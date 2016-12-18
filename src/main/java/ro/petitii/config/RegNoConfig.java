@@ -4,8 +4,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConfigurationProperties(prefix = "petitii.petitionId")
-public class PetitionIdConfig {
+@ConfigurationProperties(prefix = "petitii.regNo")
+public class RegNoConfig {
     private String pattern;
 
     public String getPattern() {
