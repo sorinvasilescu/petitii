@@ -164,7 +164,7 @@ public class PetitionServiceImpl implements PetitionService {
             element.setPetitionerEmail(petition.getPetitioner().getEmail());
             element.setPetitionerName(petition.getPetitioner().getFirstName() + " " + petition.getPetitioner().getLastName());
             element.setRegNo(petition.getRegNo().getNumber());
-            element.setStatus(messageSource.getMessage(petition.getStatus().toString(),null , new Locale("ro")));
+            element.setStatus(messageSource.getMessage(petition.statusString(),null , new Locale("ro")));
             data.add(element);
         }
         response.setData(data);
