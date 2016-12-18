@@ -3,6 +3,7 @@ package ro.petitii.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -21,6 +22,7 @@ import ro.petitii.service.email.ImapService;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class PetitionServiceImpl implements PetitionService {
@@ -39,6 +41,9 @@ public class PetitionServiceImpl implements PetitionService {
 
     @Autowired
     PetitionStatusService psService;
+
+    @Autowired
+    MessageSource messageSource;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ImapService.class);
 
@@ -122,8 +127,7 @@ public class PetitionServiceImpl implements PetitionService {
             element.setPetitionerEmail(petition.getPetitioner().getEmail());
             element.setPetitionerName(petition.getPetitioner().getFirstName() + " " + petition.getPetitioner().getLastName());
             element.setRegNo(petition.getRegNo().getNumber());
-            // TODO status
-            element.setStatus("TODO: Status");
+            element.setStatus(messageSource.getMessage(petition.getStatus().toString(),null , new Locale("ro")));
             data.add(element);
         }
         response.setData(data);
