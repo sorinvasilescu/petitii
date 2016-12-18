@@ -61,12 +61,7 @@ public class PetitionController extends ControllerBase {
     public ModelAndView createPetitionFromEmail(@PathVariable("id") Long id) {
         Email email = emailService.searchById(id);
 
-        Petition petition = new Petition();
-        petition.setReceivedDate(new Date());
-        petition.setDescription(email.getBody());
-        petition.setSubject(email.getSubject());
-
-        //todo; move petitioner details
+        Petition petition = petitionService.createFromEmail(email);
 
         ModelAndView modelAndView = new ModelAndView("add_petition");
         modelAndView.addObject("petition", petition);

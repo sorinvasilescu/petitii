@@ -10,19 +10,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import ro.petitii.model.Petition;
-import ro.petitii.model.PetitionStatus;
-import ro.petitii.model.Petitioner;
-import ro.petitii.model.User;
+import ro.petitii.model.*;
 import ro.petitii.model.rest.RestPetitionResponse;
 import ro.petitii.model.rest.RestPetitionResponseElement;
 import ro.petitii.repository.PetitionRepository;
 import ro.petitii.service.email.ImapService;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+import java.util.*;
 
 @Service
 public class PetitionServiceImpl implements PetitionService {
@@ -91,6 +87,32 @@ public class PetitionServiceImpl implements PetitionService {
         User user = userService.findUserByEmail(auth.getName()).get(0);
         psService.create(PetitionStatus.Status.RECEIVED,petition, user);
 
+        return petition;
+    }
+
+    @Override
+    public Petition createFromEmail(Email email) {
+        Petition petition = new Petition();
+        petition.setReceivedDate(email.getDate());
+        petition.setDescription(email.getBody());
+        petition.setSubject(email.getSubject());
+        Petitioner petitioner = new Petitioner();
+        try {
+            InternetAddress addr = new InternetAddress(email.getSender());
+            petitioner.setEmail(addr.getAddress());
+            if (addr.getPersonal().length() > 0) {
+                String[] name = addr.getPersonal().split(" ");
+                if (name.length > 1) {
+                    petitioner.setFirstName(name[0]);
+                    petitioner.setLastName(name[1]);
+                } else petitioner.setFirstName(addr.getPersonal());
+            }
+
+        } catch (AddressException e) {
+            LOGGER.error("Could not parse email address: " + email.getSender());
+            petitioner.setEmail(email.getSender());
+        }
+        petition.setPetitioner(petitioner);
         return petition;
     }
 
