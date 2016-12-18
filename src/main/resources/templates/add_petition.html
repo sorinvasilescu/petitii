@@ -32,13 +32,15 @@
                                 </div>
                                 <div class="col-md-6 col-xs-12">
                                     <div class="x_content">
-                                        <div class="form-group">
+                                        <div class="item form-group" th:classappend="${#fields.hasErrors('responsible')} ? bad">
                                             <label class="control-label col-md-3 col-sm-3 col-xs-12">Responsabil</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <select class="form-control" name="responsible" id="responsible" th:field="*{responsible}">
+                                                    <option value="" selected="selected">Selecteaza responsabilul</option>
                                                     <option th:each="user : ${user_list}" th:value="${user.getId()}" th:text="${user.getFullName()}">Responsabil</option>
                                                 </select>
                                             </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('responsible')}">Campul nu poate fi gol</div>
                                         </div>
                                         <div class="form-group">
                                             <label class="control-label col-md-3 col-sm-3 col-xs-12">Nr. înregistrare
@@ -119,17 +121,19 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="item form-group" th:classappend="${#fields.hasErrors('petitioner.firstName')} ? bad">
                                             <label for="petitioner-firstname" class="control-label col-md-3 col-sm-3 col-xs-12">Nume</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <input id="petitioner-firstname" type="text" name="first_name" placeholder="Numele de familie" class="form-control col-md-10" required="required" th:field="*{petitioner.firstName}" />
                                             </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('petitioner.firstName')}">Campul nu poate fi gol</div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="item form-group" th:classappend="${#fields.hasErrors('petitioner.lastName')} ? bad">
                                             <label for="petitioner-lastname" class="control-label col-md-3 col-sm-3 col-xs-12">Prenume</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <input id="petitioner-lastname" type="text" name="last_name" placeholder="Prenumele" class="form-control col-md-10" required="required" th:field="*{petitioner.lastName}" />
                                             </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('petitioner.lastName')}">Campul nu poate fi gol</div>
                                         </div>
                                         <div class="form-group">
                                             <label for="country" class="control-label col-md-3 col-sm-3 col-xs-12">Tara</label>
@@ -412,10 +416,11 @@
                                                 <span class="fa fa-phone form-control-feedback left" aria-hidden="true"></span>
                                             </div>
                                         </div>
-                                        <div class="form-group  has-feedback">
+                                        <div class="item form-group has-feedback" th:classappend="${#fields.hasErrors('petitioner.email')} ? bad">
                                             <label for="email" class="control-label col-md-3 col-sm-3 col-xs-12">Email</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <input type="text" class="form-control has-feedback-left" id="email" name="email" placeholder="Adresa de email" required="required" th:field="*{petitioner.email}" />
+                                                <div class="alert" th:if="${#fields.hasErrors('petitioner.email')}">Campul nu poate fi gol</div>
                                                 <span class="fa fa-envelope form-control-feedback left" aria-hidden="true"></span>
                                             </div>
                                         </div>
@@ -438,11 +443,12 @@
                             </ul>
                             <div id="myTabContent" class="tab-content">
                                 <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="home-tab">
-                                    <div class="form-group">
+                                    <div class="item form-group"  th:classappend="${#fields.hasErrors('subject')} ? bad">
                                         <label for="subject" class="control-label col-md-3 col-sm-3 col-xs-12">Rezumat</label>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <input id="subject" type="text" name="abstract" placeholder="Descrierea pe scurt" class="form-control col-md-10" th:field="*{subject}" />
                                         </div>
+                                        <div class="alert" th:if="${#fields.hasErrors('subject')}">Minim 5 caractere</div>
                                     </div>
                                     <div class="form-group">
                                         <label class="control-label col-md-3 col-sm-3 col-xs-12">Descriere</label>
@@ -609,15 +615,18 @@
             allowClear: true
         });
 
-
+        /*
         $("#title").select2({
             placeholder: "Adresare",
             allowClear: true
         });
+
+
         $("#responsible").select2({
             placeholder: "Alege responsabilul",
             allowClear: true
         });
+        */
 
         $('#bottom-submit,#top-submit').click(function(){
             $('#petition-form').submit();

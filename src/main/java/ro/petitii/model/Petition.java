@@ -3,6 +3,9 @@ package ro.petitii.model;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.*;
 
 @Entity
@@ -22,19 +25,26 @@ public class Petition {
 
     @ManyToOne
     @JoinColumn(name = "petitioner_id")
+    @Valid
     private Petitioner petitioner;
 
     private String origin;
     private String type;
     private String field;
+
     @Column(name = "abstract")
+    @Size(min = 5)
     private String subject;
+
+    @NotNull
     private String description;
+
     @Column(name = "problem_type")
     private String problemType;
 
     @ManyToOne
     @JoinColumn(name = "responsible_id")
+    @NotNull
     private User responsible;
 
     @OneToMany(mappedBy = "petition")

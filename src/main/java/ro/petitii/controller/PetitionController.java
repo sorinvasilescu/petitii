@@ -1,21 +1,21 @@
 package ro.petitii.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ro.petitii.model.Email;
 import ro.petitii.model.Petition;
 import ro.petitii.model.Petitioner;
 import ro.petitii.service.EmailService;
 import ro.petitii.service.PetitionService;
 import ro.petitii.service.UserService;
-import ro.petitii.service.email.ImapService;
 
+import javax.validation.Valid;
 import java.util.Date;
 
 @Controller
@@ -29,8 +29,6 @@ public class PetitionController extends ControllerBase {
 
     @Autowired
     EmailService emailService;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ImapService.class);
 
     @RequestMapping(path = "/petition", method = RequestMethod.GET)
     public ModelAndView addPetition() {
@@ -78,15 +76,21 @@ public class PetitionController extends ControllerBase {
     }
 
     @RequestMapping(path = "/petition", method = RequestMethod.POST)
-    public ModelAndView savePetition(Petition petition) {
-        LOGGER.info(petition.toString());
-        petition = petitionService.save(petition);
-
-        ModelAndView modelAndView = new ModelAndView("add_petition");
-        modelAndView.addObject("petition", petition);
-        modelAndView.addObject("user_list", userService.getAllUsers());
-
-        return createToast(modelAndView, "Petitie salvata cu succes", ToastType.success);
+    public ModelAndView savePetition(@Valid Petition petition, BindingResult bindingResult, final RedirectAttributes attr) {
+        ModelAndView modelAndView = new ModelAndView();
+        if (bindingResult.hasErrors()) {
+            modelAndView.setViewName("add_petition");
+            modelAndView.addObject("user_list", userService.getAllUsers());
+            modelAndView.addObject("petition",petition);
+            modelAndView.addObject("toast",createToast( "Petitia nu a fost salvata", ToastType.danger));
+            return modelAndView;
+        }
+        else {
+            petition = petitionService.save(petition);
+            modelAndView.setViewName("redirect:/petition/" + petition.getId());
+            attr.addFlashAttribute("toast",createToast("Petitia a fost salvata cu succes", ToastType.success));
+            return modelAndView;
+        }
     }
 
     @RequestMapping("/petitii")

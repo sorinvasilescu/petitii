@@ -4,6 +4,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.util.Collection;
 
 @Entity
@@ -13,11 +14,18 @@ public class Petitioner {
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
 
+    @Size(min = 1)
     private String firstName;
+
+    @Size(min = 1)
     private String lastName;
+
     private String organization;
     private String entity_type;
+
+    @Size(min = 1)
     private String email;
+
     private String phone;
     private String country;
     private String county;
