@@ -542,7 +542,8 @@
                                     </table>
                                 </div>
                                 <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="profile-tab">
-                                    <button type="button" class="btn btn-default btn-sm pull-right" id="addComment"><i class="fa fa-plus-circle"></i> Adauga observatie</button>
+                                    <button type="button" class="btn btn-default btn-md pull-right" id="removeComment"><i class="fa fa-trash-o"></i> Sterge observatie</button>
+                                    <button type="button" class="btn btn-default btn-md pull-right" id="addComment"><i class="fa fa-plus-circle"></i> Adauga observatie</button>
                                     <table id="observations" class="table jambo_table bulk_action table-striped table-bordered dt-responsive nowrap"
                                            cellspacing="0" width="100%">
                                     </table>
@@ -606,16 +607,68 @@
 
         $('#addComment').click(function () {
             customInput("Adaugă observație", function (result) {
-                console.log(result)
+                /*<![CDATA[*/
+                var csrfLabel = /*[[${_csrf.headerName}]]*/ null;
+                var csrfValue = /*[[${_csrf.token}]]*/ null;
+                var headers = {};
+                headers[csrfLabel] = csrfValue;
+                /*]]>*/
+
+
+                $.ajax({
+                    url: "/rest/petition/" + pid + "/comment/add",
+                    method: 'POST',
+                    headers: headers,
+                    contentType: "application/json",
+                    processData: false,
+                    data: JSON.stringify({
+                        comment: result
+                    })
+                }).done(function (data) {
+                    observationsTable.ajax.reload();
+                }).fail(function (reason) {
+                    console.log(reason);
+                });
             });
+        });
+
+        $('#removeComment').click(function () {
+            var selectedRows = observationsTable.rows({selected: true}).data().toArray();
+            if (selectedRows.length != 1) {
+                this.blur()
+            } else {
+                /*<![CDATA[*/
+                var csrfLabel = /*[[${_csrf.headerName}]]*/ null;
+                var csrfValue = /*[[${_csrf.token}]]*/ null;
+                var headers = {};
+                headers[csrfLabel] = csrfValue;
+                /*]]>*/
+
+
+                $.ajax({
+                    url: "/rest/petition/comment/delete/" + selectedRows[0].id,
+                    method: 'POST',
+                    headers: headers,
+                    contentType: "application/json",
+                    processData: false
+                }).done(function (data) {
+                    observationsTable.ajax.reload();
+                }).fail(function (reason) {
+                    console.log(reason);
+                });
+            }
         });
 
         /*<![CDATA[*/
         var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
         var commentsRestUrl = /*[[${commentsRestUrl}]]*/ '/rest/comments/{id}';
+        var pid = /*[[${petition.id}]]*/ '#';
         /*]]>*/
 
         var observationsTable = $('#observations').DataTable({
+            select: {
+                style: 'single'
+            },
             processing: true,
             serverSide: true,
             sDom: 'lrtip ',
@@ -632,7 +685,8 @@
                 }
             },
             language: {
-                url: languageUrl
+                url: languageUrl,
+                select: selectTranslation()
             },
             fixedColumns: true,
             columns: [
@@ -644,10 +698,7 @@
                 {
                     name: 'comment',
                     data: 'comment',
-                    title: 'Observatie',
-                    render: function (data) {
-                        return strLimit(data, 120);
-                    }
+                    title: 'Observatie'
                 },
                 {
                     name: 'date',
@@ -658,18 +709,6 @@
                     name: 'user',
                     data: 'user',
                     title: 'Adaugat de'
-                },
-                {
-                    data: null,
-                    title: '',
-                    render: function (data, type, full, meta) {
-                        if (data != null) {
-                            return '<a href="/emailDetails?id=' + data.id + '"><i class="fa fa-envelope-square"></i></a>';
-                        } else {
-                            return '';
-                        }
-                    },
-                    sortable: false
                 }
             ]
         });
