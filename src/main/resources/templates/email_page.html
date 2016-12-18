@@ -84,14 +84,6 @@
 <!-- Datatables -->
 <script th:inline="javascript" type="text/javascript">
     /*<![CDATA[*/
-    function strLimit(data, limit) {
-        if ((data!=null) && (data.length > limit)){
-            data = data.substr(0, limit);
-            data += '...';
-        }
-        return data;
-    }
-
     var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
     /*]]>*/
 
@@ -214,25 +206,7 @@
                 addWarning("#error-messages", "Selectați cel puțin un e-mail");
                 this.blur()
             } else {
-                var msg = 'Sunteți sigur că doriți să marcați ca Spam?';
-                if (confirm(msg)) {
-                    /*<![CDATA[*/
-                    var actionUrl = "/rest/markAs/?type=spam&id=" + selectedRows[0].id;
-                    /*]]>*/
-
-                    $(e.target).attr('data-loading-text', '<i class="fa fa-circle-o-notch fa-spin"></i> Se incarca');
-                    $(e.target).button('loading');
-                    $.ajax({
-                        url: actionUrl,
-                        method: 'get'
-                    }).done(function () {
-                        location.reload();
-                        $(e.target).button('reset');
-                    }).fail(function () {
-                        //console.log('failed');
-                        $(e.target).button('reset');
-                    });
-                }
+                markAsSpam(e, selectedRows[0].id);
             }
         });
     });
@@ -267,28 +241,7 @@
                 addWarning("#error-messages", "Selectați cel puțin un e-mail");
                 this.blur()
             } else {
-                var msg = 'Sunteți sigur că doriți să mutați înapoi în Email?';
-                if (confirm(msg)) {
-                    /*<![CDATA[*/
-                    var actionUrl = "/rest/markAs/?type=email&id=" + selectedRows[0].id;
-                    /*]]>*/
-
-                    console.log("Action url = " + actionUrl);
-                    $(e.target).attr('data-loading-text', '<i class="fa fa-circle-o-notch fa-spin"></i> Se incarca');
-                    $(e.target).button('loading');
-                    $.ajax({
-                        url: actionUrl,
-                        method: 'get',
-                        data: {
-                            /*[[${_csrf.parameterName}]]: [[${_csrf.token}]]*/
-                        }
-                    }).done(function () {
-                        location.reload();
-                        $(e.target).button('reset');
-                    }).fail(function () {
-                        $(e.target).button('reset');
-                    });
-                }
+                markAsEmail(e, selectedRows[0].id)
             }
         });
     });

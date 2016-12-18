@@ -542,40 +542,9 @@
                                     </table>
                                 </div>
                                 <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="profile-tab">
-                                    <button type="button" class="btn btn-default btn-sm pull-right"><i class="fa fa-plus-circle"></i> Adauga observatie</button>
-                                    <table class="table">
-                                        <thead>
-                                            <tr>
-                                                <th>#</th>
-                                                <th>Observatie</th>
-                                                <th>Data</th>
-                                                <th>Adaugat de</th>
-                                                <th></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <th scope="row">1</th>
-                                                <td><a href="#">Mark</a></td>
-                                                <td>12.12.2016 23:59</td>
-                                                <td>@mdo</td>
-                                                <td><i class="fa fa-trash-o"></i></td>
-                                            </tr>
-                                            <tr>
-                                                <th scope="row">2</th>
-                                                <td><a href="#">Jacob</a></td>
-                                                <td>12.12.2016 23:59</td>
-                                                <td>@fat</td>
-                                                <td><i class="fa fa-trash-o"></i></td>
-                                            </tr>
-                                            <tr>
-                                                <th scope="row">3</th>
-                                                <td><a href="#">Larry</a></td>
-                                                <td>12.12.2016 23:59</td>
-                                                <td>@twitter</td>
-                                                <td><i class="fa fa-trash-o"></i></td>
-                                            </tr>
-                                        </tbody>
+                                    <button type="button" class="btn btn-default btn-sm pull-right" id="addComment"><i class="fa fa-plus-circle"></i> Adauga observatie</button>
+                                    <table id="observations" class="table jambo_table bulk_action table-striped table-bordered dt-responsive nowrap"
+                                           cellspacing="0" width="100%">
                                     </table>
                                 </div>
                             </div>
@@ -605,7 +574,7 @@
     </div>
     <div th:replace="main_head::includes"></div>
     <!-- Datatables -->
-    <script>
+    <script th:inline="javascript" type="text/javascript">
     $(document).ready(function() {
         var today = new Date();
         var day = today.getUTCDay();
@@ -631,8 +600,78 @@
         });
         */
 
-        $('#bottom-submit,#top-submit').click(function(){
+        $('#bottom-submit,#top-submit').click(function () {
             $('#petition-form').submit();
+        });
+
+        $('#addComment').click(function () {
+            customInput("Adaugă observație", function (result) {
+                console.log(result)
+            });
+        });
+
+        /*<![CDATA[*/
+        var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
+        var commentsRestUrl = /*[[${commentsRestUrl}]]*/ '/rest/comments/{id}';
+        /*]]>*/
+
+        var observationsTable = $('#observations').DataTable({
+            processing: true,
+            serverSide: true,
+            sDom: 'lrtip ',
+            rowId: "id",
+            order: [[3, 'desc']],
+            ajax: {
+                url: commentsRestUrl,
+                type: 'POST',
+                data: function(d) {
+                    /*[+
+                     varName = [[${_csrf.parameterName}]];
+                     d[varName] = [[${_csrf.token}]]; +]*/
+                    /*[- */ d.csrfToken = "TOKEN"; /* -]*/
+                }
+            },
+            language: {
+                url: languageUrl
+            },
+            fixedColumns: true,
+            columns: [
+                {
+                    name: 'id',
+                    data: 'id',
+                    title: '#'
+                },
+                {
+                    name: 'comment',
+                    data: 'comment',
+                    title: 'Observatie',
+                    render: function (data) {
+                        return strLimit(data, 120);
+                    }
+                },
+                {
+                    name: 'date',
+                    data: 'date',
+                    title: 'Data'
+                },
+                {
+                    name: 'user',
+                    data: 'user',
+                    title: 'Adaugat de'
+                },
+                {
+                    data: null,
+                    title: '',
+                    render: function (data, type, full, meta) {
+                        if (data != null) {
+                            return '<a href="/emailDetails?id=' + data.id + '"><i class="fa fa-envelope-square"></i></a>';
+                        } else {
+                            return '';
+                        }
+                    },
+                    sortable: false
+                }
+            ]
         });
 
     });

@@ -12,22 +12,22 @@ function showToast(container, message, type) {
     $(container).prepend(toastCode);
     $('#alert')
         .removeClass('hidden')
-        .addClass(type)
+        .addClass('alert-' + type)
         .children('#alert-content').text(message);
 }
 
 function addWarning(container, msg) {
-    showToast(container,msg,"warning");
+    showToast(container, msg, "warning");
 }
 
 function addError(container, msg) {
-    showToast(container,msg,"danger");
+    showToast(container, msg, "danger");
 }
 
 function addInfo(container, msg) {
-    showToast(container,msg,"info");
+    showToast(container, msg, "info");
 }
 
 function addSuccess(container, msg) {
-    showToast(container,msg,"success");
+    showToast(container, msg, "success");
 }

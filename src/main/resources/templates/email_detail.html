@@ -113,58 +113,25 @@
     <!-- Other actions -->
     <script th:inline="javascript" type="text/javascript">
         $(document).ready(function () {
-            $('#mark-spam-top').click(markSpam);
-            $('#mark-spam-bottom').click(markSpam);
-            $('#mark-email-top').click(markEmail);
-            $('#mark-email-bottom').click(markEmail);
+            $('#mark-spam-top').click(function (e) {
+                markAsSpam(e, getId())
+            });
+            $('#mark-spam-bottom').click(function (e) {
+                markAsSpam(e, getId())
+            });
+            $('#mark-email-top').click(function (e) {
+                markAsEmail(e, getId())
+            });
+            $('#mark-email-bottom').click(function (e) {
+                markAsEmail(e, getId())
+            });
         });
 
-        function markSpam(e) {
-            var msg = 'Sunteți sigur că doriți să marcați ca Spam?';
-            if (confirm(msg)) {
-                /*<![CDATA[*/
-                var actionUrl = /*[[@{/rest/markAs/(type='spam',id=${data.id})}]]*/ '#';
-                /*]]>*/
-
-                $(e.target).attr('data-loading-text', '<i class="fa fa-circle-o-notch fa-spin"></i> Se incarca');
-                $(e.target).button('loading');
-                $.ajax({
-                    url: actionUrl,
-                    method: 'get'
-                }).done(function () {
-                    location.reload();
-                    $(e.target).button('reset');
-                }).fail(function () {
-                    //console.log('failed');
-                    $(e.target).button('reset');
-                });
-            }
-        }
-
-        function markEmail(e) {
-            var msg = 'Sunteți sigur că doriți să mutați înapoi în Email?';
-            if (confirm(msg)) {
-                /*<![CDATA[*/
-                var actionUrl = /*[[@{/rest/markAs/(type='email',id=${data.id})}]]*/ '#';
-                /*]]>*/
-
-                console.log("Action url = " + actionUrl);
-                $(e.target).attr('data-loading-text', '<i class="fa fa-circle-o-notch fa-spin"></i> Se incarca');
-                $(e.target).button('loading');
-                $.ajax({
-                    url: actionUrl,
-                    method: 'get',
-                    data: {
-                        /*[[${_csrf.parameterName}]]: [[${_csrf.token}]]*/
-                    }
-                }).done(function () {
-                    location.reload();
-                    $(e.target).button('reset');
-                }).fail(function () {
-                    //console.log('failed');
-                    $(e.target).button('reset');
-                });
-            }
+        function getId() {
+            /*<![CDATA[*/
+            var msgId = /*[[${data.id}]]*/ 'null';
+            /*]]>*/
+            return msgId;
         }
     </script>
     <div th:substituteby="main_head::toast"></div>
