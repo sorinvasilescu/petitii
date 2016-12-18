@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import ro.petitii.config.DefaultsConfig;
 import ro.petitii.model.Email;
 import ro.petitii.model.Petition;
 import ro.petitii.model.Petitioner;
@@ -30,10 +31,13 @@ public class PetitionController extends ControllerBase {
     @Autowired
     EmailService emailService;
 
+    @Autowired
+    DefaultsConfig defaultsConfig;
+
     @RequestMapping(path = "/petition", method = RequestMethod.GET)
     public ModelAndView addPetition() {
         Petitioner petitioner = new Petitioner();
-        petitioner.setCountry("RO");
+        petitioner.setCountry(defaultsConfig.getCountry());
 
         Petition petition = new Petition();
         petition.setReceivedDate(new Date());

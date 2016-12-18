@@ -10,6 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import ro.petitii.config.DefaultsConfig;
 import ro.petitii.model.*;
 import ro.petitii.model.rest.RestPetitionResponse;
 import ro.petitii.model.rest.RestPetitionResponseElement;
@@ -43,6 +44,9 @@ public class PetitionServiceImpl implements PetitionService {
 
     @Autowired
     MessageSource messageSource;
+
+    @Autowired
+    DefaultsConfig defaultsConfig;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ImapService.class);
 
@@ -109,6 +113,7 @@ public class PetitionServiceImpl implements PetitionService {
         petition.setDescription(email.getBody());
         petition.setSubject(email.getSubject());
         Petitioner petitioner = new Petitioner();
+        petitioner.setCountry(defaultsConfig.getCountry());
         try {
             InternetAddress addr = new InternetAddress(email.getSender());
             petitioner.setEmail(addr.getAddress());
