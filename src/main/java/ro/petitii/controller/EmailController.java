@@ -4,6 +4,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,6 +31,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 @Controller
 public class EmailController extends ControllerBase {
@@ -45,6 +47,9 @@ public class EmailController extends ControllerBase {
 
     @Autowired
     EmailAttachmentService emailAttachmentService;
+
+    @Autowired
+    MessageSource messageSource;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EmailController.class);
 
@@ -82,18 +87,7 @@ public class EmailController extends ControllerBase {
         modelAndView.addObject("title", "Email-uri primite");
         modelAndView.addObject("email", config.getUsername());
         modelAndView.addObject("data", email);
-        //todo; add a proper status, eventually as an enum
-        String status = "";
-        if (email.getPetition() != null) {
-            status = "&#xce;n curs";
-        } else if (email.getType() == Email.EmailType.Inbox) {
-            status = "Nou";
-        } else if (email.getType() == Email.EmailType.Outbox) {
-            status = "Rezolvat";
-        } else if (email.getType() == Email.EmailType.Spam) {
-            status = "Spam";
-        }
-        modelAndView.addObject("status", status);
+        if (email.getPetition()!=null) modelAndView.addObject("status", messageSource.getMessage(email.getPetition().getStatus().toString(), null , new Locale("ro")));
         return modelAndView;
     }
 
