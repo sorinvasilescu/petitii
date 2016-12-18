@@ -157,7 +157,7 @@
                     data: 'petition_id',
                     title: 'Petitie',
                     render: function (data, type, full, meta) {
-                        if (data != null) return '<a href="#"><i class="fa fa-info-circle"></i> Vezi petitie</a>';
+                        if (data != null) return '<a href="/petition/' + data + '"><i class="fa fa-info-circle"></i> Vezi petitie</a>';
                         else return '';
                     },
                     sortable: false,

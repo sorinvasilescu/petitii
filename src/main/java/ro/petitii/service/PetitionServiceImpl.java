@@ -33,6 +33,9 @@ public class PetitionServiceImpl implements PetitionService {
     PetitionerService petitionerService;
 
     @Autowired
+    EmailService emailService;
+
+    @Autowired
     UserService userService;
 
     @Autowired
@@ -82,6 +85,15 @@ public class PetitionServiceImpl implements PetitionService {
         petition.setPetitioner(petitioner);
         petition = petitionRepository.save(petition);
 
+        // check if emails are linked
+        Collection<Email> emails = petition.getEmails();
+        for (Email email : emails) {
+            if (email.getPetition() != petition) {
+                email.setPetition(petition);
+                emailService.saveAlone(email);
+            }
+        }
+
         // if petition status does not exist, generate one
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = userService.findUserByEmail(auth.getName()).get(0);
@@ -112,6 +124,9 @@ public class PetitionServiceImpl implements PetitionService {
             LOGGER.error("Could not parse email address: " + email.getSender());
             petitioner.setEmail(email.getSender());
         }
+        petition.setEmails(new ArrayList<>());
+        petition.getEmails().add(email);
+        email.setPetition(petition);
         petition.setPetitioner(petitioner);
         return petition;
     }
