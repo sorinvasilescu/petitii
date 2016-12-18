@@ -2,6 +2,10 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="main_head::head"></head>
 
+<!--/*@thymesVar id="page" type="java.lang.String"*/-->
+<!--/*@thymesVar id="title" type="java.lang.String"*/-->
+<!--/*@thymesVar id="email" type="java.lang.String"*/-->
+
 <body class="nav-md">
 <div class="container body">
     <div class="main_container">
@@ -45,6 +49,10 @@
                 <div th:if="${page=='inbox'}" class="align-right">
                     <button type="submit" id="get-mail" class="btn btn-info btn-md"><span class="glyphicon glyphicon-envelope"></span> Get Email</button>
                     <button id="add" type="button" class="btn btn-default btn-md" title="Creează o petiție din e-mailul selectat"><i class="fa fa-plus-square-o"></i>&nbsp;<span>Creează petiție</span></button>
+                    <button id="mark-spam" type="button" class="btn btn-default btn-md" title="Marchează ca spam"><i class="fa fa-trash-o"></i>&nbsp;<span>Marchează ca spam</span></button>
+                </div>
+                <div th:if="${page=='spam'}" class="align-right">
+                    <button id="mark-email" type="button" class="btn btn-default btn-md" title="Marchează ca e-mail"><i class="fa fa-envelope"></i>&nbsp;<span>Marchează ca e-mail</span></button>
                 </div>
                 <table id="datatable-responsive" class="table jambo_table bulk_action table-striped table-bordered dt-responsive nowrap"
                        cellspacing="0" width="100%">
@@ -199,6 +207,34 @@
                 window.location.href = '/petition/fromEmail/' + selectedRows[0].id;
             }
         });
+
+        $("#mark-spam").click(function (e) {
+            var selectedRows = emailTable.rows({selected: true}).data().toArray();
+            if (selectedRows.length != 1) {
+                addWarning("#error-messages", "Selectați cel puțin un e-mail");
+                this.blur()
+            } else {
+                var msg = 'Sunteți sigur că doriți să marcați ca Spam?';
+                if (confirm(msg)) {
+                    /*<![CDATA[*/
+                    var actionUrl = "/rest/markAs/?type=spam&id=" + selectedRows[0].id;
+                    /*]]>*/
+
+                    $(e.target).attr('data-loading-text', '<i class="fa fa-circle-o-notch fa-spin"></i> Se incarca');
+                    $(e.target).button('loading');
+                    $.ajax({
+                        url: actionUrl,
+                        method: 'get'
+                    }).done(function () {
+                        location.reload();
+                        $(e.target).button('reset');
+                    }).fail(function () {
+                        //console.log('failed');
+                        $(e.target).button('reset');
+                    });
+                }
+            }
+        });
     });
 
     function refreshMail(e) {
@@ -222,6 +258,40 @@
             $(e.target).button('reset');
         });
     }
+</script>
+<script th:if="${page=='spam'}" type="text/javascript" th:inline="javascript">
+    $(document).ready(function () {
+        $("#mark-email").click(function (e) {
+            var selectedRows = emailTable.rows({selected: true}).data().toArray();
+            if (selectedRows.length == 0) {
+                addWarning("#error-messages", "Selectați cel puțin un e-mail");
+                this.blur()
+            } else {
+                var msg = 'Sunteți sigur că doriți să mutați înapoi în Email?';
+                if (confirm(msg)) {
+                    /*<![CDATA[*/
+                    var actionUrl = "/rest/markAs/?type=email&id=" + selectedRows[0].id;
+                    /*]]>*/
+
+                    console.log("Action url = " + actionUrl);
+                    $(e.target).attr('data-loading-text', '<i class="fa fa-circle-o-notch fa-spin"></i> Se incarca');
+                    $(e.target).button('loading');
+                    $.ajax({
+                        url: actionUrl,
+                        method: 'get',
+                        data: {
+                            /*[[${_csrf.parameterName}]]: [[${_csrf.token}]]*/
+                        }
+                    }).done(function () {
+                        location.reload();
+                        $(e.target).button('reset');
+                    }).fail(function () {
+                        $(e.target).button('reset');
+                    });
+                }
+            }
+        });
+    });
 </script>
 <div th:substituteby="main_head::toast"></div>
 </body>

@@ -71,19 +71,19 @@ public class PetitionController extends ControllerBase {
     }
 
     @RequestMapping(path = "/petition", method = RequestMethod.POST)
-    public ModelAndView savePetition(@Valid Petition petition, BindingResult bindingResult, final RedirectAttributes attr) {
+    public ModelAndView savePetition(@Valid Petition petition, BindingResult bindingResult,
+                                     final RedirectAttributes attr) {
         ModelAndView modelAndView = new ModelAndView();
         if (bindingResult.hasErrors()) {
             modelAndView.setViewName("add_petition");
             modelAndView.addObject("user_list", userService.getAllUsers());
-            modelAndView.addObject("petition",petition);
-            modelAndView.addObject("toast",createToast( "Petitia nu a fost salvata", ToastType.danger));
+            modelAndView.addObject("petition", petition);
+            modelAndView.addObject("toast", createToast("Petitia nu a fost salvata", ToastType.danger));
             return modelAndView;
-        }
-        else {
+        } else {
             petition = petitionService.save(petition);
             modelAndView.setViewName("redirect:/petition/" + petition.getId());
-            attr.addFlashAttribute("toast",createToast("Petitia a fost salvata cu succes", ToastType.success));
+            attr.addFlashAttribute("toast", createToast("Petitia a fost salvata cu succes", ToastType.success));
             return modelAndView;
         }
     }
