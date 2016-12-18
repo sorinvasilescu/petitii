@@ -445,7 +445,9 @@
                             <div id="myTabContent" class="tab-content">
                                 <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="home-tab">
                                     <div class="item form-group"  th:classappend="${#fields.hasErrors('subject')} ? bad">
-                                        <label for="subject" class="control-label col-md-3 col-sm-3 col-xs-12">Rezumat</label>
+                                        <div>
+                                            <label for="subject" class="control-label col-md-3 col-sm-3 col-xs-12">Rezumat</label>
+                                        </div>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <input id="subject" type="text" name="abstract" placeholder="Descrierea pe scurt" class="form-control col-md-10" th:field="*{subject}" />
                                         </div>
@@ -454,7 +456,7 @@
                                     <div class="form-group">
                                         <label class="control-label col-md-3 col-sm-3 col-xs-12">Descriere</label>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <textarea name="descr" id="descriprion" rows="10" style="width:520px" th:field="*{description}"></textarea>
+                                            <textarea name="description" id="descriprion" rows="10" style="width:520px" th:field="*{description}"></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -636,6 +638,9 @@
     });
     </script>
     <!-- /Datatables -->
+    <script type="text/javascript">
+        $("#descriprion").wysihtml5();
+    </script>
     <div th:substituteby="main_head::toast"></div>
 </body>
 
