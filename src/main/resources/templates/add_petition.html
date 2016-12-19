@@ -435,14 +435,17 @@
                         <div class="clear"></div>
                         <div class="" role="tabpanel" data-example-id="togglable-tabs">
                             <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
-                                <li role="presentation" class="active"><a href="#tab_content1" id="continut-tab" role="tab" data-toggle="tab" aria-expanded="true">Conținut</a>
+                                <li role="presentation" class="active">
+                                    <a href="#tab_content1" id="continut-tab" role="tab" data-toggle="tab" aria-expanded="true">Conținut</a>
                                 </li>
-                                <li role="presentation" class=""><a href="#tab_content2" role="tab" id="file-tab" data-toggle="tab" aria-expanded="false">Atașamente</a>
+                                <li role="presentation" class="">
+                                    <a href="#tab_content2" role="tab" id="file-tab" data-toggle="tab" aria-expanded="false">Atașamente</a>
                                 </li>
-                                <li role="presentation" class=""><a href="#tab_content3" role="tab" id="conex-tab" data-toggle="tab" aria-expanded="false">Pet.
-                                conexate</a>
+                                <li role="presentation" class="">
+                                    <a href="#tab_content3" role="tab" id="conex-tab" data-toggle="tab" aria-expanded="false">Pet. conexe</a>
                                 </li>
-                                <li role="presentation" class=""><a href="#tab_content4" role="tab" id="obs-tab" data-toggle="tab" aria-expanded="false">Observatii</a>
+                                <li role="presentation" class="">
+                                    <a href="#tab_content4" role="tab" id="obs-tab" data-toggle="tab" aria-expanded="false">Observații</a>
                                 </li>
                             </ul>
                             <div id="myTabContent" class="tab-content">
@@ -548,19 +551,19 @@
                                     <div th:if="${id} != null">
                                         <button type="button" class="btn btn-default btn-md pull-right"
                                                 id="removeComment">
-                                            <i class="fa fa-trash-o"></i> Sterge observatie
+                                            <i class="fa fa-trash-o"></i> Șterge observație
                                         </button>
                                         <button type="button" class="btn btn-default btn-md pull-right"
                                                 id="addComment">
-                                            <i class="fa fa-plus-circle"></i> Adauga observatie
+                                            <i class="fa fa-plus-circle"></i> Adaugă observație
                                         </button>
                                         <table id="observations"
-                                               class="table jambo_table bulk_action table-striped table-bordered dt-responsive nowrap"
+                                               class="table table-striped row-border compact stripe dt-responsive nowrap"
                                                cellspacing="0" width="100%">
                                         </table>
                                     </div>
                                     <div th:if="${id} == null">
-                                        <h2>Salvați petiția pentru a putea adauga comentarii ...</h2>
+                                        <h2>Salvați petiția pentru a putea adăuga comentarii ...</h2>
                                     </div>
                                 </div>
                             </div>
@@ -667,7 +670,7 @@
                     {
                         name: 'comment',
                         data: 'comment',
-                        title: 'Observatie'
+                        title: 'Observație'
                     },
                     {
                         name: 'date',
@@ -677,7 +680,7 @@
                     {
                         name: 'user',
                         data: 'user',
-                        title: 'Adaugat de'
+                        title: 'Adăugat de'
                     }
                 ]
             });
