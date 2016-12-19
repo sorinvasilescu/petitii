@@ -12,6 +12,10 @@ import java.util.Collection;
 @Table(name = "users")
 public class User {
 
+    public enum UserRole {
+            ADMIN,USER
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @JsonView(DataTablesOutput.View.class)
@@ -22,8 +26,13 @@ public class User {
     @JsonView(DataTablesOutput.View.class)
     private String email;
 
-    @NotEmpty
     private String password;
+
+    @Transient
+    private String passwordCopy;
+
+    @Transient
+    private Boolean changePassword;
 
     @JsonView(DataTablesOutput.View.class)
     private String firstName;
@@ -31,8 +40,9 @@ public class User {
     private String lastName;
 
     @NotEmpty
+    @Enumerated(EnumType.STRING)
     @JsonView(DataTablesOutput.View.class)
-    private String role;
+    private UserRole role;
 
     @OneToMany(mappedBy = "responsible")
     private Collection<Petition> petition;
@@ -41,6 +51,10 @@ public class User {
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getEmail() {
@@ -79,11 +93,35 @@ public class User {
         return firstName + " " + lastName;
     }
 
-    public String getRole() {
+    public UserRole getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(UserRole role) {
         this.role = role;
+    }
+
+    public String getPasswordCopy() {
+        return passwordCopy;
+    }
+
+    public void setPasswordCopy(String passwordCopy) {
+        this.passwordCopy = passwordCopy;
+    }
+
+    public Boolean getChangePassword() {
+        return changePassword;
+    }
+
+    public void setChangePassword(Boolean changePassword) {
+        this.changePassword = changePassword;
+    }
+
+    public Collection<Petition> getPetition() {
+        return petition;
+    }
+
+    public void setPetition(Collection<Petition> petition) {
+        this.petition = petition;
     }
 }

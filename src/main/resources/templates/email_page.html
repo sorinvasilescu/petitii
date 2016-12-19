@@ -2,6 +2,10 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="main_head::head"></head>
 
+<!--/*@thymesVar id="page" type="java.lang.String"*/-->
+<!--/*@thymesVar id="title" type="java.lang.String"*/-->
+<!--/*@thymesVar id="email" type="java.lang.String"*/-->
+
 <body class="nav-md">
 <div class="container body">
     <div class="main_container">
@@ -13,13 +17,9 @@
 
         <!-- page content -->
         <div class="right_col" role="main">
-            <!-- alert -->
-            <div id="alert" class="alert alert-dismissible hidden" role="alert">
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
-                        aria-hidden="true">&times;</span></button>
-                <span id="alert-content"></span>
-            </div>
-            <!-- end alert -->
+
+            <div id="error-messages"></div>
+
             <div class="page-title-petitions">
                 <h2>
                     <span th:text="${title}">Email-uri primite</span>
@@ -47,50 +47,15 @@
             </div>
             <div class="x_content">
                 <div th:if="${page=='inbox'}" class="align-right">
-                    <button type="submit" id="get-mail" class="btn btn-info"><span
-                            class="glyphicon glyphicon-envelope"></span> Get Email
-                    </button>
+                    <button type="submit" id="get-mail" class="btn btn-info btn-md"><span class="glyphicon glyphicon-envelope"></span> Get Email</button>
+                    <button id="add" type="button" class="btn btn-default btn-md" title="Creează o petiție din e-mailul selectat"><i class="fa fa-plus-square-o"></i>&nbsp;<span>Creează petiție</span></button>
+                    <button id="mark-spam" type="button" class="btn btn-default btn-md" title="Marchează ca spam"><i class="fa fa-trash-o"></i>&nbsp;<span>Marchează ca spam</span></button>
+                </div>
+                <div th:if="${page=='spam'}" class="align-right">
+                    <button id="mark-email" type="button" class="btn btn-default btn-md" title="Marchează ca e-mail"><i class="fa fa-envelope"></i>&nbsp;<span>Marchează ca e-mail</span></button>
                 </div>
                 <table id="datatable-responsive" class="table jambo_table bulk_action table-striped table-bordered dt-responsive nowrap"
                        cellspacing="0" width="100%">
-                    <!--
-                    <thead>
-                    <tr>
-                        <th>Del</th>
-                        <th>Expeditor</th>
-                        <th>Subiect</th>
-                        <th>Data primire</th>
-                        <th>Status</th>
-                        <th>Details</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td><input type="checkbox"/></td>
-                        <td>t.nixon@datatables.net</td>
-                        <td>Sub1</td>
-                        <td>2011/04/25</td>
-                        <td>Nou</td>
-                        <td>Detalii</td>
-                    </tr>
-                    <tr>
-                        <td><input type="checkbox"/></td>
-                        <td>g.winters@datatables.net</td>
-                        <td>Sub1</td>
-                        <td>2011/07/25</td>
-                        <td>Necitit</td>
-                        <td>Detalii</td>
-                    </tr>
-                    <tr>
-                        <td><input type="checkbox"/></td>
-                        <td>a.cox@datatables.net</td>
-                        <td>Sub1</td>
-                        <td>2009/01/12</td>
-                        <td>Citit</td>
-                        <td>Detalii</td>
-                    </tr>
-                    </tbody>
-                    -->
                 </table>
             </div>
         </div>
@@ -113,30 +78,25 @@
 <script th:inline="javascript">
     /*<![CDATA[*/
     var restUrl = /*[[${restUrl}]]*/ '/rest/emails';
-    var toastContent = /*[[${toast}]]*/ null;
     /*]]>*/
 </script>
 
 <!-- Datatables -->
 <script th:inline="javascript" type="text/javascript">
     /*<![CDATA[*/
-    function strLimit(data, limit) {
-        if ((data!=null) && (data.length > limit)){
-            data = data.substr(0, limit);
-            data += '...';
-        }
-        return data;
-    }
-
     var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
     /*]]>*/
 
     var emailTable;
     $(document).ready(function () {
         emailTable = $('#datatable-responsive').DataTable({
+            select: {
+                style: 'single'
+            },
             processing: true,
             serverSide: true,
             sDom: 'lrtip ',
+            rowId: "id",
             order: [[3, 'desc']],
             ajax: {
                 url: restUrl,
@@ -149,7 +109,8 @@
                 }
             },
             language: {
-                url: languageUrl
+                url: languageUrl,
+                select: selectTranslation()
             },
             fixedColumns: true,
             columns: [
@@ -196,7 +157,7 @@
                     data: 'petition_id',
                     title: 'Petitie',
                     render: function (data, type, full, meta) {
-                        if (data != null) return '<a href="#"><i class="fa fa-info-circle"></i> Vezi petitie</a>';
+                        if (data != null) return '<a href="/petition/' + data + '"><i class="fa fa-info-circle"></i> Vezi petitie</a>';
                         else return '';
                     },
                     sortable: false,
@@ -219,6 +180,7 @@
                 }
             ]
         });
+        selectActions(emailTable);
     });
 </script>
 <!-- /Datatables -->
@@ -227,6 +189,26 @@
 <script th:if="${page=='inbox'}" type="text/javascript" th:inline="javascript">
     $(document).ready(function () {
         $('#get-mail').click(refreshMail);
+
+        $("#add").click(function () {
+            var selectedRows = emailTable.rows({selected: true}).data().toArray();
+            if (selectedRows.length != 1) {
+                addWarning("#error-messages", "Pentru creare selectați un e-mail");
+                this.blur()
+            } else {
+                window.location.href = '/petition/fromEmail/' + selectedRows[0].id;
+            }
+        });
+
+        $("#mark-spam").click(function (e) {
+            var selectedRows = emailTable.rows({selected: true}).data().toArray();
+            if (selectedRows.length != 1) {
+                addWarning("#error-messages", "Selectați cel puțin un e-mail");
+                this.blur()
+            } else {
+                markAsSpam(e, selectedRows[0].id);
+            }
+        });
     });
 
     function refreshMail(e) {
@@ -251,6 +233,19 @@
         });
     }
 </script>
-<div th:replace="main_head::toast"></div>
+<script th:if="${page=='spam'}" type="text/javascript" th:inline="javascript">
+    $(document).ready(function () {
+        $("#mark-email").click(function (e) {
+            var selectedRows = emailTable.rows({selected: true}).data().toArray();
+            if (selectedRows.length == 0) {
+                addWarning("#error-messages", "Selectați cel puțin un e-mail");
+                this.blur()
+            } else {
+                markAsEmail(e, selectedRows[0].id)
+            }
+        });
+    });
+</script>
+<div th:substituteby="main_head::toast"></div>
 </body>
 </html>

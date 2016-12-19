@@ -9,4 +9,7 @@ import java.util.List;
 @Repository
 public interface UserRepository extends DataTablesRepository<User, Long> {
     List<User> findByEmail(String email);
+
+    User findById(Long id);
+
 }

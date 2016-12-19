@@ -1,18 +1,22 @@
 package ro.petitii.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import ro.petitii.config.DefaultsConfig;
+import ro.petitii.model.Email;
 import ro.petitii.model.Petition;
+import ro.petitii.model.Petitioner;
+import ro.petitii.service.EmailService;
 import ro.petitii.service.PetitionService;
 import ro.petitii.service.UserService;
-import ro.petitii.service.email.ImapService;
 
+import javax.validation.Valid;
 import java.util.Date;
 
 @Controller
@@ -24,12 +28,20 @@ public class PetitionController extends ControllerBase {
     @Autowired
     PetitionService petitionService;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ImapService.class);
+    @Autowired
+    EmailService emailService;
+
+    @Autowired
+    DefaultsConfig defaultsConfig;
 
     @RequestMapping(path = "/petition", method = RequestMethod.GET)
     public ModelAndView addPetition() {
+        Petitioner petitioner = new Petitioner();
+        petitioner.setCountry(defaultsConfig.getCountry());
+
         Petition petition = new Petition();
         petition.setReceivedDate(new Date());
+        petition.setPetitioner(petitioner);
 
         ModelAndView modelAndView = new ModelAndView("add_petition");
         modelAndView.addObject("petition", petition);
@@ -43,34 +55,55 @@ public class PetitionController extends ControllerBase {
         ModelAndView modelAndView = new ModelAndView("add_petition");
 
         Petition petition = petitionService.findById(id);
-        modelAndView.addObject("petition",petition);
+        modelAndView.addObject("petition", petition);
+        modelAndView.addObject("user_list", userService.getAllUsers());
+        modelAndView.addObject("commentsRestUrl", "/rest/comments/" + petition.getId());
+        modelAndView.addObject("attachmentRestUrl", "/rest/attachments/" + petition.getId());
+
+        return modelAndView;
+    }
+
+    @RequestMapping(path = "/petition/fromEmail/{id}", method = RequestMethod.GET)
+    public ModelAndView createPetitionFromEmail(@PathVariable("id") Long id) {
+        Email email = emailService.searchById(id);
+
+        Petition petition = petitionService.createFromEmail(email);
+
+        ModelAndView modelAndView = new ModelAndView("add_petition");
+        modelAndView.addObject("petition", petition);
+        modelAndView.addObject("user_list", userService.getAllUsers());
 
         return modelAndView;
     }
 
     @RequestMapping(path = "/petition", method = RequestMethod.POST)
-    public ModelAndView savePetition(Petition petition) {
-        LOGGER.info(petition.toString());
-        petitionService.save(petition);
-
-        ModelAndView modelAndView = new ModelAndView("add_petition");
-        modelAndView.addObject("petition", petition);
-        createToast("Petitie salvata cu succes",ToastType.success);
-
+    public ModelAndView savePetition(@Valid Petition petition, BindingResult bindingResult,
+                                     final RedirectAttributes attr) {
+        ModelAndView modelAndView = new ModelAndView();
+        if (bindingResult.hasErrors()) {
+            modelAndView.setViewName("add_petition");
+            modelAndView.addObject("user_list", userService.getAllUsers());
+            modelAndView.addObject("petition", petition);
+            modelAndView.addObject("toast", createToast("Petitia nu a fost salvata", ToastType.danger));
+        } else {
+            petition = petitionService.save(petition);
+            modelAndView.setViewName("redirect:/petition/" + petition.getId());
+            attr.addFlashAttribute("toast", createToast("Petitia a fost salvata cu succes", ToastType.success));
+        }
         return modelAndView;
     }
 
-    @RequestMapping("/petitii")
+    @RequestMapping("/petitions")
     public ModelAndView listUserPetitions() {
-        ModelAndView modelAndView = new ModelAndView("petitii_page");
-        modelAndView.addObject("restUrl","/rest/petitions");
+        ModelAndView modelAndView = new ModelAndView("petitions_page");
+        modelAndView.addObject("restUrl", "/rest/petitions/user");
         return modelAndView;
     }
 
-    @RequestMapping("/petitii/toate")
+    @RequestMapping("/petitions/all")
     public ModelAndView listAllPetitions() {
-        ModelAndView modelAndView = new ModelAndView("petitii_page");
-        modelAndView.addObject("restUrl","/rest/petitions/all");
+        ModelAndView modelAndView = new ModelAndView("petitions_page");
+        modelAndView.addObject("restUrl", "/rest/petitions/all");
         return modelAndView;
     }
 

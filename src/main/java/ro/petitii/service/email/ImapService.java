@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ro.petitii.config.ImapConfig;
 import ro.petitii.model.Email;
-import ro.petitii.model.EmailAttachment;
+import ro.petitii.model.Attachment;
 import ro.petitii.service.EmailService;
 
 import javax.mail.*;
@@ -38,6 +38,7 @@ public class ImapService {
         LOGGER.info("Fetching mail");
         Date startDate = new Date();
         // set session properties
+        //todo; props is never used - remove?
         Properties props = new Properties();
         props.setProperty("mail.store.protocol", "imap");
         props.setProperty("mail.imap.partialfetch", "false");
@@ -51,7 +52,7 @@ public class ImapService {
             Store store = session.getStore(protocol);
             store.connect(imapConfig.getUsername(), imapConfig.getPassword());
             // open folder
-            folder = store.getFolder("[Gmail]/All Mail");
+            folder = store.getFolder(imapConfig.getFolder());
             UIDFolder uidFolder = (UIDFolder) folder;
             folder.open(Folder.READ_ONLY);
             Message[] messages;
@@ -69,7 +70,7 @@ public class ImapService {
                     date = df.parse(imapConfig.getStartDate());
                 } catch (ParseException e) {
                     date = df.parse("07/12/2016", new ParsePosition(0));
-                    LOGGER.error("Could not parse date");
+                    LOGGER.error("Could not parse date, using 07/12/2016 as the start date ...");
                 }
                 SearchTerm newerThan = new ReceivedDateTerm(ComparisonTerm.GT, date);
                 // fetch messages
@@ -110,7 +111,7 @@ public class ImapService {
         String bccList = parseAddresses(msg.getRecipients(Message.RecipientType.BCC));
         Date sentDate = msg.getSentDate();
 
-        Collection<EmailAttachment> attachments = new ArrayList<>();
+        Collection<Attachment> attachments = new ArrayList<>();
         Object messageContent = parseBody(msg.getContent(), attachments);
 
         Email email = new Email();
@@ -127,7 +128,7 @@ public class ImapService {
         }
         email.setDate(sentDate);
         email.setSize((float) (msg.getSize()));
-        email.setAttachments(attachments);
+        email.setAttachments(updateAttachments(attachments, sentDate));
         email.setType(Email.EmailType.Inbox);
         emailService.save(email);
         // print out details of each message
@@ -139,7 +140,7 @@ public class ImapService {
         LOGGER.info("\t Sent Date: " + sentDate);
         LOGGER.info("\t Message: " + email.getBody());
         String att = "";
-        for (EmailAttachment a : attachments) {
+        for (Attachment a : attachments) {
             if (att.length() > 0) att += ",";
             att += a.getOriginalFilename();
         }
@@ -147,7 +148,7 @@ public class ImapService {
         LOGGER.info("\t Size: " + msg.getSize());
     }
 
-    private String parseBody(Object content, Collection<EmailAttachment> attachments)
+    private String parseBody(Object content, Collection<Attachment> attachments)
             throws IOException, MessagingException {
         String body = null;
         try {
@@ -160,7 +161,7 @@ public class ImapService {
                         if (isTextBody(bodyPart)) {
                             body = bodyPart.getContent().toString();
                         } else if (isAttachment(bodyPart)) {
-                            EmailAttachment attachment = new EmailAttachment();
+                            Attachment attachment = new Attachment();
                             attachment.setBodyPart(bodyPart);
                             attachments.add(attachment);
                         } else if (bodyPart.getContent() instanceof Multipart) {
@@ -215,5 +216,12 @@ public class ImapService {
             listAddress = listAddress.substring(0, listAddress.length() - 2);
         }
         return listAddress;
+    }
+
+    private Collection<Attachment> updateAttachments(Collection<Attachment> attachments, Date emailSentDate) {
+        for (Attachment attachment : attachments) {
+            attachment.setDate(emailSentDate);
+        }
+        return attachments;
     }
 }

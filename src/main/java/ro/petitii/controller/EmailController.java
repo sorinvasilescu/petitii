@@ -1,12 +1,11 @@
 package ro.petitii.controller;
 
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.HttpClientErrorException;
@@ -14,22 +13,8 @@ import org.springframework.web.servlet.ModelAndView;
 import ro.petitii.config.EmailAttachmentConfig;
 import ro.petitii.config.ImapConfig;
 import ro.petitii.model.Email;
-import ro.petitii.model.EmailAttachment;
-import ro.petitii.service.EmailAttachmentService;
 import ro.petitii.service.EmailService;
-import ro.petitii.util.Pair;
-import ro.petitii.util.ZipUtils;
-
-import javax.persistence.EntityNotFoundException;
-import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Locale;
 
 @Controller
 public class EmailController extends ControllerBase {
@@ -44,7 +29,7 @@ public class EmailController extends ControllerBase {
     EmailService emailService;
 
     @Autowired
-    EmailAttachmentService emailAttachmentService;
+    MessageSource messageSource;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EmailController.class);
 
@@ -82,67 +67,9 @@ public class EmailController extends ControllerBase {
         modelAndView.addObject("title", "Email-uri primite");
         modelAndView.addObject("email", config.getUsername());
         modelAndView.addObject("data", email);
-        //todo; add a proper status, eventually as an enum
-        String status = "";
-        if (email.getPetition() != null) {
-            status = "&#xce;n curs";
-        } else if (email.getType() == Email.EmailType.Inbox) {
-            status = "Nou";
-        } else if (email.getType() == Email.EmailType.Outbox) {
-            status = "Rezolvat";
-        } else if (email.getType() == Email.EmailType.Spam) {
-            status = "Spam";
+        if (email.getPetition()!=null) {
+            modelAndView.addObject("status", messageSource.getMessage(email.getPetition().statusString(), null , new Locale("ro")));
         }
-        modelAndView.addObject("status", status);
         return modelAndView;
-    }
-
-    @RequestMapping("/action/download/{id}")
-    public void download(@PathVariable("id") Long id, HttpServletResponse response) {
-        try {
-            EmailAttachment att = emailAttachmentService.findById(id);
-            Path filepath = Paths.get(att.getFilename());
-            FileInputStream is = new FileInputStream(new File(filepath.toUri()));
-            response.setContentType("application/octet-stream");
-            response.setHeader("Content-disposition", "attachment; filename=" + att.getOriginalFilename());
-            IOUtils.copy(is, response.getOutputStream());
-            is.close();
-            response.flushBuffer();
-        } catch (IOException e) {
-            LOGGER.error("Could not find attachment with id " + id + " on disk: " + e.getMessage());
-            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
-        } catch (EntityNotFoundException e) {
-            LOGGER.error("Could not find attachment with id " + id + ": " + e.getMessage());
-            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @RequestMapping("/action/download/email/{id}")
-    public void downloadAll(@PathVariable("id") Long id, HttpServletResponse response) {
-        try {
-
-            Email email = emailService.searchById(id);
-            if (email == null) {
-                throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
-            }
-
-            List<Pair<String, Path>> attachments = new LinkedList<>();
-            for (EmailAttachment att : email.getAttachments()) {
-                attachments.add(new Pair<>(att.getOriginalFilename(), Paths.get(att.getFilename())));
-            }
-            String zipFilename = "email-" + id + ".zip";
-            InputStream is = ZipUtils.create(attachments);
-            response.setContentType("application/octet-stream");
-            response.setHeader("Content-disposition", "attachment; filename=" + zipFilename);
-            IOUtils.copy(is, response.getOutputStream());
-            is.close();
-            response.flushBuffer();
-        } catch (IOException e) {
-            LOGGER.error("Could not find attachment with id " + id + " on disk: " + e.getMessage());
-            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
-        } catch (EntityNotFoundException e) {
-            LOGGER.error("Could not find attachment with id " + id + ": " + e.getMessage());
-            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
-        }
     }
 }

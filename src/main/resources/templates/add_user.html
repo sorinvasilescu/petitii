@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="main_head :: head"></head>
+
+<body class="nav-md">
+<div class="container body">
+    <div class="main_container">
+        <div class="col-md-3 left_col" th:substituteby="left::menu"></div>
+        <div class="top_nav" th:substituteby="top::menu"></div>
+        <div class="right_col" role="main">
+            <form id="user-form" class="form-horizontal form-label-left input_mask" th:object="${user}"
+                  th:action="@{/user}" method="post">
+                <div>
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <div class="buttons pull-right">
+                                <button id="top-submit" type="button" class="btn btn-success btn-sm"><i
+                                        class="fa fa-paste"></i> <span>Salvează</span></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="x_panel">
+                            <div class="x_title">
+                                <h2>Adauga/editeaza user </h2>
+                                <div class="clearfix"></div>
+                            </div>
+
+                            <input type="hidden" th:field="*{id}"/>
+
+                            <div class="col-md-12 col-xs-12">
+                                <div class="x_content">
+                                    <div class="form-group">
+                                        <label class="control-label col-md-3 col-sm-3 col-xs-12">
+                                            Prenume
+                                            <span class="required">*</span>
+                                        </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <input type="text" placeholder="Prenumele"
+                                                   class="form-control col-md-7 col-xs-12" required=""
+                                                   th:field="*{firstName}"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="control-label col-md-3 col-sm-3 col-xs-12">
+                                            Nume
+                                            <span class="required">*</span>
+                                        </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <input type="text" placeholder="Numele"
+                                                   class="form-control col-md-7 col-xs-12" required=""
+                                                   th:field="*{lastName}"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="control-label col-md-3 col-sm-3 col-xs-12">Email
+                                            <span class="required">*</span>
+                                        </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <input type="email" placeholder="Email" data-parsley-trigger="change"
+                                                   class="form-control col-md-7 col-xs-12" required=""
+                                                   th:field="*{email}"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="control-label col-md-3 col-sm-3 col-xs-12">Rol</label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <select class="form-control" th:field="*{role}">
+                                                <option value="USER">USER</option>
+                                                <option value="ADMIN">ADMIN</option>
+                                            </select>
+
+                                        </div>
+                                    </div>
+
+
+                                    <div class="form-group">
+                                        <label class="control-label col-md-3 col-sm-3 col-xs-12">Schimbă Parola</label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <input type="checkbox" id="change-password" class="form-control col-md-7 col-xs-12"
+                                                   th:field="*{changePassword}"/>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="form-group" id="password-group">
+                                        <label class="control-label col-md-3 col-sm-3 col-xs-12">Parola</label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <input type="password" placeholder="Parola"
+                                                   id="password" data-parsley-minlength="5"
+                                                   class="form-control col-md-7 col-xs-12" required="required"
+                                                   th:field="*{password}"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group"  id="password-copy-group">
+                                        <label class="control-label col-md-3 col-sm-3 col-xs-12">Repetă parola</label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <input type="password" placeholder="Repetă parola"
+                                                   id="password-copy" data-parsley-equalto="#password"
+                                                   class="form-control col-md-7 col-xs-12" required="required"
+                                                   th:field="*{passwordCopy}"/>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+                    <div class="clear"></div>
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <div class="buttons pull-right">
+                                <button id="bottom-submit" type="button" class="btn btn-success btn-sm"><i
+                                        class="fa fa-paste"></i> <span>Salvează</span></button>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                </div>
+            </form>
+            <!-- /page content -->
+        </div>
+        <footer>
+            <div class="pull-right">
+                Gentelella - Bootstrap Admin Template by <a href="https://colorlib.com">Colorlib</a>
+            </div>
+            <div class="clearfix"></div>
+        </footer>
+    </div>
+</div>
+<div th:replace="main_head::includes"></div>
+<link href="../vendors/select2/dist/css/select2.min.css" rel="stylesheet"/>
+<!-- Select2 -->
+<script src="../vendors/select2/dist/js/select2.full.min.js"></script>
+
+<script type="text/javascript">
+    $('#user-form').parsley();
+
+    $(document).ready(function() {
+        $("#password-group").toggle(false);
+        $("#password-copy-group").toggle(false);
+
+        $('#bottom-submit,#top-submit').click(function(){
+            $('#user-form').submit();
+        });
+
+        $('#change-password').change(function(){
+            $("#password-group").toggle($(this).is(':checked'));
+            $("#password-copy-group").toggle($(this).is(':checked'));
+        });
+    });
+
+    Parsley.on('field:validated', function(fieldInstance){
+    if (fieldInstance.$element.is(":hidden")) {
+            // hide the message wrapper
+            fieldInstance._ui.$errorsWrapper.css('display', 'none');
+            // set validation result to true
+            fieldInstance.validationResult = true;
+            return true;
+        }
+    });
+
+
+</script>
+
+<div th:replace="main_head::toast"></div>
+</body>
+
+</html>

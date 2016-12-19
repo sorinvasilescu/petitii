@@ -2,9 +2,6 @@ package ro.petitii.model;
 
 import org.springframework.security.core.GrantedAuthority;
 
-/**
- * Created by Sorin on 12/6/2016.
- */
 public class UserAuthority implements GrantedAuthority {
 
     private User user;
@@ -15,6 +12,6 @@ public class UserAuthority implements GrantedAuthority {
 
     @Override
     public String getAuthority() {
-        return user.getRole();
+        return user.getRole().toString();
     }
 }

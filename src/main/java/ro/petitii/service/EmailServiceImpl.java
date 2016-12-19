@@ -6,7 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ro.petitii.model.Email;
-import ro.petitii.model.EmailAttachment;
+import ro.petitii.model.Attachment;
 import ro.petitii.model.rest.RestEmailResponse;
 import ro.petitii.model.rest.RestEmailResponseElement;
 import ro.petitii.repository.EmailRepository;
@@ -25,7 +25,7 @@ public class EmailServiceImpl implements EmailService {
     private EmailRepository emailRepository;
 
     @Autowired
-    private EmailAttachmentService attachmentService;
+    private AttachmentService attachmentService;
 
     @PersistenceContext
     EntityManager em;
@@ -35,9 +35,9 @@ public class EmailServiceImpl implements EmailService {
     public Email save(Email e) {
         em.persist(e);
         em.flush();
-        for (EmailAttachment attachment : e.getAttachments()) {
+        for (Attachment attachment : e.getAttachments()) {
             attachment.setEmail(e);
-            attachmentService.save(attachment);
+            attachmentService.saveAndDownload(attachment);
         }
         e = emailRepository.save(e);
         return e;
@@ -86,8 +86,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public RestEmailResponse getTableContent(Email.EmailType type, int startIndex, int size,
-                                             Sort.Direction sortDirection, String sortColumn) {
+    public RestEmailResponse getTableContent(Email.EmailType type, int startIndex, int size, Sort.Direction sortDirection, String sortColumn) {
         List<Email> result = this.findAllByType(type, startIndex, size, sortDirection, sortColumn);
         List<RestEmailResponseElement> data = new ArrayList<>();
         SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
@@ -102,8 +101,9 @@ public class EmailServiceImpl implements EmailService {
         }
         RestEmailResponse response = new RestEmailResponse();
         response.setData(data);
-        response.setRecordsFiltered(this.count(type));
-        response.setRecordsTotal(this.count(type));
+        Long count = this.count(type);
+        response.setRecordsFiltered(count);
+        response.setRecordsTotal(count);
         return response;
     }
 }

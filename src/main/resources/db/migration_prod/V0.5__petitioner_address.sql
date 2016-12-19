@@ -1,1 +1,0 @@
-ALTER TABLE `petitions`.`petitioners` ADD COLUMN `address` TEXT NULL AFTER `city`;

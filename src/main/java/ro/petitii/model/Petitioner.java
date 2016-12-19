@@ -1,6 +1,10 @@
 package ro.petitii.model;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.util.Collection;
 
 @Entity
@@ -8,13 +12,20 @@ import java.util.Collection;
 public class Petitioner {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id;
+    private Long id;
 
+    @Size(min = 1)
     private String firstName;
+
+    @Size(min = 1)
     private String lastName;
+
     private String organization;
     private String entity_type;
+
+    @Size(min = 1)
     private String email;
+
     private String phone;
     private String country;
     private String county;
@@ -23,10 +34,14 @@ public class Petitioner {
     private String title;
 
     @OneToMany(mappedBy = "petitioner")
-    Collection<Petition> petitions;
+    private Collection<Petition> petitions;
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getFirstName() {
@@ -121,6 +136,10 @@ public class Petitioner {
         return petitions;
     }
 
+    public void setPetitions(Collection<Petition> petitions) {
+        this.petitions = petitions;
+    }
+
     @Override
     public String toString() {
         return "Petitioner{" +
@@ -136,7 +155,31 @@ public class Petitioner {
                 ", city='" + city + '\'' +
                 ", address='" + address + '\'' +
                 ", title='" + title + '\'' +
-                ", petition=" + petitions +
                 '}';
+    }
+
+    @Override
+    public int hashCode() {
+        HashCodeBuilder hb = new HashCodeBuilder(17, 23);
+        hb.append(firstName)
+          .append(lastName)
+          .append(organization)
+          .append(email)
+          .append(title);
+        return hb.toHashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Petitioner)) return false;
+        if (obj == this) return true;
+        Petitioner p = (Petitioner) obj;
+        EqualsBuilder eb = new EqualsBuilder();
+        eb.append(firstName, p.firstName)
+          .append(lastName, p.lastName)
+          .append(organization, p.organization)
+          .append(email, p.email)
+          .append(title, p.title);
+        return eb.isEquals();
     }
 }

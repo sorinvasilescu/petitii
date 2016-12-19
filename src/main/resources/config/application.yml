@@ -25,10 +25,19 @@ petitii:
     username: petitii.gov@gmail.com
     password: Q!W@E#R$T%Y^
     startDate: 06/12/2016
+    folder: "INBOX"
   emailAttachments:
     path: target/attachments
-  petitionId:
+  regNo:
     pattern: PET-%d-GOV
+  smtp:
+    server: smtp.gmail.com
+    port: 587
+    ssl: true
+    username: petitii.gov@gmail.com
+    password: Q!W@E#R$T%Y^
+  defaultValues:
+    country: RO
 
 ---
 spring:
