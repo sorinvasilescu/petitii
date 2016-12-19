@@ -2,6 +2,7 @@ package ro.petitii.model;
 
 import javax.mail.BodyPart;
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Table(name = "attachments")
@@ -17,6 +18,12 @@ public class Attachment {
 
     @Column(name = "content_type")
     private String contentType;
+
+    private Date date;
+
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "email_id")
@@ -61,6 +68,22 @@ public class Attachment {
 
     public void setContentType(String contentType) {
         this.contentType = contentType;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public Email getEmail() {

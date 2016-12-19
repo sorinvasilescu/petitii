@@ -210,6 +210,8 @@ CREATE TABLE IF NOT EXISTS `petitions`.`attachments` (
   `original_filename` VARCHAR(255) NULL,
   `filename` VARCHAR(255) NULL,
   `content_type` TEXT NULL,
+  `date` DATETIME NOT NULL,
+  `user_id` INT UNSIGNED NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC),
   INDEX `email_idx` (`email_id` ASC),
@@ -222,6 +224,11 @@ CREATE TABLE IF NOT EXISTS `petitions`.`attachments` (
   CONSTRAINT `attach_petition`
   FOREIGN KEY (`petition_id`)
   REFERENCES `petitions`.`petitions` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `attach_user`
+  FOREIGN KEY (`user_id`)
+  REFERENCES `petitions`.`users` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;

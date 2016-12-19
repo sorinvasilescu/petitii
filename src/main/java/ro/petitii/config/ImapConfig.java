@@ -8,14 +8,15 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "petitii.imap")
 public class ImapConfig {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ImapConfig.class);
+
     private String server;
     private Number port;
     private Boolean ssl;
     private String username;
     private String password;
     private String startDate;
-    private String folderName;
-    private static final Logger LOGGER = LoggerFactory.getLogger(ImapConfig.class);
+    private String folder;
 
     public ImapConfig() {
         LOGGER.debug("Imap config initialised");
@@ -69,11 +70,11 @@ public class ImapConfig {
         this.startDate = startDate;
     }
 
-    public String getFolderName() {
-        return folderName;
+    public String getFolder() {
+        return folder;
     }
 
-    public void setFolderName(String folderName) {
-        this.folderName = folderName;
+    public void setFolder(String folder) {
+        this.folder = folder;
     }
 }
