@@ -14,6 +14,7 @@ public class ImapConfig {
     private String username;
     private String password;
     private String startDate;
+    private String folderName;
     private static final Logger LOGGER = LoggerFactory.getLogger(ImapConfig.class);
 
     public ImapConfig() {
@@ -66,5 +67,13 @@ public class ImapConfig {
 
     public void setStartDate(String startDate) {
         this.startDate = startDate;
+    }
+
+    public String getFolderName() {
+        return folderName;
+    }
+
+    public void setFolderName(String folderName) {
+        this.folderName = folderName;
     }
 }

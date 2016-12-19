@@ -51,7 +51,7 @@ public class ImapService {
             Store store = session.getStore(protocol);
             store.connect(imapConfig.getUsername(), imapConfig.getPassword());
             // open folder
-            folder = store.getFolder("[Gmail]/All Mail");
+            folder = store.getFolder(imapConfig.getFolderName());
             UIDFolder uidFolder = (UIDFolder) folder;
             folder.open(Folder.READ_ONLY);
             Message[] messages;
