@@ -1,13 +1,11 @@
 package ro.petitii.controller;
 
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.HttpClientErrorException;
@@ -15,22 +13,7 @@ import org.springframework.web.servlet.ModelAndView;
 import ro.petitii.config.EmailAttachmentConfig;
 import ro.petitii.config.ImapConfig;
 import ro.petitii.model.Email;
-import ro.petitii.model.Attachment;
-import ro.petitii.service.AttachmentService;
 import ro.petitii.service.EmailService;
-import ro.petitii.util.Pair;
-import ro.petitii.util.ZipUtils;
-
-import javax.persistence.EntityNotFoundException;
-import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Locale;
 
 @Controller
