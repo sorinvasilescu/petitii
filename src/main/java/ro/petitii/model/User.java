@@ -22,8 +22,13 @@ public class User {
     @JsonView(DataTablesOutput.View.class)
     private String email;
 
-    @NotEmpty
     private String password;
+
+    @Transient
+    private String passwordCopy;
+
+    @Transient
+    private Boolean changePassword;
 
     @JsonView(DataTablesOutput.View.class)
     private String firstName;
@@ -85,5 +90,33 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getPasswordCopy() {
+        return passwordCopy;
+    }
+
+    public void setPasswordCopy(String passwordCopy) {
+        this.passwordCopy = passwordCopy;
+    }
+
+    public Boolean getChangePassword() {
+        return changePassword;
+    }
+
+    public void setChangePassword(Boolean changePassword) {
+        this.changePassword = changePassword;
+    }
+
+    public Collection<Petition> getPetition() {
+        return petition;
+    }
+
+    public void setPetition(Collection<Petition> petition) {
+        this.petition = petition;
     }
 }
