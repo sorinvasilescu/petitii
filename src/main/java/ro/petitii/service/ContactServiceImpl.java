@@ -37,8 +37,18 @@ public class ContactServiceImpl implements ContactService {
 	}
 
 	@Override
+	public Contact getById(Long id) {
+		return contactRepository.findOne(id);
+	}
+	
+	@Override
 	public DataTablesOutput<Contact> findAll(DataTablesInput input) {
 		return contactRepository.findAll(input);
+	}
+
+	@Override
+	public Contact save(Contact contact) {
+		return contactRepository.save(contact);
 	}
 
 }
