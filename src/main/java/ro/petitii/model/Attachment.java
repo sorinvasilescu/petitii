@@ -4,8 +4,8 @@ import javax.mail.BodyPart;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "email_attachments")
-public class EmailAttachment {
+@Table(name = "attachments")
+public class Attachment {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -22,10 +22,14 @@ public class EmailAttachment {
     @JoinColumn(name = "email_id")
     private Email email;
 
+    @ManyToOne
+    @JoinColumn(name = "petition_id")
+    private Petition petition;
+
     @Transient
     private BodyPart bodyPart;
 
-    public  EmailAttachment() {}
+    public Attachment() {}
 
     public Long getId() {
         return id;
@@ -65,6 +69,14 @@ public class EmailAttachment {
 
     public void setEmail(Email email) {
         this.email = email;
+    }
+
+    public Petition getPetition() {
+        return petition;
+    }
+
+    public void setPetition(Petition petition) {
+        this.petition = petition;
     }
 
     public BodyPart getBodyPart() {

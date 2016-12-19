@@ -15,8 +15,8 @@ import org.springframework.web.servlet.ModelAndView;
 import ro.petitii.config.EmailAttachmentConfig;
 import ro.petitii.config.ImapConfig;
 import ro.petitii.model.Email;
-import ro.petitii.model.EmailAttachment;
-import ro.petitii.service.EmailAttachmentService;
+import ro.petitii.model.Attachment;
+import ro.petitii.service.AttachmentService;
 import ro.petitii.service.EmailService;
 import ro.petitii.util.Pair;
 import ro.petitii.util.ZipUtils;
@@ -46,7 +46,7 @@ public class EmailController extends ControllerBase {
     EmailService emailService;
 
     @Autowired
-    EmailAttachmentService emailAttachmentService;
+    AttachmentService attachmentService;
 
     @Autowired
     MessageSource messageSource;
@@ -96,7 +96,7 @@ public class EmailController extends ControllerBase {
     @RequestMapping("/action/download/{id}")
     public void download(@PathVariable("id") Long id, HttpServletResponse response) {
         try {
-            EmailAttachment att = emailAttachmentService.findById(id);
+            Attachment att = attachmentService.findById(id);
             Path filepath = Paths.get(att.getFilename());
             FileInputStream is = new FileInputStream(new File(filepath.toUri()));
             response.setContentType("application/octet-stream");
@@ -123,7 +123,7 @@ public class EmailController extends ControllerBase {
             }
 
             List<Pair<String, Path>> attachments = new LinkedList<>();
-            for (EmailAttachment att : email.getAttachments()) {
+            for (Attachment att : email.getAttachments()) {
                 attachments.add(new Pair<>(att.getOriginalFilename(), Paths.get(att.getFilename())));
             }
             String zipFilename = "email-" + id + ".zip";

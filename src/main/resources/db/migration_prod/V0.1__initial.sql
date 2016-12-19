@@ -15,7 +15,7 @@ ALTER DATABASE petitions CHARACTER SET = utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `petitions`.`registration_numbers` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `number` VARCHAR(32),
+  `number` VARCHAR(32) COLLATE 'utf8mb4_unicode_ci' NULL,
   `date` DATE NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC))
@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS `petitions`.`petitioners` (
   `country` VARCHAR(128) NULL,
   `county` VARCHAR(128) NULL,
   `city` VARCHAR(128) NULL,
+  `address` TEXT NULL,
   `title` VARCHAR(16) NULL COMMENT 'Domnule, Doamna',
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC))
@@ -73,6 +74,8 @@ CREATE TABLE IF NOT EXISTS `petitions`.`petitions` (
   `abstract` TEXT NULL,
   `description` TEXT NOT NULL,
   `responsible_id` INT UNSIGNED NULL,
+  `problem_type` VARCHAR(255) NULL,
+  `status` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `nr_inreg_idx` (`registration_no` ASC),
   INDEX `petent_idx` (`petitioner_id` ASC),
@@ -100,10 +103,13 @@ CREATE TABLE IF NOT EXISTS `petitions`.`petitions` (
 -- Table `petitions`.`Petition_status`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `petitions`.`petition_status` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `id_petition` INT UNSIGNED NOT NULL,
   `status` VARCHAR(16) NOT NULL,
   `date` TIMESTAMP NULL,
   `user_id` INT UNSIGNED NULL ,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `id_UNIQUE` (`id` ASC),
   INDEX `id_petitie_idx` (`id_petition` ASC),
   INDEX `user_idx` (`user_id` ASC),
   CONSTRAINT `petition`
@@ -117,7 +123,6 @@ CREATE TABLE IF NOT EXISTS `petitions`.`petition_status` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;
-
 
 -- -----------------------------------------------------
 -- Table `petitions`.`Connections`
@@ -141,27 +146,6 @@ CREATE TABLE IF NOT EXISTS `petitions`.`connections` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `petitions`.`Petition_attachments`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `petitions`.`petition_attachments` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `petition_id` INT UNSIGNED NULL,
-  `original_filename` VARCHAR(255) NULL,
-  `filename` VARCHAR(255) NULL,
-  `content_type` VARCHAR(128) NULL,
-  PRIMARY KEY (`id`),
-  INDEX `petition_idx` (`petition_id` ASC),
-  UNIQUE INDEX `id_UNIQUE` (`id` ASC),
-  CONSTRAINT `attach_petition`
-  FOREIGN KEY (`petition_id`)
-  REFERENCES `petitions`.`petitions` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-  ENGINE = InnoDB;
-
 
 -- -----------------------------------------------------
 -- Table `petitions`.`Comments`
@@ -217,24 +201,30 @@ CREATE TABLE IF NOT EXISTS `petitions`.`emails` (
 
 
 -- -----------------------------------------------------
--- Table `petitions`.`Email_attachments`
+-- Table `petitions`.`attachments`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `petitions`.`email_attachments` (
+CREATE TABLE IF NOT EXISTS `petitions`.`attachments` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `email_id` INT UNSIGNED NOT NULL,
+  `petition_id` INT UNSIGNED NULL,
   `original_filename` VARCHAR(255) NULL,
   `filename` VARCHAR(255) NULL,
   `content_type` TEXT NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC),
   INDEX `email_idx` (`email_id` ASC),
+  INDEX `petition_idx` (`petition_id` ASC),
   CONSTRAINT `email`
   FOREIGN KEY (`email_id`)
   REFERENCES `petitions`.`emails` (`id`)
     ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `attach_petition`
+  FOREIGN KEY (`petition_id`)
+  REFERENCES `petitions`.`petitions` (`id`)
+    ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;
-
 
 -- -----------------------------------------------------
 -- Table `petitions`.`Contacts`
@@ -243,9 +233,17 @@ CREATE TABLE IF NOT EXISTS `petitions`.`contacts` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NULL,
   `email` VARCHAR(128) NULL,
+  `phone` VARCHAR(20) NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC))
   ENGINE = InnoDB;
+
+
+CREATE TABLE IF NOT EXISTS `petitions`.`persistent_logins` (
+  username VARCHAR(64) NOT NULL,
+  series VARCHAR(64) PRIMARY KEY,
+  token VARCHAR(64) NOT NULL,
+  last_used TIMESTAMP DEFAULT current_timestamp NOT NULL);
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

@@ -6,8 +6,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ro.petitii.config.EmailAttachmentConfig;
-import ro.petitii.model.EmailAttachment;
-import ro.petitii.repository.EmailAttachmentRepository;
+import ro.petitii.model.Attachment;
+import ro.petitii.repository.AttachmentRepository;
 
 import javax.mail.BodyPart;
 import javax.mail.MessagingException;
@@ -17,10 +17,10 @@ import javax.transaction.Transactional;
 import java.io.*;
 
 @Service
-public class EmailAttachmentServiceImpl implements EmailAttachmentService {
+public class AttachmentServiceImpl implements AttachmentService {
 
     @Autowired
-    EmailAttachmentRepository emailAttachmentRepository;
+    AttachmentRepository attachmentRepository;
 
     @Autowired
     EmailAttachmentConfig config;
@@ -28,11 +28,11 @@ public class EmailAttachmentServiceImpl implements EmailAttachmentService {
     @PersistenceContext
     EntityManager em;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EmailAttachmentServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AttachmentServiceImpl.class);
 
     @Override
     @Transactional
-    public EmailAttachment save(EmailAttachment a) {
+    public Attachment save(Attachment a) {
         LOGGER.info("Email id: " + a.getEmail().getId());
         prepFolder();
         BodyPart attBody = a.getBodyPart();
@@ -66,12 +66,12 @@ public class EmailAttachmentServiceImpl implements EmailAttachmentService {
         } catch (MessagingException e2) {
             LOGGER.info("Could not parse message: " + e2.getMessage());
         }
-        return emailAttachmentRepository.save(a);
+        return attachmentRepository.save(a);
     }
 
     @Override
-    public EmailAttachment findById(Long id) {
-        return emailAttachmentRepository.findOne(id);
+    public Attachment findById(Long id) {
+        return attachmentRepository.findOne(id);
     }
 
     private void prepFolder() {

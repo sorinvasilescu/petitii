@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ro.petitii.config.SmtpConfig;
 import ro.petitii.model.Email;
-import ro.petitii.model.EmailAttachment;
+import ro.petitii.model.Attachment;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
@@ -41,7 +41,7 @@ public class SmtpService {
         part.setText(email.getBody());
         content.addBodyPart(part);
         if (email.getAttachments() != null)
-            for (EmailAttachment att : email.getAttachments()) {
+            for (Attachment att : email.getAttachments()) {
                 content.addBodyPart(att.getBodyPart());
             }
         message.setContent(content);

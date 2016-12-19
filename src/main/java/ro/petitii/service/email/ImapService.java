@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ro.petitii.config.ImapConfig;
 import ro.petitii.model.Email;
-import ro.petitii.model.EmailAttachment;
+import ro.petitii.model.Attachment;
 import ro.petitii.service.EmailService;
 
 import javax.mail.*;
@@ -110,7 +110,7 @@ public class ImapService {
         String bccList = parseAddresses(msg.getRecipients(Message.RecipientType.BCC));
         Date sentDate = msg.getSentDate();
 
-        Collection<EmailAttachment> attachments = new ArrayList<>();
+        Collection<Attachment> attachments = new ArrayList<>();
         Object messageContent = parseBody(msg.getContent(), attachments);
 
         Email email = new Email();
@@ -139,7 +139,7 @@ public class ImapService {
         LOGGER.info("\t Sent Date: " + sentDate);
         LOGGER.info("\t Message: " + email.getBody());
         String att = "";
-        for (EmailAttachment a : attachments) {
+        for (Attachment a : attachments) {
             if (att.length() > 0) att += ",";
             att += a.getOriginalFilename();
         }
@@ -147,7 +147,7 @@ public class ImapService {
         LOGGER.info("\t Size: " + msg.getSize());
     }
 
-    private String parseBody(Object content, Collection<EmailAttachment> attachments)
+    private String parseBody(Object content, Collection<Attachment> attachments)
             throws IOException, MessagingException {
         String body = null;
         try {
@@ -160,7 +160,7 @@ public class ImapService {
                         if (isTextBody(bodyPart)) {
                             body = bodyPart.getContent().toString();
                         } else if (isAttachment(bodyPart)) {
-                            EmailAttachment attachment = new EmailAttachment();
+                            Attachment attachment = new Attachment();
                             attachment.setBodyPart(bodyPart);
                             attachments.add(attachment);
                         } else if (bodyPart.getContent() instanceof Multipart) {

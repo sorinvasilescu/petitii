@@ -6,7 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ro.petitii.model.Email;
-import ro.petitii.model.EmailAttachment;
+import ro.petitii.model.Attachment;
 import ro.petitii.model.rest.RestEmailResponse;
 import ro.petitii.model.rest.RestEmailResponseElement;
 import ro.petitii.repository.EmailRepository;
@@ -25,7 +25,7 @@ public class EmailServiceImpl implements EmailService {
     private EmailRepository emailRepository;
 
     @Autowired
-    private EmailAttachmentService attachmentService;
+    private AttachmentService attachmentService;
 
     @PersistenceContext
     EntityManager em;
@@ -35,7 +35,7 @@ public class EmailServiceImpl implements EmailService {
     public Email save(Email e) {
         em.persist(e);
         em.flush();
-        for (EmailAttachment attachment : e.getAttachments()) {
+        for (Attachment attachment : e.getAttachments()) {
             attachment.setEmail(e);
             attachmentService.save(attachment);
         }
