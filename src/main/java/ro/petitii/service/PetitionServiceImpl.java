@@ -91,8 +91,21 @@ public class PetitionServiceImpl implements PetitionService {
             else petitioner = petitionerService.save(petition.getPetitioner());
         }
 
+        boolean createStatus = petition.getCurrentStatus() == null;
+
+        if (createStatus) {
+            petition.setCurrentStatus(PetitionStatus.Status.RECEIVED);
+        }
+
         petition.setPetitioner(petitioner);
         petition = petitionRepository.save(petition);
+
+        if (createStatus) {
+            // if petition status does not exist, generate one
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            User user = userService.findUserByEmail(auth.getName()).get(0);
+            psService.create(PetitionStatus.Status.RECEIVED, petition, user);
+        }
 
         // check if emails are linked
         Collection<Email> emails = petition.getEmails();
@@ -102,11 +115,6 @@ public class PetitionServiceImpl implements PetitionService {
                 emailService.saveAlone(email);
             }
         }
-
-        // if petition status does not exist, generate one
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = userService.findUserByEmail(auth.getName()).get(0);
-        psService.create(PetitionStatus.Status.RECEIVED, petition, user);
 
         return petition;
     }
