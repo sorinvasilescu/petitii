@@ -20,12 +20,12 @@
                         </li>
                         <li><a href="/spam"><i class="fa fa-envelope-o"></i> Spam </a>
                         </li>
-                        <li><a href="/petitii"><i class="fa fa-sticky-note"></i> Petițiile mele</a>
+                        <li><a href="/petitions"><i class="fa fa-sticky-note"></i> Petițiile mele</a>
                         </li>
                         <li th:if="${#authentication.getPrincipal().hasRole('ADMIN')}">
                             <a href="/users"><i class="fa fa-user"></i>Useri</a>
                         </li>
-                        <li><a href="/petitii/toate"><i class="fa fa-book"></i> Registru</a>
+                        <li><a href="/petitions/all"><i class="fa fa-book"></i> Registru</a>
                         </li>
                         <li><a href="/contacts"><i class="fa fa-users"></i> Lista de contacte</a></li>
                         <li th:if="${#authentication.getPrincipal().hasRole('ADMIN')}">

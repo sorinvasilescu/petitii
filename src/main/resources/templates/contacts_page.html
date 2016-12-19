@@ -50,12 +50,6 @@
         </div>
     </div>
     <div th:replace="main_head::includes"></div>
-    <!-- Variables from backend -->
-    <script th:inline="javascript" type="application/javascript">
-        /*<![CDATA[*/
-        var toastContent = /*[[${toast}]]*/ null;
-        /*]]>*/
-	</script>
 
 	<!-- Datatables -->
 	<script th:inline="javascript" type="text/javascript">
@@ -119,7 +113,7 @@
         });
     </script>
     <!-- /Datatables -->
-    <div th:replace="main_head::toast"></div>
+    <div th:substituteby="main_head::toast"></div>
 </body>
 
 </html>

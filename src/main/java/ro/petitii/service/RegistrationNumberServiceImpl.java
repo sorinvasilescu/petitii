@@ -2,7 +2,7 @@ package ro.petitii.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ro.petitii.config.PetitionIdConfig;
+import ro.petitii.config.RegNoConfig;
 import ro.petitii.model.RegistrationNo;
 
 import javax.persistence.PersistenceContext;
@@ -14,7 +14,7 @@ import java.util.Date;
 public class RegistrationNumberServiceImpl implements RegistrationNumberService {
 
     @Autowired
-    PetitionIdConfig config;
+    RegNoConfig config;
 
     @PersistenceContext
     EntityManager em;

@@ -4,13 +4,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.ErrorController;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import ro.petitii.model.Email;
 import ro.petitii.service.email.ImapService;
+import ro.petitii.service.email.SmtpService;
+
+import javax.mail.MessagingException;
 
 @Controller
 public class MainController implements ErrorController {
 
     @Autowired
     ImapService imapService;
+
+    @Autowired
+    SmtpService smtpService;
 
     @RequestMapping("/error")
     public String error() {
@@ -30,5 +38,20 @@ public class MainController implements ErrorController {
     @Override
     public String getErrorPath() {
         return "/error";
+    }
+
+    @RequestMapping("/smtptest")
+    @ResponseBody
+    public String smtpTest() {
+        Email email = new Email();
+        email.setRecipients("sorin.vasilescu@gmail.com");
+        email.setSubject("Test");
+        email.setBody("Lorem ipsum");
+        try {
+            smtpService.send(email);
+        } catch (MessagingException e) {
+            return e.getMessage();
+        }
+        return "Done";
     }
 }

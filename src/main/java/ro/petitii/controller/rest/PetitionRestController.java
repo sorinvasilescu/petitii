@@ -1,8 +1,5 @@
 package ro.petitii.controller.rest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
 import org.springframework.security.core.Authentication;
@@ -11,61 +8,80 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import ro.petitii.model.PetitionStatus;
 import ro.petitii.model.User;
 import ro.petitii.model.rest.RestPetitionResponse;
 import ro.petitii.service.PetitionService;
 import ro.petitii.service.UserService;
-import ro.petitii.service.email.ImapService;
 
+import javax.inject.Inject;
 import javax.validation.Valid;
 
 @Controller
 public class PetitionRestController {
+    private UserService userService;
 
-    @Autowired
-    UserService userService;
+    private PetitionService petitionService;
 
-    @Autowired
-    PetitionService petitionService;
+    @Inject
+    public PetitionRestController(UserService userService, PetitionService petitionService) {
+        this.userService = userService;
+        this.petitionService = petitionService;
+    }
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ImapService.class);
-
-    @RequestMapping(value = "/rest/petitions", method = RequestMethod.POST)
+    @RequestMapping(value = "/rest/petitions/user", method = RequestMethod.POST)
     @ResponseBody
-    public RestPetitionResponse getUserPetitions(@Valid DataTablesInput input) {
+    public RestPetitionResponse getUserPetitions(@Valid DataTablesInput input, String status) {
         int sequenceNo = input.getDraw();
-
         String sortColumn = input.getColumns().get(input.getOrder().get(0).getColumn()).getName();
-        LOGGER.info("Attempting to sort on: " + sortColumn);
-
         Sort.Direction sortDirection = null;
-        if (input.getOrder().get(0).getDir().equals("asc")) sortDirection = Sort.Direction.ASC;
-        else if (input.getOrder().get(0).getDir().equals("desc")) sortDirection = Sort.Direction.DESC;
+        if (input.getOrder().get(0).getDir().equals("asc")) {
+            sortDirection = Sort.Direction.ASC;
+        } else if (input.getOrder().get(0).getDir().equals("desc")) {
+            sortDirection = Sort.Direction.DESC;
+        }
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = userService.findUserByEmail(auth.getName()).get(0);
 
-        RestPetitionResponse response = petitionService.getTableContent(user, input.getStart(), input.getLength(), sortDirection, sortColumn);
+        PetitionStatus.Status pStatus = parseStatus(status);
+
+        Integer start = input.getStart();
+        Integer length = input.getLength();
+        RestPetitionResponse response =
+                petitionService.getTableContent(user, pStatus, start, length, sortDirection, sortColumn);
         response.setDraw(sequenceNo);
 
         return response;
     }
 
-    @RequestMapping(value = "/rest/petitions/all")
+    @RequestMapping(value = "/rest/petitions/all", method = RequestMethod.POST)
     @ResponseBody
-    public RestPetitionResponse getAllPetitions(@Valid DataTablesInput input) {
+    public RestPetitionResponse getAllPetitions(@Valid DataTablesInput input, String status) {
         int sequenceNo = input.getDraw();
 
         String sortColumn = input.getColumns().get(input.getOrder().get(0).getColumn()).getName();
-        LOGGER.info("Attempting to sort on: " + sortColumn);
-
         Sort.Direction sortDirection = null;
-        if (input.getOrder().get(0).getDir().equals("asc")) sortDirection = Sort.Direction.ASC;
-        else if (input.getOrder().get(0).getDir().equals("desc")) sortDirection = Sort.Direction.DESC;
+        if (input.getOrder().get(0).getDir().equals("asc")) {
+            sortDirection = Sort.Direction.ASC;
+        } else if (input.getOrder().get(0).getDir().equals("desc")) {
+            sortDirection = Sort.Direction.DESC;
+        }
 
-        RestPetitionResponse response = petitionService.getTableContent(null, input.getStart(), input.getLength(), sortDirection, sortColumn);
+        PetitionStatus.Status pStatus = parseStatus(status);
+        Integer start = input.getStart();
+        Integer length = input.getLength();
+        RestPetitionResponse response =
+                petitionService.getTableContent(null, pStatus, start, length, sortDirection, sortColumn);
         response.setDraw(sequenceNo);
-
         return response;
+    }
+
+    private PetitionStatus.Status parseStatus(String status) {
+        if ("started".equalsIgnoreCase(status)) {
+            return PetitionStatus.Status.IN_PROGRESS;
+        } else {
+            return null;
+        }
     }
 }

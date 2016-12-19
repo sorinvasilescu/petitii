@@ -26,7 +26,7 @@ public class Email {
     private EmailType type;
 
     @OneToMany(mappedBy = "email")
-    private Collection<EmailAttachment> attachments;
+    private Collection<Attachment> attachments;
 
     @ManyToOne
     @JoinColumn(name = "petition_id")
@@ -36,6 +36,10 @@ public class Email {
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public long getUid() {
@@ -110,11 +114,11 @@ public class Email {
         this.size = size;
     }
 
-    public Collection<EmailAttachment> getAttachments() {
+    public Collection<Attachment> getAttachments() {
         return attachments;
     }
 
-    public void setAttachments(Collection<EmailAttachment> attachments) {
+    public void setAttachments(Collection<Attachment> attachments) {
         this.attachments = attachments;
     }
 

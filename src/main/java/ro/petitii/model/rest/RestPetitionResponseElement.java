@@ -1,11 +1,20 @@
 package ro.petitii.model.rest;
 
 public class RestPetitionResponseElement {
+    private Long id;
     private String regNo;
     private String petitionerName;
     private String petitionerEmail;
     private String _abstract;
     private String status;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getRegNo() {
         return regNo;
