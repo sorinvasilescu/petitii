@@ -28,4 +28,14 @@ public class UserServiceImpl implements UserService {
     public DataTablesOutput<User> findAll(DataTablesInput input) {
         return userRepository.findAll(input);
     }
+
+    @Override
+    public User findById(Long id) {
+        return userRepository.findById(id);
+    }
+
+    @Override
+    public User save(User user) {
+        return userRepository.save(user);
+    }
 }

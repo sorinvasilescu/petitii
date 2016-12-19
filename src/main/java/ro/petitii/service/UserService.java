@@ -12,4 +12,8 @@ public interface UserService {
     List<User> findUserByEmail(String email);
 
     DataTablesOutput<User> findAll(DataTablesInput input);
+
+    User findById(Long id);
+
+    User save(User user);
 }
