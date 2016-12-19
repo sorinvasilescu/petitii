@@ -11,6 +11,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import ro.petitii.model.Comment;
 import ro.petitii.model.Petition;
 import ro.petitii.model.User;
+import ro.petitii.model.rest.MiniComment;
 import ro.petitii.model.rest.RestCommentResponse;
 import ro.petitii.service.CommentService;
 import ro.petitii.service.PetitionService;

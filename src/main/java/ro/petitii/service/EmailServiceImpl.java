@@ -37,7 +37,7 @@ public class EmailServiceImpl implements EmailService {
         em.flush();
         for (Attachment attachment : e.getAttachments()) {
             attachment.setEmail(e);
-            attachmentService.saveFromEmail(attachment);
+            attachmentService.saveAndDownload(attachment);
         }
         e = emailRepository.save(e);
         return e;

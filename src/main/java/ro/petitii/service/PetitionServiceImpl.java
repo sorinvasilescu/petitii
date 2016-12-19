@@ -51,6 +51,9 @@ public class PetitionServiceImpl implements PetitionService {
     @Autowired
     DefaultsConfig defaultsConfig;
 
+    @Autowired
+    AttachmentService attachmentService;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ImapService.class);
 
     @Override
@@ -111,6 +114,13 @@ public class PetitionServiceImpl implements PetitionService {
             if (email.getPetition() != petition) {
                 email.setPetition(petition);
                 emailService.saveAlone(email);
+            }
+
+            if (email.getAttachments() != null && !email.getAttachments().isEmpty()) {
+                for (Attachment att : email.getAttachments()) {
+                    att.setPetition(petition);
+                    attachmentService.save(att);
+                }
             }
         }
 

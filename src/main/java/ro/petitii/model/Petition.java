@@ -59,6 +59,9 @@ public class Petition {
     @Column(name = "status")
     private PetitionStatus.Status currentStatus;
 
+    @OneToMany(mappedBy = "petition")
+    private Collection<Attachment> attachments;
+
     public Long getId() {
         return id;
     }
@@ -173,6 +176,14 @@ public class Petition {
 
     public Collection<PetitionStatus> getStatuses() {
         return statuses;
+    }
+
+    public Collection<Attachment> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(Collection<Attachment> attachments) {
+        this.attachments = attachments;
     }
 
     public String statusString() {

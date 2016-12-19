@@ -7,5 +7,6 @@ import ro.petitii.model.Comment;
 
 public interface CommentRepository extends DataTablesRepository<Comment, Long> {
     long countByPetitionId(long petitionId);
+
     Page<Comment> findByPetitionId(long petitionId, Pageable p);
 }

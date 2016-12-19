@@ -1,4 +1,4 @@
-package ro.petitii.controller.rest;
+package ro.petitii.model.rest;
 
 public class MiniComment {
     private String comment;
