@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS `petitions`.`users` (
   `password` BINARY(60) NOT NULL,
   `first_name` VARCHAR(64) NULL,
   `last_name` VARCHAR(64) NULL,
-  `role` VARCHAR(45) NOT NULL COMMENT 'admin, user',
+  `role` ENUM('ADMIN','USER') NOT NULL COMMENT 'admin, user',
   PRIMARY KEY (`id`),
   UNIQUE INDEX `email_UNIQUE` (`email` ASC),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC))

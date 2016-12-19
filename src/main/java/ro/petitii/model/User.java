@@ -12,6 +12,10 @@ import java.util.Collection;
 @Table(name = "users")
 public class User {
 
+    public enum UserRole {
+            ADMIN,USER
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @JsonView(DataTablesOutput.View.class)
@@ -36,8 +40,9 @@ public class User {
     private String lastName;
 
     @NotEmpty
+    @Enumerated(EnumType.STRING)
     @JsonView(DataTablesOutput.View.class)
-    private String role;
+    private UserRole role;
 
     @OneToMany(mappedBy = "responsible")
     private Collection<Petition> petition;
@@ -88,11 +93,11 @@ public class User {
         return firstName + " " + lastName;
     }
 
-    public String getRole() {
+    public UserRole getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(UserRole role) {
         this.role = role;
     }
 

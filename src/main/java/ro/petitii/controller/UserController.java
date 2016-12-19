@@ -13,7 +13,6 @@ import org.springframework.web.servlet.ModelAndView;
 import ro.petitii.model.User;
 import ro.petitii.service.UserService;
 import ro.petitii.service.email.ImapService;
-import ro.petitii.util.UserConstants;
 
 import javax.validation.Valid;
 import java.util.UUID;
@@ -53,7 +52,7 @@ public class UserController extends ControllerBase{
     @RequestMapping(path = "/user", method = RequestMethod.GET)
     public ModelAndView addUser() {
         User user = new User();
-        user.setRole(UserConstants.Roles.USER);
+        user.setRole(User.UserRole.USER);
 
         ModelAndView modelAndView = new ModelAndView("add_user");
         modelAndView.addObject("user", user);
