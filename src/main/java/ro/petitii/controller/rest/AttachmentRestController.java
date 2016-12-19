@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
@@ -118,7 +119,7 @@ public class AttachmentRestController {
             Path filepath = Paths.get(att.getFilename());
             FileInputStream is = new FileInputStream(new File(filepath.toUri()));
             response.setContentType("application/octet-stream");
-            response.setHeader("Content-disposition", "attachment; filename=" + att.getOriginalFilename());
+            response.setHeader("Content-disposition", "attachment; filename=" + URLEncoder.encode(att.getOriginalFilename(), "UTF-8"));
             IOUtils.copy(is, response.getOutputStream());
             is.close();
             response.flushBuffer();
@@ -173,7 +174,7 @@ public class AttachmentRestController {
             for (Attachment att : petition.getAttachments()) {
                 attachments.add(new Pair<>(att.getOriginalFilename(), Paths.get(att.getFilename())));
             }
-            String zipFilename = "email-" + id + ".zip";
+            String zipFilename = "petitie-" + id + ".zip";
             InputStream is = ZipUtils.create(attachments);
             response.setContentType("application/octet-stream");
             response.setHeader("Content-disposition", "attachment; filename=" + zipFilename);

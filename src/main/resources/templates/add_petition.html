@@ -470,8 +470,12 @@
                                 <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="profile-tab">
                                     <div th:if="${attachmentRestUrl} != null">
                                         <button type="button" class="btn btn-default btn-md pull-right"
+                                                id="downloadAttachments">
+                                            <i class="fa fa-paperclip"></i> Salvează toate atașamentele
+                                        </button>
+                                        <button type="button" class="btn btn-default btn-md pull-right"
                                                 id="removeAttachment">
-                                            <i class="fa fa-trash-o"></i> Șterge ataşament
+                                            <i class="fa fa-trash-o"></i> Șterge atașament
                                         </button>
                                         <button type="button" class="btn btn-default btn-md pull-right"
                                                 id="addAttachment">
@@ -731,7 +735,7 @@
             var pid = /*[[${petition.id}]]*/ '#';
             /*]]>*/
 
-            var observationsTable = $('#attachments').DataTable({
+            var attachmentTable = $('#attachments').DataTable({
                 select: {
                     style: 'single'
                 },
@@ -774,37 +778,55 @@
                     {
                         name: 'origin',
                         data: 'origin',
-                        title: 'Adăugat de'
+                        title: 'Adăugat de',
+                        sortable: false
+                    },
+                    {
+                        data: null,
+                        title: '',
+                        render: function (data, type, full, meta) {
+                            if (data != null) {
+                                return '<a href="/action/download/' + data.id + '"><i class="fa fa-paperclip"></i> Salvează</a>';
+                            } else {
+                                return '';
+                            }
+                        },
+                        sortable: false
                     }
                 ]
             });
 
-            $('#addComment').click(function () {
+            $('#downloadAttachments').click(function () {
+                window.location.href = '/action/download/petition/' + pid
             });
 
-            $('#removeComment').click(function () {
-                var selectedRows = observationsTable.rows({selected: true}).data().toArray();
+            $('#addAttachment').click(function () {
+            });
+
+            $('#removeAttachment').click(function () {
+                var selectedRows = attachmentTable.rows({selected: true}).data().toArray();
                 if (selectedRows.length != 1) {
                     this.blur()
                 } else {
-                    /*<![CDATA[*/
-                    var csrfLabel = /*[[${_csrf.headerName}]]*/ null;
-                    var csrfValue = /*[[${_csrf.token}]]*/ null;
-                    var headers = {};
-                    headers[csrfLabel] = csrfValue;
-                    /*]]>*/
+                    customAlert("Sunteți sigur că doriți ștergerea atașamentului?", function (result) {
+                        if (result) {
+                            /*<![CDATA[*/
+                            var csrfLabel = /*[[${_csrf.headerName}]]*/ null;
+                            var csrfValue = /*[[${_csrf.token}]]*/ null;
+                            var headers = {};
+                            headers[csrfLabel] = csrfValue;
+                            /*]]>*/
 
-
-                    $.ajax({
-                        url: "/rest/petition/attachment/delete/" + selectedRows[0].id,
-                        method: 'POST',
-                        headers: headers,
-                        contentType: "application/json",
-                        processData: false
-                    }).done(function (data) {
-                        observationsTable.ajax.reload();
-                    }).fail(function (reason) {
-                        console.log(reason);
+                            $.ajax({
+                                url: "/rest/petition/attachment/delete/" + selectedRows[0].id,
+                                method: 'POST',
+                                headers: headers
+                            }).done(function (data) {
+                                attachmentTable.ajax.reload();
+                            }).fail(function (reason) {
+                                console.log(reason);
+                            });
+                        }
                     });
                 }
             });
