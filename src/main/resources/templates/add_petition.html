@@ -3,9 +3,10 @@
 
 <head th:replace="main_head :: head"></head>
 
-<!--/*@thymesVar id="id" type="java.lang.String"*/-->
 <!--/*@thymesVar id="petition" type="ro.petitii.model.Petition"*/-->
 <!--/*@thymesVar id="user_list" type="java.util.List<ro.petitii.model.User>"*/-->
+<!--/*@thymesVar id="commentRestUrl" type="java.lang.String"*/-->
+<!--/*@thymesVar id="attachmentRestUrl" type="java.lang.String"*/-->
 
 <body class="nav-md">
     <div class="container body">
@@ -462,45 +463,28 @@
                                     <div class="form-group">
                                         <label class="control-label col-md-3 col-sm-3 col-xs-12">Descriere</label>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <textarea name="description" id="descriprion" rows="10" style="width:520px" th:field="*{description}"></textarea>
+                                            <textarea name="description" id="description" rows="10" style="width:520px" th:field="*{description}"></textarea>
                                         </div>
                                     </div>
                                 </div>
                                 <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="profile-tab">
-                                    <table class="table">
-                                        <thead>
-                                            <tr>
-                                                <th>#</th>
-                                                <th>Nume fisier</th>
-                                                <th>Data</th>
-                                                <th>Adaugat de</th>
-                                                <th></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <th scope="row">1</th>
-                                                <td><a href="#">Mark</a></td>
-                                                <td>12.12.2016 23:59</td>
-                                                <td>@mdo</td>
-                                                <td><i class="fa fa-trash-o"></i></td>
-                                            </tr>
-                                            <tr>
-                                                <th scope="row">2</th>
-                                                <td><a href="#">Jacob</a></td>
-                                                <td>12.12.2016 23:59</td>
-                                                <td>@fat</td>
-                                                <td><i class="fa fa-trash-o"></i></td>
-                                            </tr>
-                                            <tr>
-                                                <th scope="row">3</th>
-                                                <td><a href="#">Larry</a></td>
-                                                <td>12.12.2016 23:59</td>
-                                                <td>@twitter</td>
-                                                <td><i class="fa fa-trash-o"></i></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                    <div th:if="${attachmentRestUrl} != null">
+                                        <button type="button" class="btn btn-default btn-md pull-right"
+                                                id="removeAttachment">
+                                            <i class="fa fa-trash-o"></i> Șterge ataşament
+                                        </button>
+                                        <button type="button" class="btn btn-default btn-md pull-right"
+                                                id="addAttachment">
+                                            <i class="fa fa-plus-circle"></i> Adaugă ataşament
+                                        </button>
+                                        <table id="attachments"
+                                               class="table table-striped row-border compact stripe dt-responsive nowrap"
+                                               cellspacing="0" width="100%">
+                                        </table>
+                                    </div>
+                                    <div th:if="${attachmentRestUrl} == null">
+                                        <h2>Salvați petiția pentru a putea adăuga ataşamente ...</h2>
+                                    </div>
                                 </div>
                                 <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="profile-tab">
                                     <button type="button" class="btn btn-default btn-sm pull-right"><i class="fa fa-link"></i> Conexeaza petitie</button>
@@ -548,7 +532,7 @@
                                     </table>
                                 </div>
                                 <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="profile-tab">
-                                    <div th:if="${id} != null">
+                                    <div th:if="${commentsRestUrl} != null">
                                         <button type="button" class="btn btn-default btn-md pull-right"
                                                 id="removeComment">
                                             <i class="fa fa-trash-o"></i> Șterge observație
@@ -562,7 +546,7 @@
                                                cellspacing="0" width="100%">
                                         </table>
                                     </div>
-                                    <div th:if="${id} == null">
+                                    <div th:if="${commentsRestUrl} == null">
                                         <h2>Salvați petiția pentru a putea adăuga comentarii ...</h2>
                                     </div>
                                 </div>
@@ -606,6 +590,10 @@
             allowClear: true
         });
 
+        $('#bottom-submit,#top-submit').click(function () {
+            $('#petition-form').submit();
+        });
+
         /*
         $("#title").select2({
             placeholder: "Adresare",
@@ -618,18 +606,11 @@
             allowClear: true
         });
         */
-
-        $('#bottom-submit,#top-submit').click(function () {
-            $('#petition-form').submit();
-        });
-
-
-
     });
     </script>
 
     <!-- Comments -->
-    <script th:if="${id} != null" th:inline="javascript" type="application/javascript">
+    <script th:if="${commentsRestUrl} != null" th:inline="javascript" type="application/javascript">
         $(document).ready(function() {
             /*<![CDATA[*/
             var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
@@ -741,9 +722,98 @@
         });
     </script>
 
+    <!-- attachments -->
+    <script th:if="${attachmentRestUrl} != null" th:inline="javascript" type="application/javascript">
+        $(document).ready(function() {
+            /*<![CDATA[*/
+            var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
+            var attachmentsRestUrl = /*[[${attachmentRestUrl}]]*/ '/rest/comments/{id}';
+            var pid = /*[[${petition.id}]]*/ '#';
+            /*]]>*/
+
+            var observationsTable = $('#attachments').DataTable({
+                select: {
+                    style: 'single'
+                },
+                processing: true,
+                serverSide: true,
+                sDom: 'lrtip ',
+                rowId: "id",
+                order: [[3, 'desc']],
+                ajax: {
+                    url: attachmentsRestUrl,
+                    type: 'POST',
+                    data: function(d) {
+                        /*[+
+                         varName = [[${_csrf.parameterName}]];
+                         d[varName] = [[${_csrf.token}]]; +]*/
+                        /*[- */ d.csrfToken = "TOKEN"; /* -]*/
+                    }
+                },
+                language: {
+                    url: languageUrl,
+                    select: selectTranslation()
+                },
+                fixedColumns: true,
+                columns: [
+                    {
+                        name: 'id',
+                        data: 'id',
+                        title: '#'
+                    },
+                    {
+                        name: 'filename',
+                        data: 'filename',
+                        title: 'Nume fișier'
+                    },
+                    {
+                        name: 'date',
+                        data: 'date',
+                        title: 'Data'
+                    },
+                    {
+                        name: 'user',
+                        data: 'user',
+                        title: 'Adăugat de'
+                    }
+                ]
+            });
+
+            $('#addComment').click(function () {
+            });
+
+            $('#removeComment').click(function () {
+                var selectedRows = observationsTable.rows({selected: true}).data().toArray();
+                if (selectedRows.length != 1) {
+                    this.blur()
+                } else {
+                    /*<![CDATA[*/
+                    var csrfLabel = /*[[${_csrf.headerName}]]*/ null;
+                    var csrfValue = /*[[${_csrf.token}]]*/ null;
+                    var headers = {};
+                    headers[csrfLabel] = csrfValue;
+                    /*]]>*/
+
+
+                    $.ajax({
+                        url: "/rest/petition/attachment/delete/" + selectedRows[0].id,
+                        method: 'POST',
+                        headers: headers,
+                        contentType: "application/json",
+                        processData: false
+                    }).done(function (data) {
+                        observationsTable.ajax.reload();
+                    }).fail(function (reason) {
+                        console.log(reason);
+                    });
+                }
+            });
+        });
+    </script>
+
     <!-- /Datatables -->
     <script type="text/javascript">
-        $("#descriprion").wysihtml5();
+        $("#description").wysihtml5();
     </script>
     <div th:substituteby="main_head::toast"></div>
 </body>

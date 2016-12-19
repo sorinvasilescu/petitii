@@ -46,7 +46,6 @@ public class PetitionController extends ControllerBase {
         ModelAndView modelAndView = new ModelAndView("add_petition");
         modelAndView.addObject("petition", petition);
         modelAndView.addObject("user_list", userService.getAllUsers());
-        modelAndView.addObject("commentsRestUrl", "/rest/comments/" + petition.getId());
 
         return modelAndView;
     }
@@ -72,7 +71,6 @@ public class PetitionController extends ControllerBase {
         ModelAndView modelAndView = new ModelAndView("add_petition");
         modelAndView.addObject("petition", petition);
         modelAndView.addObject("user_list", userService.getAllUsers());
-        modelAndView.addObject("commentsRestUrl", "/rest/comments/" + petition.getId());
 
         return modelAndView;
     }
@@ -86,13 +84,12 @@ public class PetitionController extends ControllerBase {
             modelAndView.addObject("user_list", userService.getAllUsers());
             modelAndView.addObject("petition", petition);
             modelAndView.addObject("toast", createToast("Petitia nu a fost salvata", ToastType.danger));
-            return modelAndView;
         } else {
             petition = petitionService.save(petition);
             modelAndView.setViewName("redirect:/petition/" + petition.getId());
             attr.addFlashAttribute("toast", createToast("Petitia a fost salvata cu succes", ToastType.success));
-            return modelAndView;
         }
+        return modelAndView;
     }
 
     @RequestMapping("/petitions")

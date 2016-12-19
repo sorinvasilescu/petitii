@@ -128,7 +128,7 @@ public class PetitionServiceImpl implements PetitionService {
         try {
             InternetAddress addr = new InternetAddress(email.getSender());
             petitioner.setEmail(addr.getAddress());
-            if (addr.getPersonal().length() > 0) {
+            if (addr.getPersonal() != null && addr.getPersonal().length() > 0) {
                 String[] name = addr.getPersonal().split(" ");
                 if (name.length > 1) {
                     petitioner.setFirstName(name[0]);

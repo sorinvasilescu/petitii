@@ -15,6 +15,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import java.io.*;
+import java.util.Date;
 
 @Service
 public class AttachmentServiceImpl implements AttachmentService {
@@ -32,7 +33,7 @@ public class AttachmentServiceImpl implements AttachmentService {
 
     @Override
     @Transactional
-    public Attachment save(Attachment a) {
+    public Attachment saveFromEmail(Attachment a) {
         LOGGER.info("Email id: " + a.getEmail().getId());
         prepFolder();
         BodyPart attBody = a.getBodyPart();
@@ -62,7 +63,7 @@ public class AttachmentServiceImpl implements AttachmentService {
             a.setFilename(filename);
             a.setContentType(attBody.getContentType());
         } catch (IOException e1) {
-            LOGGER.info("Could not save file: " + e1.getMessage());
+            LOGGER.info("Could not saveFromEmail file: " + e1.getMessage());
         } catch (MessagingException e2) {
             LOGGER.info("Could not parse message: " + e2.getMessage());
         }
@@ -75,11 +76,13 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
 
     private void prepFolder() {
-        LOGGER.info("Preparing to save attachment in folder: " + config.getPath());
+        LOGGER.info("Preparing to saveFromEmail attachment in folder: " + config.getPath());
         File target = new File(config.getPath());
         if (!target.isDirectory()) {
             LOGGER.info("Creating directory structure: " + config.getPath());
-            target.mkdirs();
+            if (!target.mkdirs()) {
+                LOGGER.error("Failed to create directory structure: " + config.getPath());
+            }
         }
     }
 }

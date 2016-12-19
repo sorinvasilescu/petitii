@@ -25,6 +25,7 @@ petitii:
     username: petitii.gov@gmail.com
     password: Q!W@E#R$T%Y^
     startDate: 06/12/2016
+    folder: "[Gmail]/All Mail"
   emailAttachments:
     path: target/attachments
   regNo:
