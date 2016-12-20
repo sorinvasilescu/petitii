@@ -3,6 +3,7 @@ package ro.petitii.controller.rest;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
 import org.springframework.http.HttpStatus;
@@ -15,7 +16,6 @@ import ro.petitii.service.*;
 import ro.petitii.util.Pair;
 import ro.petitii.util.ZipUtils;
 
-import javax.inject.Inject;
 import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -31,21 +31,20 @@ import java.util.List;
 
 @Controller
 public class AttachmentRestController {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(AttachmentRestController.class);
 
+    @Autowired
     private PetitionService petitionService;
-    private UserService userService;
-    private EmailService emailService;
-    private AttachmentService attachmentService;
 
-    @Inject
-    public AttachmentRestController(PetitionService petitionService, UserService userService,
-                                    EmailService emailService, AttachmentService attachmentService) {
-        this.petitionService = petitionService;
-        this.userService = userService;
-        this.emailService = emailService;
-        this.attachmentService = attachmentService;
-    }
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    private AttachmentService attachmentService;
 
     @RequestMapping(value = "/rest/attachments/{id}", method = RequestMethod.POST)
     @ResponseBody

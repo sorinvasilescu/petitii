@@ -3,6 +3,7 @@ package ro.petitii.service;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -14,7 +15,6 @@ import ro.petitii.model.rest.RestAttachmentResponse;
 import ro.petitii.model.rest.RestAttachmentResponseElement;
 import ro.petitii.repository.AttachmentRepository;
 
-import javax.inject.Inject;
 import javax.mail.BodyPart;
 import javax.mail.MessagingException;
 import javax.persistence.EntityManager;
@@ -28,22 +28,18 @@ import java.util.Objects;
 
 @Service
 public class AttachmentServiceImpl implements AttachmentService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AttachmentServiceImpl.class);
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AttachmentServiceImpl.class);
     private static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
+    @Autowired
     private AttachmentRepository attachmentRepository;
 
+    @Autowired
     private EmailAttachmentConfig config;
 
     @PersistenceContext
     private EntityManager em;
-
-    @Inject
-    public AttachmentServiceImpl(AttachmentRepository attachmentRepository, EmailAttachmentConfig config) {
-        this.attachmentRepository = attachmentRepository;
-        this.config = config;
-    }
 
     @Override
     @Transactional
@@ -101,8 +97,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
 
     @Override
-    public RestAttachmentResponse getTableContent(Petition petition, int startIndex, int size,
-                                                  Sort.Direction sortDirection, String sortColumn) {
+    public RestAttachmentResponse getTableContent(Petition petition, int startIndex, int size, Sort.Direction sortDirection, String sortColumn) {
         if (Objects.equals(sortColumn, "origin")) {
             sortColumn = "email";
         }

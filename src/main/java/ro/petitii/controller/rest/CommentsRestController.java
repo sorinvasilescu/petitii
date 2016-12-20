@@ -1,5 +1,6 @@
 package ro.petitii.controller.rest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
 import org.springframework.http.HttpStatus;
@@ -24,17 +25,15 @@ import java.util.List;
 
 @Controller
 public class CommentsRestController {
-    private PetitionService petitionService;
-    private CommentService commentService;
-    private UserService userService;
 
-    @Inject
-    public CommentsRestController(PetitionService petitionService, CommentService commentService,
-                                  UserService userService) {
-        this.petitionService = petitionService;
-        this.commentService = commentService;
-        this.userService = userService;
-    }
+    @Autowired
+    private PetitionService petitionService;
+
+    @Autowired
+    private CommentService commentService;
+
+    @Autowired
+    private UserService userService;
 
     @RequestMapping(value = "/rest/comments/{id}", method = RequestMethod.POST)
     @ResponseBody

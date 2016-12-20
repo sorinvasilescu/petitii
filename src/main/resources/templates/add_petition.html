@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="main_head :: head"></head>
+<head th:replace="fragments/main_head :: head"></head>
 
 <!--/*@thymesVar id="petition" type="ro.petitii.model.Petition"*/-->
 <!--/*@thymesVar id="user_list" type="java.util.List<ro.petitii.model.User>"*/-->
@@ -12,8 +12,8 @@
     <div class="container body">
         <div class="main_container">
 
-            <div class="col-md-3 left_col" th:substituteby="left::menu"></div>
-            <div class="top_nav" th:substituteby="top::menu"></div>
+            <div class="col-md-3 left_col" th:substituteby="fragments/left::menu"></div>
+            <div class="top_nav" th:substituteby="fragments/top::menu"></div>
             <div class="right_col" role="main">
                 <form id="petition-form" class="form-horizontal form-label-left input_mask" th:object="${petition}" th:action="@{/petition}" method="post">
                     <input type="hidden" name="id" th:field="*{id}"/>
@@ -579,7 +579,7 @@
             </footer>
         </div>
     </div>
-    <div th:replace="main_head::includes"></div>
+    <div th:replace="fragments/main_head::includes"></div>
     <!-- Datatables -->
     <script th:inline="javascript" type="text/javascript">
     $(document).ready(function() {
@@ -837,7 +837,7 @@
     <script type="text/javascript">
         $("#description").wysihtml5();
     </script>
-    <div th:substituteby="main_head::toast"></div>
+    <div th:substituteby="fragments/main_head::toast"></div>
 </body>
 
 </html>
