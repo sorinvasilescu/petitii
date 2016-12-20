@@ -31,7 +31,7 @@
                             <div class="col-md-8">
                                 <span>Acțiuni email selectat: </span>
                                 <div class="btn-group">
-                                    <button class="btn btn-sm btn-default" type="button"><a href="#"><i class="fa fa-plus-square"></i> <span>Creeaz&#x103; peti&#x21b;ie</span></a></button>
+                                    <button class="btn btn-sm btn-default" type="button"><a href="#" th:href="@{'/petition/fromEmail/'+${data.getId()}}"><i class="fa fa-plus-square"></i> <span>Creeaz&#x103; peti&#x21b;ie</span></a></button>
                                     <button th:if="${data.type.name() == 'Inbox'}" class="btn btn-sm btn-default" type="button" data-placement="top" data-toggle="tooltip" data-original-title="Marcheaz&#x103; ca spam" id="mark-spam-top"><i class="fa fa-trash-o"></i></button>
                                     <button th:if="${data.type.name() == 'Spam'}" class="btn btn-sm btn-default" type="button" data-placement="top" data-toggle="tooltip" data-original-title="Marcheaz&#x103; ca email" id="mark-email-top"><i class="fa fa-envelope"></i></button>
                                 </div>
@@ -82,7 +82,7 @@
                         <div>
                             <span>Acțiuni email selectat: </span>
                             <div class="btn-group">
-                                <button class="btn btn-sm btn-default" type="button" id="mark-spam"><a href="#"><i class="fa fa-plus-square"></i> <span>Creează petiție</span></a></button>
+                                <button class="btn btn-sm btn-default" type="button" id="mark-spam"><a href="/petition/fromEmail/"><i class="fa fa-plus-square"></i> <span>Creează petiție</span></a></button>
                                 <button th:if="${data.type.name() == 'Inbox'}" class="btn btn-sm btn-default" type="button" data-placement="top" data-toggle="tooltip" data-original-title="Marchează ca spam" id="mark-spam-bottom"><i class="fa fa-trash-o"></i></button>
                                 <button th:if="${data.type.name() == 'Spam'}" class="btn btn-sm btn-default" type="button" data-placement="top" data-toggle="tooltip" data-original-title="Marchează ca email" id="mark-email-bottom"><i class="fa fa-envelope"></i></button>
                             </div>

@@ -91,9 +91,34 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
 
     @Override
-    public void delete(long attachmentId) {
-        //todo; delete from disk if the attachment is not part of an e-mail
-        attachmentRepository.delete(attachmentId);
+    public void deleteFromPetition(long attachmentId) {
+        Attachment att = attachmentRepository.findOne(attachmentId);
+        if (att == null) return;
+        att.setPetition(null);
+        attachmentRepository.save(att);
+        this.deleteFromDisk(att);
+    }
+
+    @Override
+    public void deleteFromEmail(long attachmentId) {
+        Attachment att = attachmentRepository.findOne(attachmentId);
+        if (att == null) return;
+        att.setEmail(null);
+        attachmentRepository.save(att);
+        this.deleteFromDisk(att);
+    }
+
+    @Override
+    public void deleteFromDisk(Attachment att) {
+        if (att == null) return;
+        // check if there are no references to the attachment
+        if ( (att.getPetition() == null) && (att.getEmail() == null) ) {
+            // delete file
+            File file = new File(att.getFilename());
+            file.delete();
+            // delete from db
+            attachmentRepository.delete(att);
+        }
     }
 
     @Override
