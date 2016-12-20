@@ -711,7 +711,7 @@
 
 
                     $.ajax({
-                        url: "/rest/petition/comment/delete/" + selectedRows[0].id,
+                        url: "/rest/petitions/comment/delete/" + selectedRows[0].id,
                         method: 'POST',
                         headers: headers,
                         contentType: "application/json",
@@ -731,7 +731,7 @@
         $(document).ready(function() {
             /*<![CDATA[*/
             var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
-            var attachmentsRestUrl = /*[[${attachmentRestUrl}]]*/ '/rest/comments/{id}';
+            var attachmentsRestUrl = /*[[${attachmentRestUrl}]]*/ '/rest/petitions/{id}/attachments/';
             var pid = /*[[${petition.id}]]*/ '#';
             /*]]>*/
 
@@ -763,7 +763,12 @@
                     {
                         name: 'id',
                         data: 'id',
-                        title: '#'
+                        render: function (data, type, full, meta) {
+                            return '<input type="checkbox" class="flat" name="attachment"/>';
+                        },
+                        title: '<input type="checkbox" id="check-all" class="flat"/>',
+                        sortable: false,
+                        'className': 'text-center',
                     },
                     {
                         name: 'filename',
@@ -786,7 +791,7 @@
                         title: '',
                         render: function (data, type, full, meta) {
                             if (data != null) {
-                                return '<a href="/action/download/' + data.id + '"><i class="fa fa-paperclip"></i> Salvează</a>';
+                                return '<a href="/rest/attachments/download/' + data.id + '"><i class="fa fa-paperclip"></i> Salvează</a>';
                             } else {
                                 return '';
                             }
@@ -795,9 +800,10 @@
                     }
                 ]
             });
+            selectActions(attachmentTable);
 
             $('#downloadAttachments').click(function () {
-                window.location.href = '/action/download/petition/' + pid
+                window.location.href = '/rest/petitions/' +  pid + '/attachments/zip';
             });
 
             $('#addAttachment').click(function () {
@@ -818,7 +824,7 @@
                             /*]]>*/
 
                             $.ajax({
-                                url: "/rest/petition/attachment/delete/" + selectedRows[0].id,
+                                url: "/rest/petitions/" + pid + "/attachments/delete/" + selectedRows[0].id,
                                 method: 'POST',
                                 headers: headers
                             }).done(function (data) {
@@ -832,7 +838,6 @@
             });
         });
     </script>
-
     <!-- /Datatables -->
     <script type="text/javascript">
         $("#description").wysihtml5();

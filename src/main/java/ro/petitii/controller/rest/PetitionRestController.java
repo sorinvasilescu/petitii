@@ -1,24 +1,48 @@
 package ro.petitii.controller.rest;
 
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.HttpClientErrorException;
+import ro.petitii.model.Attachment;
+import ro.petitii.model.Petition;
 import ro.petitii.model.PetitionStatus;
 import ro.petitii.model.User;
+import ro.petitii.model.rest.RestAttachmentResponse;
 import ro.petitii.model.rest.RestPetitionResponse;
+import ro.petitii.service.AttachmentService;
 import ro.petitii.service.PetitionService;
 import ro.petitii.service.UserService;
+import ro.petitii.util.Pair;
+import ro.petitii.util.ZipUtils;
 
+import javax.persistence.EntityNotFoundException;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.LinkedList;
+import java.util.List;
 
 @Controller
+// url base for all class methods
+@RequestMapping("/rest/petitions")
 public class PetitionRestController {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PetitionRestController.class);
 
     @Autowired
     private UserService userService;
@@ -26,7 +50,11 @@ public class PetitionRestController {
     @Autowired
     private PetitionService petitionService;
 
-    @RequestMapping(value = "/rest/petitions/user", method = RequestMethod.POST)
+    @Autowired
+    private AttachmentService attachmentService;
+
+    // will answer to compounded URL /rest/petitions/user
+    @RequestMapping(value = "/user", method = RequestMethod.POST)
     @ResponseBody
     public RestPetitionResponse getUserPetitions(@Valid DataTablesInput input, String status) {
         int sequenceNo = input.getDraw();
@@ -45,14 +73,13 @@ public class PetitionRestController {
 
         Integer start = input.getStart();
         Integer length = input.getLength();
-        RestPetitionResponse response =
-                petitionService.getTableContent(user, pStatus, start, length, sortDirection, sortColumn);
+        RestPetitionResponse response = petitionService.getTableContent(user, pStatus, start, length, sortDirection, sortColumn);
         response.setDraw(sequenceNo);
 
         return response;
     }
 
-    @RequestMapping(value = "/rest/petitions/all", method = RequestMethod.POST)
+    @RequestMapping(value = "/all", method = RequestMethod.POST)
     @ResponseBody
     public RestPetitionResponse getAllPetitions(@Valid DataTablesInput input, String status) {
         int sequenceNo = input.getDraw();
@@ -72,6 +99,67 @@ public class PetitionRestController {
                 petitionService.getTableContent(null, pStatus, start, length, sortDirection, sortColumn);
         response.setDraw(sequenceNo);
         return response;
+    }
+
+    @RequestMapping(value = "/{id}/attachments", method = RequestMethod.POST)
+    @ResponseBody
+    public RestAttachmentResponse getAllAttachments(@PathVariable("id") Long id, @Valid DataTablesInput input) {
+        int sequenceNo = input.getDraw();
+
+        String sortColumn = input.getColumns().get(input.getOrder().get(0).getColumn()).getName();
+        Sort.Direction sortDirection = null;
+        if (input.getOrder().get(0).getDir().equals("asc")) {
+            sortDirection = Sort.Direction.ASC;
+        } else if (input.getOrder().get(0).getDir().equals("desc")) {
+            sortDirection = Sort.Direction.DESC;
+        }
+
+        Petition petition = petitionService.findById(id);
+        if (petition == null) {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        }
+
+        Integer start = input.getStart();
+        Integer length = input.getLength();
+        RestAttachmentResponse response = attachmentService.getTableContent(petition, start, length, sortDirection, sortColumn);
+        response.setDraw(sequenceNo);
+        return response;
+    }
+
+    @RequestMapping("/{id}/attachments/zip")
+    public void downloadAllFromPetition(@PathVariable("id") Long id, HttpServletResponse response) {
+        try {
+
+            Petition petition = petitionService.findById(id);
+            if (petition == null) {
+                throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+            }
+
+            List<Pair<String, Path>> attachments = new LinkedList<>();
+            for (Attachment att : petition.getAttachments()) {
+                attachments.add(new Pair<>(att.getOriginalFilename(), Paths.get(att.getFilename())));
+            }
+            String zipFilename = "petitie-" + id + ".zip";
+            InputStream is = ZipUtils.create(attachments);
+            response.setContentType("application/octet-stream");
+            response.setHeader("Content-disposition", "attachment; filename=" + zipFilename);
+            IOUtils.copy(is, response.getOutputStream());
+            is.close();
+            response.flushBuffer();
+        } catch (IOException e) {
+            LOGGER.error("Could not find attachment with id " + id + " on disk: " + e.getMessage());
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        } catch (EntityNotFoundException e) {
+            LOGGER.error("Could not find attachment with id " + id + ": " + e.getMessage());
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @RequestMapping(value = "/{pid}/attachments/delete/{aid}", method = RequestMethod.POST)
+    @ResponseBody
+    public String deleteAttachment(@PathVariable("aid") Long id) {
+        attachmentService.deleteFromPetition(id);
+        return "done";
     }
 
     private PetitionStatus.Status parseStatus(String status) {
