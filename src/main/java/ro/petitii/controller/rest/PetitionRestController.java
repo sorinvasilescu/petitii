@@ -1,5 +1,6 @@
 package ro.petitii.controller.rest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
 import org.springframework.security.core.Authentication;
@@ -14,20 +15,16 @@ import ro.petitii.model.rest.RestPetitionResponse;
 import ro.petitii.service.PetitionService;
 import ro.petitii.service.UserService;
 
-import javax.inject.Inject;
 import javax.validation.Valid;
 
 @Controller
 public class PetitionRestController {
+
+    @Autowired
     private UserService userService;
 
+    @Autowired
     private PetitionService petitionService;
-
-    @Inject
-    public PetitionRestController(UserService userService, PetitionService petitionService) {
-        this.userService = userService;
-        this.petitionService = petitionService;
-    }
 
     @RequestMapping(value = "/rest/petitions/user", method = RequestMethod.POST)
     @ResponseBody
