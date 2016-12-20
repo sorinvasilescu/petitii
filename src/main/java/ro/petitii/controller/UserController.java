@@ -3,6 +3,7 @@ package ro.petitii.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
@@ -18,6 +19,7 @@ import javax.validation.Valid;
 import java.util.UUID;
 
 @Controller
+@PreAuthorize("hasAuthority('ADMIN')")
 public class UserController extends ControllerBase{
 
     @Autowired
@@ -37,7 +39,6 @@ public class UserController extends ControllerBase{
         return modelAndView;
     }
 
-
     @RequestMapping(path = "/user/{id}", method = RequestMethod.GET)
     public ModelAndView addUser(@PathVariable("id") Long id) {
         ModelAndView modelAndView = new ModelAndView("add_user");
@@ -48,7 +49,6 @@ public class UserController extends ControllerBase{
         return modelAndView;
     }
 
-    //@PreAuthorize("hasRole('ADMIN')")
     @RequestMapping(path = "/user", method = RequestMethod.GET)
     public ModelAndView addUser() {
         User user = new User();
