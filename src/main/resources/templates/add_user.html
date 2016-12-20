@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="main_head :: head"></head>
+<head th:replace="fragments/main_head :: head"></head>
 
 <body class="nav-md">
 <div class="container body">
     <div class="main_container">
-        <div class="col-md-3 left_col" th:substituteby="left::menu"></div>
-        <div class="top_nav" th:substituteby="top::menu"></div>
+        <div class="col-md-3 left_col" th:substituteby="fragments/left::menu"></div>
+        <div class="top_nav" th:substituteby="fragments/top::menu"></div>
         <div class="right_col" role="main">
             <form id="user-form" class="form-horizontal form-label-left input_mask" th:object="${user}"
                   th:action="@{/user}" method="post">
@@ -135,7 +135,7 @@
         </footer>
     </div>
 </div>
-<div th:replace="main_head::includes"></div>
+<div th:replace="fragments/main_head::includes"></div>
 <link href="../vendors/select2/dist/css/select2.min.css" rel="stylesheet"/>
 <!-- Select2 -->
 <script src="../vendors/select2/dist/js/select2.full.min.js"></script>
@@ -170,7 +170,7 @@
 
 </script>
 
-<div th:replace="main_head::toast"></div>
+<div th:replace="fragments/main_head::toast"></div>
 </body>
 
 </html>
