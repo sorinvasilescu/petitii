@@ -10,18 +10,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
-import ro.petitii.model.Attachment;
-import ro.petitii.model.Petition;
-import ro.petitii.model.PetitionStatus;
-import ro.petitii.model.User;
+import ro.petitii.model.*;
+import ro.petitii.model.rest.MiniComment;
 import ro.petitii.model.rest.RestAttachmentResponse;
+import ro.petitii.model.rest.RestCommentResponse;
 import ro.petitii.model.rest.RestPetitionResponse;
 import ro.petitii.service.AttachmentService;
+import ro.petitii.service.CommentService;
 import ro.petitii.service.PetitionService;
 import ro.petitii.service.UserService;
 import ro.petitii.util.Pair;
@@ -34,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -52,6 +50,9 @@ public class PetitionRestController {
 
     @Autowired
     private AttachmentService attachmentService;
+
+    @Autowired
+    private CommentService commentService;
 
     // will answer to compounded URL /rest/petitions/user
     @RequestMapping(value = "/user", method = RequestMethod.POST)
@@ -155,7 +156,7 @@ public class PetitionRestController {
         }
     }
 
-    @RequestMapping(value = "/{pid}/attachments/delete/{aid}", method = RequestMethod.POST)
+    @RequestMapping(value = "/{pid}/attachments/{aid}/delete", method = RequestMethod.POST)
     @ResponseBody
     public String deleteAttachment(@PathVariable("aid") Long id) {
         attachmentService.deleteFromPetition(id);
@@ -168,5 +169,63 @@ public class PetitionRestController {
         } else {
             return null;
         }
+    }
+
+    @RequestMapping(value = "/{id}/comments", method = RequestMethod.POST)
+    @ResponseBody
+    public RestCommentResponse getAllComments(@PathVariable("id") Long id, @Valid DataTablesInput input) {
+        int sequenceNo = input.getDraw();
+
+        String sortColumn = input.getColumns().get(input.getOrder().get(0).getColumn()).getName();
+        Sort.Direction sortDirection = null;
+        if (input.getOrder().get(0).getDir().equals("asc")) {
+            sortDirection = Sort.Direction.ASC;
+        } else if (input.getOrder().get(0).getDir().equals("desc")) {
+            sortDirection = Sort.Direction.DESC;
+        }
+
+        Petition petition = petitionService.findById(id);
+        if (petition == null) {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        }
+
+        Integer start = input.getStart();
+        Integer length = input.getLength();
+        RestCommentResponse response = commentService.getTableContent(petition, start, length, sortDirection, sortColumn);
+        response.setDraw(sequenceNo);
+        return response;
+    }
+
+    @RequestMapping(value = "/{id}/comments/add", method = RequestMethod.POST, consumes={"application/json"})
+    @ResponseBody
+    public String addComment(@PathVariable("id") Long id, @RequestBody MiniComment miniComment) {
+        Petition petition = petitionService.findById(id);
+        if (petition == null) {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        }
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        List<User> users = userService.findUserByEmail(auth.getName());
+        if (users.isEmpty()) {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        }
+        User user = users.get(0);
+
+        Comment comment = new Comment();
+        comment.setComment(miniComment.getComment());
+        comment.setUser(user);
+        comment.setDate(new Date());
+        comment.setPetition(petition);
+
+        commentService.save(comment);
+
+        return "done";
+    }
+
+    @RequestMapping(value = "/{pid}/comments/{cid}/delete", method = RequestMethod.POST)
+    @ResponseBody
+    public String deleteComment(@PathVariable("cid") Long cid) {
+        commentService.delete(cid);
+        return "done";
     }
 }

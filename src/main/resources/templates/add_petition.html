@@ -618,7 +618,7 @@
         $(document).ready(function() {
             /*<![CDATA[*/
             var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
-            var commentsRestUrl = /*[[${commentsRestUrl}]]*/ '/rest/comments/{id}';
+            var commentsRestUrl = /*[[${commentsRestUrl}]]*/ '/rest/petitions/{id}/comments';
             var pid = /*[[${petition.id}]]*/ '#';
             /*]]>*/
 
@@ -681,7 +681,7 @@
 
 
                     $.ajax({
-                        url: "/rest/petition/" + pid + "/comment/add",
+                        url: "/rest/petitions/" + pid + "/comments/add",
                         method: 'POST',
                         headers: headers,
                         contentType: "application/json",
@@ -711,7 +711,7 @@
 
 
                     $.ajax({
-                        url: "/rest/petitions/comment/delete/" + selectedRows[0].id,
+                        url: "/rest/petitions/" + pid + "/comments/" + selectedRows[0].id + "/delete",
                         method: 'POST',
                         headers: headers,
                         contentType: "application/json",
@@ -762,13 +762,9 @@
                 columns: [
                     {
                         name: 'id',
+                        title: "Id",
                         data: 'id',
-                        render: function (data, type, full, meta) {
-                            return '<input type="checkbox" class="flat" name="attachment"/>';
-                        },
-                        title: '<input type="checkbox" id="check-all" class="flat"/>',
-                        sortable: false,
-                        'className': 'text-center',
+                        sortable: false
                     },
                     {
                         name: 'filename',
@@ -824,7 +820,7 @@
                             /*]]>*/
 
                             $.ajax({
-                                url: "/rest/petitions/" + pid + "/attachments/delete/" + selectedRows[0].id,
+                                url: "/rest/petitions/" + pid + "/attachments/" + selectedRows[0].id + "/delete/",
                                 method: 'POST',
                                 headers: headers
                             }).done(function (data) {

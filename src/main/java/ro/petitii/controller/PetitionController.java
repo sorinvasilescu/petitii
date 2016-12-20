@@ -57,7 +57,7 @@ public class PetitionController extends ControllerBase {
         Petition petition = petitionService.findById(id);
         modelAndView.addObject("petition", petition);
         modelAndView.addObject("user_list", userService.getAllUsers());
-        modelAndView.addObject("commentsRestUrl", "/rest/comments/" + petition.getId());
+        modelAndView.addObject("commentsRestUrl", "/rest/petitions/" + petition.getId() + "/comments");
         modelAndView.addObject("attachmentRestUrl", "/rest/petitions/" + petition.getId() + "/attachments");
 
         return modelAndView;
