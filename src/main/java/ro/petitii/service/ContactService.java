@@ -15,4 +15,7 @@ public interface ContactService {
     List<Contact> findUserByPhone(String phone);
 
     DataTablesOutput<Contact> findAll(DataTablesInput input);
+
+	Contact getById(Long id);
+	Contact save(Contact contact);
 }

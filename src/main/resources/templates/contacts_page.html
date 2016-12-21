@@ -12,29 +12,23 @@
             <!-- /top navigation -->
             <!-- page content -->
             <div class="right_col" role="main">
-                <div class="">
+                <div id="error-messages"></div>
+            	<div class="">
                     <h2>Lista de contacte institutii</h2>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <div class="buttons">
+                	  		<!-- 
                 	  		<button type="button" class="btn btn-default btn-sm"><a href="/adauga-contact"><i class="fa fa-file"></i> <span th:text="${adauga}">Contact nou</span></a></button>
                 	  		<button type="button" class="btn btn-default btn-sm"><a href="/edit-contact"><i class="fa fa-edit"></i> <span th:text="${editeaza} ">Editeaza contact</span></a></button>
+                	  		 -->
+                	  		<button id="add" type="button" class="btn btn-default btn-md"><i class="fa fa-plus-square-o"></i>&nbsp;<span>Adaugă</span></button>
+                	  		<button id="modify" type="button" class="btn btn-default btn-md"><i class="fa fa-pencil-square-o"></i>&nbsp;<span>Modifică</span></button>
                 	  	</div>
                     </div>
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
                     <table id="datatable-responsive" class="table table-striped table-bordered dt-responsive nowrap jambo_table bulk_action" cellspacing="0" width="100%">
-                        <thead>
-                            <tr>
-                                <th><input type="checkbox"/></th>
-                                <th>Institutie</th>
-                                <th>Email</th>
-                                <th>Telefon</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            
-                        </tbody>
                     </table>
                 </div>
             </div>
@@ -68,10 +62,14 @@
     var contactTable;
     $(document).ready(function () {
         	contactTable = $('#datatable-responsive').DataTable({
+        		select: {
+                    style: 'one'
+                },
                 processing: true,
                 serverSide: true,
                 sDom: 'lrtip ',
                 order: [[2, 'desc']],
+                rowId: "id",
                 ajax: {
                     url: '/rest/contacts',
                     type: 'POST',
@@ -110,8 +108,26 @@
                     },
                 ]
             });
+        	
         	selectActions(contactTable);
+        	
+        	<!-- action invocation-->
+        	$("#add").click(function () {
+        		window.location.href = '/contact';
+        	});
+        	
+        	$("#modify").click(function () {
+                var selectedRows = contactTable.rows({selected: true}).data().toArray();
+                if (selectedRows.length != 1) {
+                    addWarning("#error-messages", "Pentru modificări selectați o singură Intituție");
+                    this.blur()
+                } else {
+                    window.location.href = '/contact/' + selectedRows[0].id;
+                }
+            });
+        	
         });
+    
     </script>
     <!-- /Datatables -->
     <div th:substituteby="fragments/main_head::toast"></div>
