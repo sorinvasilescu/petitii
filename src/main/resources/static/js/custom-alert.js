@@ -27,22 +27,37 @@ function customInput(title, callback) {
     });
 }
 
-function customUpload(title, csrfLabel, csrfValue, pid, callback) {
+function customUpload(title, callback) {
     bootbox.dialog({
         title: title,
         backdrop: true,
-        message: '<iframe id="uploader" style="border:none;" src="/rest/attachments/iframe" postLocation="/rest/petitions/' + pid + '/attachments/add"></iframe>',
+        message:
+            '<form id="upload-form">' +
+                '<span class="btn btn-default btn-file">' +
+                    'Browse<input id="files" type="file" multiple="multiple" onchange="onInputChange()"/>' +
+                '</span>' +
+                '<span id="selection"></span>' +
+            '</form>',
         buttons: {
             upload: {
                 label: 'Incarca',
                 className: 'btn-success',
-                callback: function () {
-                    callback($('#uploader').contents().find('#upload-form'));
+                callback: function() {
+                    callback($('#files')[0].files);
                 }
             },
             cancel: {
-                label: 'Anuleaza'
+                label: 'Anuleaza',
+                className: 'btn-default'
             }
         }
+    });
+}
+
+function onInputChange() {
+    var span = $('#selection');
+    span.text('');
+    $.each($('#files')[0].files, function (i,file) {
+        span.text(span.text() + (i!=0?', ':'') + file.name);
     });
 }

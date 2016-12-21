@@ -194,7 +194,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
 
     private void prepFolder() {
-        LOGGER.info("Preparing to saveAndDownload attachment in folder: " + config.getPath());
+        LOGGER.info("Preparing to save attachment in folder: " + config.getPath());
         File target = new File(config.getPath());
         if (!target.isDirectory()) {
             LOGGER.info("Creating directory structure: " + config.getPath());

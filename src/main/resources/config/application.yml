@@ -17,14 +17,6 @@ spring:
 server.error.whitelabel.enabled: false
 security.basic.enabled: false
 
-# MULTIPART (MultipartProperties)
-multipart:
-  enabled: true
-  file-size-threshold: 0 # Threshold after which files will be written to disk.
-  location: target/temp # Intermediate location of uploaded files.
-  max-file-size: 10Mb # Max file size.
-  max-request-size: 30Mb # Max request size.
-
 petitii:
   imap:
     server: imap.gmail.com

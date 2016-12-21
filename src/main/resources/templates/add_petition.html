@@ -804,10 +804,26 @@
                 /*<![CDATA[*/
                 var csrfLabel = /*[[${_csrf.headerName}]]*/ null;
                 var csrfValue = /*[[${_csrf.token}]]*/ null;
+                var headers = {};
+                headers[csrfLabel] = csrfValue;
                 /*]]>*/
-                customUpload('Incarca fisier', csrfLabel, csrfValue, pid, function (form) {
-                    form.submit();
-                    attachmentTable.ajax.reload();
+                customUpload('Incarca fisier', function (files) {
+                    var data = new FormData();
+                    $.each(files, function(i,file){
+                        data.append('files', file);
+                    });
+                    $.ajax({
+                        url: '/rest/petitions/' + pid + '/attachments/add',
+                        method: 'post',
+                        data: data,
+                        header: headers,
+                        contentType: false,
+                        processData: false
+                    }).done(function (data) {
+                            attachmentTable.ajax.reload();
+                    }).fail(function (reason) {
+                            console.log('Could not upload file: ' + reason);
+                    });
                 });
             });
 
