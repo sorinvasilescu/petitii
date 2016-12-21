@@ -11,9 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import ro.petitii.controller.ControllerBase.ToastType;
 import ro.petitii.model.Contact;
-import ro.petitii.model.Petition;
 import ro.petitii.service.ContactService;
 
 @Controller
