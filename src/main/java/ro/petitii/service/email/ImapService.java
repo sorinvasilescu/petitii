@@ -39,13 +39,13 @@ public class ImapService {
         Date startDate = new Date();
         // set session properties
         //todo; props is never used - remove?
-        Properties props = new Properties();
+        Properties props = new Properties(getServerProperties());
         props.setProperty("mail.store.protocol", "imap");
-        props.setProperty("mail.imap.partialfetch", "false");
-        props.setProperty("mail.imaps.partialfetch", "false");
+        props.setProperty("mail.imap.partialfetch", "true");
+        props.setProperty("mail.imaps.partialfetch", "true");
         props.setProperty("mail.imap.fetchsize", "1000000");
         // open session
-        Session session = Session.getInstance(getServerProperties());
+        Session session = Session.getInstance(props);
         Folder folder = null;
         try {
             // connect to the message store
