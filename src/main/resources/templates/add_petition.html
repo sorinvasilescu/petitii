@@ -679,7 +679,6 @@
                     headers[csrfLabel] = csrfValue;
                     /*]]>*/
 
-
                     $.ajax({
                         url: "/rest/petitions/" + pid + "/comments/add",
                         method: 'POST',
@@ -708,7 +707,6 @@
                     var headers = {};
                     headers[csrfLabel] = csrfValue;
                     /*]]>*/
-
 
                     $.ajax({
                         url: "/rest/petitions/" + pid + "/comments/" + selectedRows[0].id + "/delete",
@@ -803,6 +801,14 @@
             });
 
             $('#addAttachment').click(function () {
+                /*<![CDATA[*/
+                var csrfLabel = /*[[${_csrf.headerName}]]*/ null;
+                var csrfValue = /*[[${_csrf.token}]]*/ null;
+                /*]]>*/
+                customUpload('Incarca fisier', csrfLabel, csrfValue, pid, function (form) {
+                    form.submit();
+                    attachmentTable.ajax.reload();
+                });
             });
 
             $('#removeAttachment').click(function () {
