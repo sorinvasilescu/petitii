@@ -1,13 +1,19 @@
 package ro.petitii.service;
 
 import org.springframework.data.domain.Sort;
+import org.springframework.web.multipart.MultipartFile;
 import ro.petitii.model.Attachment;
 import ro.petitii.model.Petition;
 import ro.petitii.model.rest.RestAttachmentResponse;
 
+import java.util.List;
+
 public interface AttachmentService {
     // save and download from email BodyPart
-    Attachment saveAndDownload(Attachment e);
+    Attachment saveFromEmail(Attachment e);
+
+    // save from webform
+    List<Attachment> saveFromForm(MultipartFile[] files, Long petitionId);
 
     // save attachment to db
     Attachment save(Attachment e);

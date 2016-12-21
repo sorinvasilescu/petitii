@@ -7,10 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import ro.petitii.config.EmailAttachmentConfig;
 import ro.petitii.model.Attachment;
 import ro.petitii.model.Petition;
+import ro.petitii.model.User;
 import ro.petitii.model.rest.RestAttachmentResponse;
 import ro.petitii.model.rest.RestAttachmentResponseElement;
 import ro.petitii.repository.AttachmentRepository;
@@ -21,10 +25,11 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 public class AttachmentServiceImpl implements AttachmentService {
@@ -38,12 +43,18 @@ public class AttachmentServiceImpl implements AttachmentService {
     @Autowired
     private EmailAttachmentConfig config;
 
+    @Autowired
+    private PetitionService petitionService;
+
+    @Autowired
+    private UserService userService;
+
     @PersistenceContext
     private EntityManager em;
 
     @Override
     @Transactional
-    public Attachment saveAndDownload(Attachment a) {
+    public Attachment saveFromEmail(Attachment a) {
         LOGGER.info("Email id: " + a.getEmail().getId());
         prepFolder();
         BodyPart attBody = a.getBodyPart();
@@ -78,6 +89,36 @@ public class AttachmentServiceImpl implements AttachmentService {
             LOGGER.info("Could not parse message: " + e2.getMessage());
         }
         return attachmentRepository.save(a);
+    }
+
+    @Override
+    @Transactional
+    public List<Attachment> saveFromForm(MultipartFile[] files, Long petitionId) {
+        List<Attachment> attachments = new ArrayList<>();
+        Attachment att;
+        prepFolder();
+        for (MultipartFile file : files) {
+            att = new Attachment();
+            att.setDate(new Date());
+            em.persist(att);
+            em.flush();
+            Path filePath = Paths.get(config.getPath(), att.getId() + "." + FilenameUtils.getExtension(file.getOriginalFilename()));
+            try {
+                Files.copy(file.getInputStream(), filePath);
+                att.setFilename(filePath.toString());
+                att.setOriginalFilename(file.getOriginalFilename());
+                att.setPetition(petitionService.findById(petitionId));
+                Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+                User user = userService.findUserByEmail(auth.getName()).get(0);
+                att.setUser(user);
+
+                attachmentRepository.save(att);
+                LOGGER.info("Saved file " + file.getOriginalFilename() + " to: " + filePath.toString());
+            } catch (IOException e) {
+                LOGGER.error("Could not save attachment");
+            }
+        }
+        return attachments;
     }
 
     @Override
@@ -153,7 +194,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
 
     private void prepFolder() {
-        LOGGER.info("Preparing to saveAndDownload attachment in folder: " + config.getPath());
+        LOGGER.info("Preparing to save attachment in folder: " + config.getPath());
         File target = new File(config.getPath());
         if (!target.isDirectory()) {
             LOGGER.info("Creating directory structure: " + config.getPath());
