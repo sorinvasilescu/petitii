@@ -62,4 +62,9 @@ public class AttachmentRestController {
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
         }
     }
+
+    @RequestMapping("/rest/attachments/iframe")
+    public String iframe() {
+        return "fragments/upload";
+    }
 }

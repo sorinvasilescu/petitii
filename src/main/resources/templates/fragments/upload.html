@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head th:substituteby="fragments/main_head :: head"></head>
+    <body>
+        <form id="upload-form" enctype="multipart/form-data" method="POST">
+            <span class="btn btn-default btn-file">
+                Browse
+                <input id="files" name="files" type="file" multiple="multiple" onchange="onInputChange(this)"/>
+                <!-- <input id="csrf" type="hidden" name="' + csrfLabel + '" value="' + csrfValue +'"/> -->
+                <!-- <input type="submit" name="submit" value="Incarca"/> -->
+            </span>
+            <span id="selected-files"></span>
+        </form>
+        <!-- jQuery -->
+        <script src="../static/vendors/jquery/dist/jquery.min.js" th:src="@{/vendors/jquery/dist/jquery.min.js}"></script>
+        <!-- Bootstrap -->
+        <script src="../static/vendors/bootstrap/dist/js/bootstrap.min.js" th:src="@{/vendors/bootstrap/dist/js/bootstrap.min.js}"></script>
+        <script type="text/javascript">
+            /*<![CDATA[*/
+            function onInputChange(object) {
+                var selected = $('#selected-files');
+                selected.text('');
+                for (var i=0; i<object.files.length; i++) selected.text(selected.text() + (i!=0? ', ':'') + object.files[i].name);
+            }
+            $(document).ready(function(){
+                var iframe = $(window.frameElement);
+                $('#upload-form').attr('action',iframe.attr('postLocation'));
+            });
+            /*]]>*/
+        </script>
+    </body>
+</html>
