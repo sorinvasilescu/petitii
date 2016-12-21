@@ -20,11 +20,8 @@ public class ContactRestController {
     private ContactService contactService;
 
     @JsonView(DataTablesOutput.View.class)
-    @RequestMapping(value = "/rest/contacts", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value = "/rest/contacts", method = RequestMethod.POST)
     public DataTablesOutput<Contact> getUsers(@Valid DataTablesInput input) {
         return contactService.findAll(input);
     }
-    
-  
-    
 }

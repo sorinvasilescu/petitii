@@ -22,7 +22,7 @@ public class ContactController extends ControllerBase {
 
 	@RequestMapping("/contacts")
 	public ModelAndView contacts() {
-		ModelAndView modelAndView = new ModelAndView("contacts_page");
+		ModelAndView modelAndView = new ModelAndView("contacts_list");
 		return modelAndView;
 	}
 
@@ -40,7 +40,7 @@ public class ContactController extends ControllerBase {
     }
 
 	private ModelAndView editContact(Contact contact) {
-		ModelAndView modelAndView = new ModelAndView("contact_edit_page");
+		ModelAndView modelAndView = new ModelAndView("contacts_crud");
     	return modelAndView.addObject("contact", contact);
 	}
 
@@ -59,5 +59,4 @@ public class ContactController extends ControllerBase {
         }
         return modelAndView;
     }
-
 }
