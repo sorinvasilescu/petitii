@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="main_head :: head"></head>
+<head th:replace="fragments/main_head :: head"></head>
 
 <!--/*@thymesVar id="petition" type="ro.petitii.model.Petition"*/-->
 <!--/*@thymesVar id="user_list" type="java.util.List<ro.petitii.model.User>"*/-->
@@ -12,8 +12,8 @@
     <div class="container body">
         <div class="main_container">
 
-            <div class="col-md-3 left_col" th:substituteby="left::menu"></div>
-            <div class="top_nav" th:substituteby="top::menu"></div>
+            <div class="col-md-3 left_col" th:substituteby="fragments/left::menu"></div>
+            <div class="top_nav" th:substituteby="fragments/top::menu"></div>
             <div class="right_col" role="main">
                 <form id="petition-form" class="form-horizontal form-label-left input_mask" th:object="${petition}" th:action="@{/petition}" method="post">
                     <input type="hidden" name="id" th:field="*{id}"/>
@@ -579,7 +579,7 @@
             </footer>
         </div>
     </div>
-    <div th:replace="main_head::includes"></div>
+    <div th:replace="fragments/main_head::includes"></div>
     <!-- Datatables -->
     <script th:inline="javascript" type="text/javascript">
     $(document).ready(function() {
@@ -618,7 +618,7 @@
         $(document).ready(function() {
             /*<![CDATA[*/
             var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
-            var commentsRestUrl = /*[[${commentsRestUrl}]]*/ '/rest/comments/{id}';
+            var commentsRestUrl = /*[[${commentsRestUrl}]]*/ '/rest/petitions/{id}/comments';
             var pid = /*[[${petition.id}]]*/ '#';
             /*]]>*/
 
@@ -681,7 +681,7 @@
 
 
                     $.ajax({
-                        url: "/rest/petition/" + pid + "/comment/add",
+                        url: "/rest/petitions/" + pid + "/comments/add",
                         method: 'POST',
                         headers: headers,
                         contentType: "application/json",
@@ -711,7 +711,7 @@
 
 
                     $.ajax({
-                        url: "/rest/petition/comment/delete/" + selectedRows[0].id,
+                        url: "/rest/petitions/" + pid + "/comments/" + selectedRows[0].id + "/delete",
                         method: 'POST',
                         headers: headers,
                         contentType: "application/json",
@@ -731,7 +731,7 @@
         $(document).ready(function() {
             /*<![CDATA[*/
             var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
-            var attachmentsRestUrl = /*[[${attachmentRestUrl}]]*/ '/rest/comments/{id}';
+            var attachmentsRestUrl = /*[[${attachmentRestUrl}]]*/ '/rest/petitions/{id}/attachments/';
             var pid = /*[[${petition.id}]]*/ '#';
             /*]]>*/
 
@@ -762,8 +762,9 @@
                 columns: [
                     {
                         name: 'id',
+                        title: "Id",
                         data: 'id',
-                        title: '#'
+                        sortable: false
                     },
                     {
                         name: 'filename',
@@ -786,7 +787,7 @@
                         title: '',
                         render: function (data, type, full, meta) {
                             if (data != null) {
-                                return '<a href="/action/download/' + data.id + '"><i class="fa fa-paperclip"></i> Salvează</a>';
+                                return '<a href="/rest/attachments/download/' + data.id + '"><i class="fa fa-paperclip"></i> Salvează</a>';
                             } else {
                                 return '';
                             }
@@ -795,9 +796,10 @@
                     }
                 ]
             });
+            selectActions(attachmentTable);
 
             $('#downloadAttachments').click(function () {
-                window.location.href = '/action/download/petition/' + pid
+                window.location.href = '/rest/petitions/' +  pid + '/attachments/zip';
             });
 
             $('#addAttachment').click(function () {
@@ -818,7 +820,7 @@
                             /*]]>*/
 
                             $.ajax({
-                                url: "/rest/petition/attachment/delete/" + selectedRows[0].id,
+                                url: "/rest/petitions/" + pid + "/attachments/" + selectedRows[0].id + "/delete/",
                                 method: 'POST',
                                 headers: headers
                             }).done(function (data) {
@@ -832,12 +834,11 @@
             });
         });
     </script>
-
     <!-- /Datatables -->
     <script type="text/javascript">
         $("#description").wysihtml5();
     </script>
-    <div th:substituteby="main_head::toast"></div>
+    <div th:substituteby="fragments/main_head::toast"></div>
 </body>
 
 </html>

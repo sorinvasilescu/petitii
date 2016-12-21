@@ -57,8 +57,8 @@ public class PetitionController extends ControllerBase {
         Petition petition = petitionService.findById(id);
         modelAndView.addObject("petition", petition);
         modelAndView.addObject("user_list", userService.getAllUsers());
-        modelAndView.addObject("commentsRestUrl", "/rest/comments/" + petition.getId());
-        modelAndView.addObject("attachmentRestUrl", "/rest/attachments/" + petition.getId());
+        modelAndView.addObject("commentsRestUrl", "/rest/petitions/" + petition.getId() + "/comments");
+        modelAndView.addObject("attachmentRestUrl", "/rest/petitions/" + petition.getId() + "/attachments");
 
         return modelAndView;
     }
@@ -77,8 +77,7 @@ public class PetitionController extends ControllerBase {
     }
 
     @RequestMapping(path = "/petition", method = RequestMethod.POST)
-    public ModelAndView savePetition(@Valid Petition petition, BindingResult bindingResult,
-                                     final RedirectAttributes attr) {
+    public ModelAndView savePetition(@Valid Petition petition, BindingResult bindingResult, final RedirectAttributes attr) {
         ModelAndView modelAndView = new ModelAndView();
         if (bindingResult.hasErrors()) {
             modelAndView.setViewName("add_petition");

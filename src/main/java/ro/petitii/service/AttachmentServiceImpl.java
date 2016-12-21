@@ -3,6 +3,7 @@ package ro.petitii.service;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -14,7 +15,6 @@ import ro.petitii.model.rest.RestAttachmentResponse;
 import ro.petitii.model.rest.RestAttachmentResponseElement;
 import ro.petitii.repository.AttachmentRepository;
 
-import javax.inject.Inject;
 import javax.mail.BodyPart;
 import javax.mail.MessagingException;
 import javax.persistence.EntityManager;
@@ -28,22 +28,18 @@ import java.util.Objects;
 
 @Service
 public class AttachmentServiceImpl implements AttachmentService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AttachmentServiceImpl.class);
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AttachmentServiceImpl.class);
     private static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
+    @Autowired
     private AttachmentRepository attachmentRepository;
 
+    @Autowired
     private EmailAttachmentConfig config;
 
     @PersistenceContext
     private EntityManager em;
-
-    @Inject
-    public AttachmentServiceImpl(AttachmentRepository attachmentRepository, EmailAttachmentConfig config) {
-        this.attachmentRepository = attachmentRepository;
-        this.config = config;
-    }
 
     @Override
     @Transactional
@@ -95,14 +91,38 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
 
     @Override
-    public void delete(long attachmentId) {
-        //todo; delete from disk if the attachment is not part of an e-mail
-        attachmentRepository.delete(attachmentId);
+    public void deleteFromPetition(long attachmentId) {
+        Attachment att = attachmentRepository.findOne(attachmentId);
+        if (att == null) return;
+        att.setPetition(null);
+        attachmentRepository.save(att);
+        this.deleteFromDisk(att);
     }
 
     @Override
-    public RestAttachmentResponse getTableContent(Petition petition, int startIndex, int size,
-                                                  Sort.Direction sortDirection, String sortColumn) {
+    public void deleteFromEmail(long attachmentId) {
+        Attachment att = attachmentRepository.findOne(attachmentId);
+        if (att == null) return;
+        att.setEmail(null);
+        attachmentRepository.save(att);
+        this.deleteFromDisk(att);
+    }
+
+    @Override
+    public void deleteFromDisk(Attachment att) {
+        if (att == null) return;
+        // check if there are no references to the attachment
+        if ( (att.getPetition() == null) && (att.getEmail() == null) ) {
+            // delete file
+            File file = new File(att.getFilename());
+            file.delete();
+            // delete from db
+            attachmentRepository.delete(att);
+        }
+    }
+
+    @Override
+    public RestAttachmentResponse getTableContent(Petition petition, int startIndex, int size, Sort.Direction sortDirection, String sortColumn) {
         if (Objects.equals(sortColumn, "origin")) {
             sortColumn = "email";
         }

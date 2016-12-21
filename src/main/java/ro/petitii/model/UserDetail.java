@@ -6,9 +6,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.ArrayList;
 import java.util.Collection;
 
-/**
- * Created by Sorin on 12/6/2016.
- */
 public class UserDetail extends User implements UserDetails {
 
     private User user = new User();
@@ -43,7 +40,7 @@ public class UserDetail extends User implements UserDetails {
     }
 
     public boolean hasRole(String role) {
-        return this.user.getRole().equals(role);
+        return this.user.getRole().toString().equals(role);
     }
 
     @Override
