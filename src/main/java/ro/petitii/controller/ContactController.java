@@ -11,9 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import ro.petitii.controller.ControllerBase.ToastType;
 import ro.petitii.model.Contact;
-import ro.petitii.model.Petition;
 import ro.petitii.service.ContactService;
 
 @Controller
@@ -24,7 +22,7 @@ public class ContactController extends ControllerBase {
 
 	@RequestMapping("/contacts")
 	public ModelAndView contacts() {
-		ModelAndView modelAndView = new ModelAndView("contacts_page");
+		ModelAndView modelAndView = new ModelAndView("contacts_list");
 		return modelAndView;
 	}
 
@@ -42,7 +40,7 @@ public class ContactController extends ControllerBase {
     }
 
 	private ModelAndView editContact(Contact contact) {
-		ModelAndView modelAndView = new ModelAndView("contact_edit_page");
+		ModelAndView modelAndView = new ModelAndView("contacts_crud");
     	return modelAndView.addObject("contact", contact);
 	}
 
@@ -61,5 +59,4 @@ public class ContactController extends ControllerBase {
         }
         return modelAndView;
     }
-
 }

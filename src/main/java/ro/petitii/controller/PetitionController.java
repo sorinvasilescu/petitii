@@ -43,7 +43,7 @@ public class PetitionController extends ControllerBase {
         petition.setReceivedDate(new Date());
         petition.setPetitioner(petitioner);
 
-        ModelAndView modelAndView = new ModelAndView("add_petition");
+        ModelAndView modelAndView = new ModelAndView("petitions_crud");
         modelAndView.addObject("petition", petition);
         modelAndView.addObject("user_list", userService.getAllUsers());
 
@@ -52,7 +52,7 @@ public class PetitionController extends ControllerBase {
 
     @RequestMapping(path = "/petition/{id}", method = RequestMethod.GET)
     public ModelAndView editPetition(@PathVariable("id") Long id) {
-        ModelAndView modelAndView = new ModelAndView("add_petition");
+        ModelAndView modelAndView = new ModelAndView("petitions_crud");
 
         Petition petition = petitionService.findById(id);
         modelAndView.addObject("petition", petition);
@@ -69,7 +69,7 @@ public class PetitionController extends ControllerBase {
 
         Petition petition = petitionService.createFromEmail(email);
 
-        ModelAndView modelAndView = new ModelAndView("add_petition");
+        ModelAndView modelAndView = new ModelAndView("petitions_crud");
         modelAndView.addObject("petition", petition);
         modelAndView.addObject("user_list", userService.getAllUsers());
 
@@ -80,7 +80,7 @@ public class PetitionController extends ControllerBase {
     public ModelAndView savePetition(@Valid Petition petition, BindingResult bindingResult, final RedirectAttributes attr) {
         ModelAndView modelAndView = new ModelAndView();
         if (bindingResult.hasErrors()) {
-            modelAndView.setViewName("add_petition");
+            modelAndView.setViewName("petitions_crud");
             modelAndView.addObject("user_list", userService.getAllUsers());
             modelAndView.addObject("petition", petition);
             modelAndView.addObject("toast", createToast("Petitia nu a fost salvata", ToastType.danger));
@@ -94,20 +94,20 @@ public class PetitionController extends ControllerBase {
 
     @RequestMapping("/petitions")
     public ModelAndView listUserPetitions() {
-        ModelAndView modelAndView = new ModelAndView("petitions_page");
+        ModelAndView modelAndView = new ModelAndView("petitions_list");
         modelAndView.addObject("restUrl", "/rest/petitions/user");
         return modelAndView;
     }
 
     @RequestMapping("/petitions/all")
     public ModelAndView listAllPetitions() {
-        ModelAndView modelAndView = new ModelAndView("petitions_page");
+        ModelAndView modelAndView = new ModelAndView("petitions_list");
         modelAndView.addObject("restUrl", "/rest/petitions/all");
         return modelAndView;
     }
 
-    @RequestMapping("/redirectionare")
+    @RequestMapping("/redirect")
     public String redirectPetition() {
-        return "redirectioneaza_petition_page";
+        return "petitions_redirect";
     }
 }

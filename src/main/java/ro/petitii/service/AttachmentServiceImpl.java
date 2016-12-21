@@ -21,6 +21,7 @@ import ro.petitii.repository.AttachmentRepository;
 
 import javax.mail.BodyPart;
 import javax.mail.MessagingException;
+import javax.mail.internet.MimeBodyPart;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
@@ -69,8 +70,8 @@ public class AttachmentServiceImpl implements AttachmentService {
         String extension = FilenameUtils.getExtension(a.getOriginalFilename());
         try {
             String filename = FilenameUtils.concat(config.getPath(), a.getId() + "." + extension);
-            //((MimeBodyPart) attBody).saveFile(filename);
-            BufferedInputStream in = new BufferedInputStream(attBody.getInputStream());
+            ((MimeBodyPart) attBody).saveFile(filename);
+            /*BufferedInputStream in = new BufferedInputStream(attBody.getInputStream());
             OutputStream os = new FileOutputStream(filename);
             BufferedOutputStream out = new BufferedOutputStream(os);
             byte[] chunk = new byte[500000];
@@ -79,7 +80,7 @@ public class AttachmentServiceImpl implements AttachmentService {
                 out.write(chunk, 0, available);
             }
             out.close();
-            os.close();
+            os.close();*/
             LOGGER.info("Saved file to disk");
             a.setFilename(filename);
             a.setContentType(attBody.getContentType());

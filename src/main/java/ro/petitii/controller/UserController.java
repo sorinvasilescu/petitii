@@ -41,7 +41,7 @@ public class UserController extends ControllerBase{
 
     @RequestMapping(path = "/user/{id}", method = RequestMethod.GET)
     public ModelAndView addUser(@PathVariable("id") Long id) {
-        ModelAndView modelAndView = new ModelAndView("add_user");
+        ModelAndView modelAndView = new ModelAndView("users_crud");
 
         User user = userService.findById(id);
         modelAndView.addObject("user",user);
@@ -54,7 +54,7 @@ public class UserController extends ControllerBase{
         User user = new User();
         user.setRole(User.UserRole.USER);
 
-        ModelAndView modelAndView = new ModelAndView("add_user");
+        ModelAndView modelAndView = new ModelAndView("users_crud");
         modelAndView.addObject("user", user);
         return modelAndView;
     }
