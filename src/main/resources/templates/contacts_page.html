@@ -12,7 +12,8 @@
             <!-- /top navigation -->
             <!-- page content -->
             <div class="right_col" role="main">
-                <div class="">
+                <div id="error-messages"></div>
+            	<div class="">
                     <h2>Lista de contacte institutii</h2>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <div class="buttons">
@@ -28,6 +29,7 @@
                 </div>
                 <div class="x_content">
                     <table id="datatable-responsive" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+                       <!-- 
                         <thead>
                             <tr>
                                 <th><input type="checkbox"/></th>
@@ -39,6 +41,7 @@
                         <tbody>
                             
                         </tbody>
+                         -->
                     </table>
                 </div>
             </div>
@@ -72,10 +75,14 @@
     var contactTable;
     $(document).ready(function () {
         	contactTable = $('#datatable-responsive').DataTable({
+        		select: {
+                    style: 'one'
+                },
                 processing: true,
                 serverSide: true,
                 sDom: 'lrtip ',
                 order: [[2, 'desc']],
+                rowId: "id",
                 ajax: {
                     url: '/rest/contacts',
                     type: 'POST',
