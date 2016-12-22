@@ -1,15 +1,13 @@
 package ro.petitii.service.email;
 
 import com.sun.mail.util.BASE64DecoderStream;
-import org.jsoup.Jsoup;
-import org.jsoup.safety.Whitelist;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ro.petitii.config.ImapConfig;
-import ro.petitii.model.Email;
 import ro.petitii.model.Attachment;
+import ro.petitii.model.Email;
 import ro.petitii.service.EmailService;
 
 import javax.mail.*;
@@ -22,6 +20,8 @@ import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static ro.petitii.util.CleanUtil.cleanHtml;
+
 @Service
 public class ImapService {
     @Autowired
@@ -31,21 +31,21 @@ public class ImapService {
     EmailService emailService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ImapService.class);
+
     private final static String protocol = "imap";
+
+    private static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+    static {
+        df.setTimeZone(TimeZone.getTimeZone("EET"));
+    }
+    private static final Date DEFAULT_START_DATE = df.parse("07/12/2016", new ParsePosition(0));
 
     public synchronized void getMail() throws IOException, MessagingException {
         // set -Djava.security.egd=file:///dev/urandom
         LOGGER.info("Fetching mail");
-        Date startDate = new Date();
-        // set session properties
-        //todo; props is never used - remove?
-        Properties props = new Properties(getServerProperties());
-        props.setProperty("mail.store.protocol", "imap");
-        props.setProperty("mail.imap.partialfetch", "true");
-        props.setProperty("mail.imaps.partialfetch", "true");
-        props.setProperty("mail.imap.fetchsize", "1000000");
+        long startTime = System.currentTimeMillis();
         // open session
-        Session session = Session.getInstance(props);
+        Session session = Session.getInstance(getSessionProperties(getServerProperties()));
         Folder folder = null;
         try {
             // connect to the message store
@@ -62,17 +62,8 @@ public class ImapService {
             fp.add(FetchProfile.Item.CONTENT_INFO);
             long latestuid = -1;
             if (emailService.count() < 1) {
-                // set filters
-                SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-                df.setTimeZone(TimeZone.getTimeZone("EET"));
-                Date date;
-                try {
-                    date = df.parse(imapConfig.getStartDate());
-                } catch (ParseException e) {
-                    date = df.parse("07/12/2016", new ParsePosition(0));
-                    LOGGER.error("Could not parse date, using 07/12/2016 as the start date ...");
-                }
-                SearchTerm newerThan = new ReceivedDateTerm(ComparisonTerm.GT, date);
+
+                SearchTerm newerThan = new ReceivedDateTerm(ComparisonTerm.GT, getStartDate());
                 // fetch messages
                 messages = folder.search(newerThan);
             } else {
@@ -80,7 +71,7 @@ public class ImapService {
                 LOGGER.info("Last uid: " + latestuid);
                 messages = uidFolder.getMessagesByUID(latestuid, UIDFolder.LASTUID);
             }
-            folder.fetch(messages,fp);
+            folder.fetch(messages, fp);
             for (Message msg : messages) {
                 long uid = uidFolder.getUID(msg);
                 if (uid != latestuid) saveMessage(msg, uid);
@@ -96,9 +87,8 @@ public class ImapService {
                 try { folder.close(false); } catch (MessagingException e) {
                     LOGGER.error("Messaging exception:" + e.getMessage());
                 }
-            Date endDate = new Date();
-            float time = (float)(endDate.getTime() - startDate.getTime())/1000;
-            LOGGER.info("Fetch mail time: " + time);
+            float time = (float) (System.currentTimeMillis() - startTime) / 1000;
+            LOGGER.info("Fetch mail time: " + time + " seconds");
         }
     }
 
@@ -124,7 +114,7 @@ public class ImapService {
         if (messageContent != null) {
             // required to prevent image tracking and js injection in our UI
             // if the sender did send something not parsed correctly, probably it is not important
-            email.setBody(Jsoup.clean(preserveNewLines(messageContent.toString()), Whitelist.relaxed()));
+            email.setBody(cleanHtml(messageContent.toString()));
         }
         email.setDate(sentDate);
         email.setSize((float) (msg.getSize()));
@@ -188,11 +178,8 @@ public class ImapService {
     }
 
     private boolean isAttachment(BodyPart bodyPart) throws MessagingException, IOException {
-        return bodyPart.getContentType().equals(BodyPart.ATTACHMENT) || bodyPart.getContent() instanceof BASE64DecoderStream;
-    }
-
-    private String preserveNewLines(String content) {
-        return content.replaceAll("\n", "<br />");
+        return bodyPart.getContentType().equals(BodyPart.ATTACHMENT)
+                || bodyPart.getContent() instanceof BASE64DecoderStream;
     }
 
     private Properties getServerProperties() {
@@ -203,6 +190,23 @@ public class ImapService {
         // SSL setting
         properties.setProperty(String.format("mail.%s.ssl.enable", protocol), imapConfig.getSsl().toString());
         return properties;
+    }
+
+    private Properties getSessionProperties(Properties properties) {
+        properties.setProperty("mail.store.protocol", "imap");
+        properties.setProperty("mail.imap.partialfetch", "true");
+        properties.setProperty("mail.imaps.partialfetch", "true");
+        properties.setProperty("mail.imap.fetchsize", "1000000");
+        return properties;
+    }
+
+    private Date getStartDate() {
+        try {
+            return df.parse(imapConfig.getStartDate());
+        } catch (ParseException e) {
+            LOGGER.error("Could not parse date, using 07/12/2016 as the start date ...");
+            return DEFAULT_START_DATE;
+        }
     }
 
     private String parseAddresses(Address[] addresses) {

@@ -71,14 +71,8 @@
                 order: [[2, 'desc']],
                 rowId: "id",
                 ajax: {
-                    url: '/rest/contacts',
-                    type: 'POST',
-                    data: function(d) {
-                        /*[+
-                         varName = [[${_csrf.parameterName}]];
-                         d[varName] = [[${_csrf.token}]]; +]*/
-                        /*[- */ d.csrfToken = "TOKEN"; /* -]*/
-                    }
+                    url: '/api/contacts',
+                    type: 'POST'
                 },
                 language: {
                     url: languageUrl

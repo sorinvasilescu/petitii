@@ -56,7 +56,7 @@
 <!-- Variables from backend -->
 <script th:inline="javascript">
 /*<![CDATA[*/
-    var restUrl = /*[[${restUrl}]]*/ '/rest/users';
+    var apiUrl = /*[[${apiUrl}]]*/ '/api/users';
 /*]]>*/
 </script>
 
@@ -74,14 +74,8 @@
             sDom: 'lrtip ',
             order: [[ 3, 'desc']],
             ajax: {
-                url: restUrl,
-                type: 'POST',
-                data: function(d) {
-                    /*[+
-                     varName = [[${_csrf.parameterName}]];
-                     d[varName] = [[${_csrf.token}]]; +]*/
-                    /*[- */ d.csrfToken = "TOKEN"; /* -]*/
-                }
+                url: apiUrl,
+                type: 'POST'
             },
             columns: [
                 {

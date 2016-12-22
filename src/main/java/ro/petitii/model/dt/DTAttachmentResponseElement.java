@@ -1,6 +1,6 @@
 package ro.petitii.model.dt;
 
-public class RestAttachmentResponseElement {
+public class DTAttachmentResponseElement {
     private Long id;
     private Long petitionId;
     private String origin;

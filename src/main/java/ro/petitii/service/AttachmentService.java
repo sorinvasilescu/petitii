@@ -4,7 +4,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.web.multipart.MultipartFile;
 import ro.petitii.model.Attachment;
 import ro.petitii.model.Petition;
-import ro.petitii.model.rest.RestAttachmentResponse;
+import ro.petitii.model.dt.DTAttachmentResponse;
 
 import java.util.List;
 
@@ -31,5 +31,5 @@ public interface AttachmentService {
     Attachment findById(Long id);
 
     // get attachment table content for a petition
-    RestAttachmentResponse getTableContent(Petition petition, int startIndex, int size, Sort.Direction sortDirection, String sortColumn);
+    DTAttachmentResponse getTableContent(Petition petition, int startIndex, int size, Sort.Direction sortDirection, String sortColumn);
 }

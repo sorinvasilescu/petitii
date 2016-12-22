@@ -1,6 +1,6 @@
 package ro.petitii.model.dt;
 
-public class RestCommentResponseElement {
+public class DTCommentResponseElement {
     private Long id;
     private Long petitionId;
     private String user;

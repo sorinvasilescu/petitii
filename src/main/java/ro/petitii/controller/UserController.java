@@ -20,8 +20,7 @@ import java.util.UUID;
 
 @Controller
 @PreAuthorize("hasAuthority('ADMIN')")
-public class UserController extends ControllerBase{
-
+public class UserController extends ControllerBase {
     @Autowired
     UserService userService;
 
@@ -33,9 +32,9 @@ public class UserController extends ControllerBase{
     @RequestMapping("/users")
     public ModelAndView users() {
         ModelAndView modelAndView = new ModelAndView("users_page");
-        modelAndView.addObject("page","inbox");
-        modelAndView.addObject("title","Useri");
-        modelAndView.addObject("restUrl","/rest/users");
+        modelAndView.addObject("page", "inbox");
+        modelAndView.addObject("title", "Useri");
+        modelAndView.addObject("apiUrl", "/api/users");
         return modelAndView;
     }
 
@@ -44,7 +43,7 @@ public class UserController extends ControllerBase{
         ModelAndView modelAndView = new ModelAndView("users_crud");
 
         User user = userService.findById(id);
-        modelAndView.addObject("user",user);
+        modelAndView.addObject("user", user);
 
         return modelAndView;
     }
@@ -60,14 +59,14 @@ public class UserController extends ControllerBase{
     }
 
     private void setNewPassword(User user) {
-        if(user.getChangePassword() && !StringUtils.isEmpty(user.getPassword())
+        if (user.getChangePassword() && !StringUtils.isEmpty(user.getPassword())
                 && !StringUtils.isEmpty(user.getPasswordCopy()) &&
                 user.getPassword().equals(user.getPasswordCopy())) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         } else if (user.getChangePassword()) throw
                 new RuntimeException("Password not provided");
-        if(!user.getChangePassword()) {
-            if(user.getId()==null) {
+        if (!user.getChangePassword()) {
+            if (user.getId() == null) {
                 //set some random temporary password
                 user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
             } else {
@@ -85,7 +84,7 @@ public class UserController extends ControllerBase{
         LOGGER.info(user.toString());
         userService.save(user);
 
-     return new ModelAndView("redirect:/users");
+        return new ModelAndView("redirect:/users");
     }
-    
+
 }

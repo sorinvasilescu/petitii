@@ -1,4 +1,4 @@
-package ro.petitii.controller.rest;
+package ro.petitii.controller.api;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,7 @@ public class UserRestController {
 
     @JsonView(DataTablesOutput.View.class)
 //    @PreAuthorize("hasRole('ADMIN')")
-    @RequestMapping(value = "/rest/users", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value = "/api/users", method = {RequestMethod.GET, RequestMethod.POST})
     public DataTablesOutput<User> getUsers(@Valid DataTablesInput input) {
         return userService.findAll(input);
     }

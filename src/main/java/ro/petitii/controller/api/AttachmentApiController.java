@@ -23,9 +23,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @Controller
-public class AttachmentRestController {
+public class AttachmentApiController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AttachmentRestController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AttachmentApiController.class);
 
     @Autowired
     private PetitionService petitionService;

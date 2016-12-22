@@ -15,7 +15,7 @@ import ro.petitii.model.Contact;
 import ro.petitii.service.ContactService;
 
 @RestController
-public class ContactRestController {  
+public class ContactApiController {
     @Autowired
     private ContactService contactService;
 

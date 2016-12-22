@@ -34,20 +34,20 @@ function customUpload(title, callback) {
         message:
             '<form id="upload-form">' +
                 '<span class="btn btn-default btn-file">' +
-                    'Browse<input id="files" type="file" multiple="multiple" onchange="onInputChange()"/>' +
+                    'Selectează<input id="files" type="file" multiple="multiple" onchange="onInputChange()"/>' +
                 '</span>' +
                 '<span id="selection"></span>' +
             '</form>',
         buttons: {
             upload: {
-                label: 'Incarca',
+                label: 'Încarcă',
                 className: 'btn-success',
                 callback: function() {
                     callback($('#files')[0].files);
                 }
             },
             cancel: {
-                label: 'Anuleaza',
+                label: 'Anulează',
                 className: 'btn-default'
             }
         }

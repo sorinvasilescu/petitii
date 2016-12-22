@@ -5,7 +5,7 @@ import ro.petitii.model.Email;
 import ro.petitii.model.Petition;
 import ro.petitii.model.PetitionStatus;
 import ro.petitii.model.User;
-import ro.petitii.model.rest.RestPetitionResponse;
+import ro.petitii.model.dt.DTPetitionResponse;
 
 import java.util.List;
 
@@ -31,6 +31,6 @@ public interface PetitionService {
 
     List<Petition> findAll(int startIndex, int size, Sort.Direction sortDirection, String sortColumn);
 
-    RestPetitionResponse getTableContent(User user, PetitionStatus.Status status,
-                                         int startIndex, int size, Sort.Direction sortDirection, String sortColumn);
+    DTPetitionResponse getTableContent(User user, PetitionStatus.Status status,
+                                       int startIndex, int size, Sort.Direction sortDirection, String sortColumn);
 }

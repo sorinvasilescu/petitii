@@ -6,8 +6,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ro.petitii.model.Comment;
 import ro.petitii.model.Petition;
-import ro.petitii.model.rest.RestCommentResponse;
-import ro.petitii.model.rest.RestCommentResponseElement;
+import ro.petitii.model.dt.DTCommentResponse;
+import ro.petitii.model.dt.DTCommentResponseElement;
 import ro.petitii.repository.CommentRepository;
 
 import javax.inject.Inject;
@@ -37,14 +37,14 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public RestCommentResponse getTableContent(Petition petition, int startIndex, int size,
-                                               Sort.Direction sortDirection, String sortColumn) {
+    public DTCommentResponse getTableContent(Petition petition, int startIndex, int size,
+                                             Sort.Direction sortDirection, String sortColumn) {
         PageRequest p = new PageRequest(startIndex / size, size, sortDirection, sortColumn);
         Page<Comment> comments = commentRepository.findByPetitionId(petition.getId(), p);
 
-        List<RestCommentResponseElement> data = new LinkedList<>();
+        List<DTCommentResponseElement> data = new LinkedList<>();
         for (Comment e : comments.getContent()) {
-            RestCommentResponseElement re = new RestCommentResponseElement();
+            DTCommentResponseElement re = new DTCommentResponseElement();
             re.setId(e.getId());
             re.setComment(e.getComment());
             re.setPetitionId(e.getPetition().getId());
@@ -52,7 +52,7 @@ public class CommentServiceImpl implements CommentService {
             re.setDate(df.format(e.getDate()));
             data.add(re);
         }
-        RestCommentResponse response = new RestCommentResponse();
+        DTCommentResponse response = new DTCommentResponse();
         response.setData(data);
         Long count = commentRepository.countByPetitionId(petition.getId());
         response.setRecordsFiltered(count);

@@ -7,8 +7,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ro.petitii.model.Email;
 import ro.petitii.model.Attachment;
-import ro.petitii.model.rest.RestEmailResponse;
-import ro.petitii.model.rest.RestEmailResponseElement;
+import ro.petitii.model.dt.DTEmailResponse;
+import ro.petitii.model.dt.DTEmailResponseElement;
 import ro.petitii.repository.EmailRepository;
 
 import javax.persistence.EntityManager;
@@ -86,12 +86,12 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public RestEmailResponse getTableContent(Email.EmailType type, int startIndex, int size, Sort.Direction sortDirection, String sortColumn) {
+    public DTEmailResponse getTableContent(Email.EmailType type, int startIndex, int size, Sort.Direction sortDirection, String sortColumn) {
         List<Email> result = this.findAllByType(type, startIndex, size, sortDirection, sortColumn);
-        List<RestEmailResponseElement> data = new ArrayList<>();
+        List<DTEmailResponseElement> data = new ArrayList<>();
         SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         for (Email e : result) {
-            RestEmailResponseElement re = new RestEmailResponseElement();
+            DTEmailResponseElement re = new DTEmailResponseElement();
             re.setId(e.getId());
             re.setSender(e.getSender());
             re.setSubject(e.getSubject());
@@ -99,7 +99,7 @@ public class EmailServiceImpl implements EmailService {
             if (e.getPetition() != null) re.setPetition_id(e.getPetition().getId());
             data.add(re);
         }
-        RestEmailResponse response = new RestEmailResponse();
+        DTEmailResponse response = new DTEmailResponse();
         response.setData(data);
         Long count = this.count(type);
         response.setRecordsFiltered(count);

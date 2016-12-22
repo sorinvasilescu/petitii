@@ -57,8 +57,8 @@ public class PetitionController extends ControllerBase {
         Petition petition = petitionService.findById(id);
         modelAndView.addObject("petition", petition);
         modelAndView.addObject("user_list", userService.getAllUsers());
-        modelAndView.addObject("commentsRestUrl", "/rest/petitions/" + petition.getId() + "/comments");
-        modelAndView.addObject("attachmentRestUrl", "/rest/petitions/" + petition.getId() + "/attachments");
+        modelAndView.addObject("commentsApiUrl", "/api/petitions/" + petition.getId() + "/comments");
+        modelAndView.addObject("attachmentApiUrl", "/api/petitions/" + petition.getId() + "/attachments");
 
         return modelAndView;
     }
@@ -95,14 +95,14 @@ public class PetitionController extends ControllerBase {
     @RequestMapping("/petitions")
     public ModelAndView listUserPetitions() {
         ModelAndView modelAndView = new ModelAndView("petitions_list");
-        modelAndView.addObject("restUrl", "/rest/petitions/user");
+        modelAndView.addObject("apiUrl", "/api/petitions/user");
         return modelAndView;
     }
 
     @RequestMapping("/petitions/all")
     public ModelAndView listAllPetitions() {
         ModelAndView modelAndView = new ModelAndView("petitions_list");
-        modelAndView.addObject("restUrl", "/rest/petitions/all");
+        modelAndView.addObject("apiUrl", "/api/petitions/all");
         return modelAndView;
     }
 
