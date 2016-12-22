@@ -5,7 +5,7 @@ import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.web.multipart.MultipartFile;
 import ro.petitii.model.Attachment;
 import ro.petitii.model.Petition;
-import ro.petitii.model.dt.DTAttachmentResponseElement;
+import ro.petitii.model.datatables.AttachmentResponse;
 
 import java.util.List;
 
@@ -32,5 +32,5 @@ public interface AttachmentService {
     Attachment findById(Long id);
 
     // get attachment table content for a petition
-    DataTablesOutput<DTAttachmentResponseElement> getTableContent(Petition petition, int startIndex, int size, Sort.Direction sortDirection, String sortColumn);
+    DataTablesOutput<AttachmentResponse> getTableContent(Petition petition, int startIndex, int size, Sort.Direction sortDirection, String sortColumn);
 }

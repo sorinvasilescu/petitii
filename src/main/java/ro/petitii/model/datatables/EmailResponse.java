@@ -1,13 +1,13 @@
-package ro.petitii.model.dt;
+package ro.petitii.model.datatables;
 
-public class DTEmailResponseElement {
+public class EmailResponse {
     private Long id;
     private String sender;
     private String subject;
     private String date;
     private Long petition_id;
 
-    public DTEmailResponseElement() {}
+    public EmailResponse() {}
 
     public Long getId() {
         return id;

@@ -7,7 +7,7 @@ import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.stereotype.Service;
 import ro.petitii.model.Comment;
 import ro.petitii.model.Petition;
-import ro.petitii.model.dt.DTCommentResponseElement;
+import ro.petitii.model.datatables.CommentResponse;
 import ro.petitii.repository.CommentRepository;
 
 import javax.inject.Inject;
@@ -37,13 +37,13 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public DataTablesOutput<DTCommentResponseElement> getTableContent(Petition petition, int startIndex, int size, Sort.Direction sortDirection, String sortColumn) {
+    public DataTablesOutput<CommentResponse> getTableContent(Petition petition, int startIndex, int size, Sort.Direction sortDirection, String sortColumn) {
         PageRequest p = new PageRequest(startIndex / size, size, sortDirection, sortColumn);
         Page<Comment> comments = commentRepository.findByPetitionId(petition.getId(), p);
 
-        List<DTCommentResponseElement> data = new LinkedList<>();
+        List<CommentResponse> data = new LinkedList<>();
         for (Comment e : comments.getContent()) {
-            DTCommentResponseElement re = new DTCommentResponseElement();
+            CommentResponse re = new CommentResponse();
             re.setId(e.getId());
             re.setComment(e.getComment());
             re.setPetitionId(e.getPetition().getId());
@@ -51,7 +51,7 @@ public class CommentServiceImpl implements CommentService {
             re.setDate(df.format(e.getDate()));
             data.add(re);
         }
-        DataTablesOutput<DTCommentResponseElement> response = new DataTablesOutput<>();
+        DataTablesOutput<CommentResponse> response = new DataTablesOutput<>();
         response.setData(data);
         Long count = commentRepository.countByPetitionId(petition.getId());
         response.setRecordsFiltered(count);

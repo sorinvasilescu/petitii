@@ -1,6 +1,6 @@
-package ro.petitii.model.dt;
+package ro.petitii.model.datatables;
 
-public class DTPetitionResponseElement {
+public class PetitionResponse {
     private Long id;
     private String regNo;
     private String petitionerName;

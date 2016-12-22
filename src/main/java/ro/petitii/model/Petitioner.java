@@ -164,7 +164,13 @@ public class Petitioner {
         hb.append(firstName)
           .append(lastName)
           .append(organization)
+          .append(entity_type)
           .append(email)
+          .append(phone)
+          .append(country)
+          .append(county)
+          .append(city)
+          .append(address)
           .append(title);
         return hb.toHashCode();
     }
@@ -178,7 +184,13 @@ public class Petitioner {
         eb.append(firstName, p.firstName)
           .append(lastName, p.lastName)
           .append(organization, p.organization)
+          .append(entity_type, p.entity_type)
           .append(email, p.email)
+          .append(phone, p.phone)
+          .append(country, p.country)
+          .append(county, p.county)
+          .append(city, p.city)
+          .append(address, p.address)
           .append(title, p.title);
         return eb.isEquals();
     }
