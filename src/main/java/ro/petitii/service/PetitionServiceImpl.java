@@ -7,12 +7,12 @@ import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import ro.petitii.config.DefaultsConfig;
 import ro.petitii.model.*;
-import ro.petitii.model.dt.DTPetitionResponse;
 import ro.petitii.model.dt.DTPetitionResponseElement;
 import ro.petitii.repository.PetitionRepository;
 import ro.petitii.service.email.ImapService;
@@ -194,8 +194,8 @@ public class PetitionServiceImpl implements PetitionService {
     }
 
     @Override
-    public DTPetitionResponse getTableContent(User user, PetitionStatus.Status status, int startIndex, int size,
-                                              Sort.Direction sortDirection, String sortColumn) {
+    public DataTablesOutput<DTPetitionResponseElement> getTableContent(User user, PetitionStatus.Status status, int startIndex, int size,
+                                            Sort.Direction sortDirection, String sortColumn) {
         List<Petition> petitions;
         if (user != null) {
             if (status == null) {
@@ -210,7 +210,7 @@ public class PetitionServiceImpl implements PetitionService {
                 petitions = this.findByStatus(status, startIndex, size, sortDirection, sortColumn);
             }
         }
-        DTPetitionResponse response = new DTPetitionResponse();
+        DataTablesOutput<DTPetitionResponseElement> response = new DataTablesOutput<>();
         List<DTPetitionResponseElement> data = new ArrayList<>();
         for (Petition petition : petitions) {
             DTPetitionResponseElement element = new DTPetitionResponseElement();

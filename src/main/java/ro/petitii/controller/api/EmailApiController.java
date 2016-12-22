@@ -6,12 +6,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
+import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import ro.petitii.model.Attachment;
 import ro.petitii.model.Email;
-import ro.petitii.model.dt.DTEmailResponse;
+import ro.petitii.model.dt.DTEmailResponseElement;
 import ro.petitii.service.EmailService;
 import ro.petitii.service.email.ImapService;
 import ro.petitii.util.Pair;
@@ -42,26 +43,26 @@ public class EmailApiController {
 
     @RequestMapping(value = "/api/emails", method = RequestMethod.POST)
     @ResponseBody
-    public DTEmailResponse getInbox(@Valid DataTablesInput input) {
+    public DataTablesOutput<DTEmailResponseElement> getInbox(@Valid DataTablesInput input) {
         int sequenceNo = input.getDraw();
         String sortColumn = input.getColumns().get(input.getOrder().get(0).getColumn()).getName();
         Sort.Direction sortDirection = null;
         if (input.getOrder().get(0).getDir().equals("asc")) sortDirection = Sort.Direction.ASC;
         else if (input.getOrder().get(0).getDir().equals("desc")) sortDirection = Sort.Direction.DESC;
-        DTEmailResponse response = emailService.getTableContent(Email.EmailType.Inbox, input.getStart(), input.getLength(), sortDirection, sortColumn);
+        DataTablesOutput<DTEmailResponseElement> response = emailService.getTableContent(Email.EmailType.Inbox, input.getStart(), input.getLength(), sortDirection, sortColumn);
         response.setDraw(sequenceNo);
         return response;
     }
 
     @RequestMapping(value = "/api/spam", method = RequestMethod.POST)
     @ResponseBody
-    public DTEmailResponse getSpam(@Valid DataTablesInput input) {
+    public DataTablesOutput<DTEmailResponseElement> getSpam(@Valid DataTablesInput input) {
         int sequenceNo = input.getDraw();
         String sortColumn = input.getColumns().get(input.getOrder().get(0).getColumn()).getName();
         Sort.Direction sortDirection = null;
         if (input.getOrder().get(0).getDir().equals("asc")) sortDirection = Sort.Direction.ASC;
         else if (input.getOrder().get(0).getDir().equals("desc")) sortDirection = Sort.Direction.DESC;
-        DTEmailResponse response = emailService.getTableContent(Email.EmailType.Spam, input.getStart(), input.getLength(), sortDirection, sortColumn);
+        DataTablesOutput<DTEmailResponseElement> response = emailService.getTableContent(Email.EmailType.Spam, input.getStart(), input.getLength(), sortDirection, sortColumn);
         response.setDraw(sequenceNo);
         return response;
     }
