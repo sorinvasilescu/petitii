@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,6 @@ import ro.petitii.config.EmailAttachmentConfig;
 import ro.petitii.model.Attachment;
 import ro.petitii.model.Petition;
 import ro.petitii.model.User;
-import ro.petitii.model.dt.DTAttachmentResponse;
 import ro.petitii.model.dt.DTAttachmentResponseElement;
 import ro.petitii.repository.AttachmentRepository;
 
@@ -164,7 +164,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
 
     @Override
-    public DTAttachmentResponse getTableContent(Petition petition, int startIndex, int size, Sort.Direction sortDirection, String sortColumn) {
+    public DataTablesOutput<DTAttachmentResponseElement> getTableContent(Petition petition, int startIndex, int size, Sort.Direction sortDirection, String sortColumn) {
         if (Objects.equals(sortColumn, "origin")) {
             sortColumn = "email";
         }
@@ -186,7 +186,7 @@ public class AttachmentServiceImpl implements AttachmentService {
             re.setDate(df.format(e.getDate()));
             data.add(re);
         }
-        DTAttachmentResponse response = new DTAttachmentResponse();
+        DataTablesOutput<DTAttachmentResponseElement> response = new DataTablesOutput<>();
         response.setData(data);
         Long count = attachmentRepository.countByPetitionId(petition.getId());
         response.setRecordsFiltered(count);

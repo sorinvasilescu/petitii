@@ -3,10 +3,10 @@ package ro.petitii.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.stereotype.Service;
 import ro.petitii.model.Comment;
 import ro.petitii.model.Petition;
-import ro.petitii.model.dt.DTCommentResponse;
 import ro.petitii.model.dt.DTCommentResponseElement;
 import ro.petitii.repository.CommentRepository;
 
@@ -37,8 +37,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public DTCommentResponse getTableContent(Petition petition, int startIndex, int size,
-                                             Sort.Direction sortDirection, String sortColumn) {
+    public DataTablesOutput<DTCommentResponseElement> getTableContent(Petition petition, int startIndex, int size, Sort.Direction sortDirection, String sortColumn) {
         PageRequest p = new PageRequest(startIndex / size, size, sortDirection, sortColumn);
         Page<Comment> comments = commentRepository.findByPetitionId(petition.getId(), p);
 
@@ -52,7 +51,7 @@ public class CommentServiceImpl implements CommentService {
             re.setDate(df.format(e.getDate()));
             data.add(re);
         }
-        DTCommentResponse response = new DTCommentResponse();
+        DataTablesOutput<DTCommentResponseElement> response = new DataTablesOutput<>();
         response.setData(data);
         Long count = commentRepository.countByPetitionId(petition.getId());
         response.setRecordsFiltered(count);

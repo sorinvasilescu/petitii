@@ -4,10 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.stereotype.Service;
 import ro.petitii.model.Email;
 import ro.petitii.model.Attachment;
-import ro.petitii.model.dt.DTEmailResponse;
 import ro.petitii.model.dt.DTEmailResponseElement;
 import ro.petitii.repository.EmailRepository;
 
@@ -86,7 +86,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public DTEmailResponse getTableContent(Email.EmailType type, int startIndex, int size, Sort.Direction sortDirection, String sortColumn) {
+    public DataTablesOutput<DTEmailResponseElement> getTableContent(Email.EmailType type, int startIndex, int size, Sort.Direction sortDirection, String sortColumn) {
         List<Email> result = this.findAllByType(type, startIndex, size, sortDirection, sortColumn);
         List<DTEmailResponseElement> data = new ArrayList<>();
         SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
@@ -99,7 +99,7 @@ public class EmailServiceImpl implements EmailService {
             if (e.getPetition() != null) re.setPetition_id(e.getPetition().getId());
             data.add(re);
         }
-        DTEmailResponse response = new DTEmailResponse();
+        DataTablesOutput<DTEmailResponseElement> response = new DataTablesOutput<>();
         response.setData(data);
         Long count = this.count(type);
         response.setRecordsFiltered(count);
