@@ -77,7 +77,7 @@
 <!-- Variables from backend -->
 <script th:inline="javascript">
     /*<![CDATA[*/
-    var restUrl = /*[[${restUrl}]]*/ '/rest/emails';
+    var apiUrl = /*[[${apiUrl}]]*/ '/api/emails';
     /*]]>*/
 </script>
 
@@ -99,14 +99,8 @@
             rowId: "id",
             order: [[3, 'desc']],
             ajax: {
-                url: restUrl,
-                type: 'POST',
-                data: function(d) {
-                    /*[+
-                    varName = [[${_csrf.parameterName}]];
-                    d[varName] = [[${_csrf.token}]]; +]*/
-                    /*[- */ d.csrfToken = "TOKEN"; /* -]*/
-                }
+                url: apiUrl,
+                type: 'POST'
             },
             language: {
                 url: languageUrl,
@@ -216,11 +210,8 @@
         $(e.target).attr('data-loading-text', '<i class="fa fa-circle-o-notch fa-spin"></i> Se incarca');
         $(e.target).button('loading');
         $.ajax({
-            url: "/rest/refresh",
-            method: 'post',
-            data: {
-                /*[[${_csrf.parameterName}]]: [[${_csrf.token}]]*/
-            }
+            url: "/api/refresh",
+            method: 'POST'
         }).done(function (data) {
             //console.log('success');
             if (data.success == 'true') {

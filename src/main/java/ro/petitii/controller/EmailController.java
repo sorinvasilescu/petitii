@@ -40,7 +40,7 @@ public class  EmailController extends ControllerBase {
         modelAndView.addObject("page", "inbox");
         modelAndView.addObject("title", "Email-uri primite");
         modelAndView.addObject("email", config.getUsername());
-        modelAndView.addObject("restUrl", "/rest/emails");
+        modelAndView.addObject("apiUrl", "/api/emails");
         //modelAndView.addObject("toast",this.createToast("Lorem ipsum sit amet dolor",ToastType.info));
 
         return modelAndView;
@@ -52,7 +52,7 @@ public class  EmailController extends ControllerBase {
         modelAndView.addObject("page", "spam");
         modelAndView.addObject("title", "Spam");
         modelAndView.addObject("email", config.getUsername());
-        modelAndView.addObject("restUrl", "/rest/spam");
+        modelAndView.addObject("apiUrl", "/api/spam");
         return modelAndView;
     }
 

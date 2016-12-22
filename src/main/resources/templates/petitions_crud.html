@@ -5,8 +5,8 @@
 
 <!--/*@thymesVar id="petition" type="ro.petitii.model.Petition"*/-->
 <!--/*@thymesVar id="user_list" type="java.util.List<ro.petitii.model.User>"*/-->
-<!--/*@thymesVar id="commentRestUrl" type="java.lang.String"*/-->
-<!--/*@thymesVar id="attachmentRestUrl" type="java.lang.String"*/-->
+<!--/*@thymesVar id="commentsApiUrl" type="java.lang.String"*/-->
+<!--/*@thymesVar id="attachmentApiUrl" type="java.lang.String"*/-->
 
 <body class="nav-md">
     <div class="container body">
@@ -468,7 +468,7 @@
                                     </div>
                                 </div>
                                 <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="profile-tab">
-                                    <div th:if="${attachmentRestUrl} != null">
+                                    <div th:if="${attachmentApiUrl} != null">
                                         <button type="button" class="btn btn-default btn-md pull-right"
                                                 id="downloadAttachments">
                                             <i class="fa fa-paperclip"></i> Salvează toate atașamentele
@@ -486,7 +486,7 @@
                                                cellspacing="0" width="100%">
                                         </table>
                                     </div>
-                                    <div th:if="${attachmentRestUrl} == null">
+                                    <div th:if="${attachmentApiUrl} == null">
                                         <h2>Salvați petiția pentru a putea adăuga ataşamente ...</h2>
                                     </div>
                                 </div>
@@ -536,7 +536,7 @@
                                     </table>
                                 </div>
                                 <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="profile-tab">
-                                    <div th:if="${commentsRestUrl} != null">
+                                    <div th:if="${commentsApiUrl} != null">
                                         <button type="button" class="btn btn-default btn-md pull-right"
                                                 id="removeComment">
                                             <i class="fa fa-trash-o"></i> Șterge observație
@@ -550,7 +550,7 @@
                                                cellspacing="0" width="100%">
                                         </table>
                                     </div>
-                                    <div th:if="${commentsRestUrl} == null">
+                                    <div th:if="${commentsApiUrl} == null">
                                         <h2>Salvați petiția pentru a putea adăuga comentarii ...</h2>
                                     </div>
                                 </div>
@@ -614,11 +614,11 @@
     </script>
 
     <!-- Comments -->
-    <script th:if="${commentsRestUrl} != null" th:inline="javascript" type="application/javascript">
+    <script th:if="${commentsApiUrl} != null" th:inline="javascript" type="application/javascript">
         $(document).ready(function() {
             /*<![CDATA[*/
             var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
-            var commentsRestUrl = /*[[${commentsRestUrl}]]*/ '/rest/petitions/{id}/comments';
+            var commentsApiUrl = /*[[${commentsApiUrl}]]*/ '/api/petitions/{id}/comments';
             var pid = /*[[${petition.id}]]*/ '#';
             /*]]>*/
 
@@ -632,14 +632,8 @@
                 rowId: "id",
                 order: [[3, 'desc']],
                 ajax: {
-                    url: commentsRestUrl,
-                    type: 'POST',
-                    data: function(d) {
-                        /*[+
-                         varName = [[${_csrf.parameterName}]];
-                         d[varName] = [[${_csrf.token}]]; +]*/
-                        /*[- */ d.csrfToken = "TOKEN"; /* -]*/
-                    }
+                    url: commentsApiUrl,
+                    type: 'POST'
                 },
                 language: {
                     url: languageUrl,
@@ -672,22 +666,12 @@
 
             $('#addComment').click(function () {
                 customInput("Adaugă observație", function (result) {
-                    /*<![CDATA[*/
-                    var csrfLabel = /*[[${_csrf.headerName}]]*/ null;
-                    var csrfValue = /*[[${_csrf.token}]]*/ null;
-                    var headers = {};
-                    headers[csrfLabel] = csrfValue;
-                    /*]]>*/
-
                     $.ajax({
-                        url: "/rest/petitions/" + pid + "/comments/add",
+                        url: "/api/petitions/" + pid + "/comment/add",
                         method: 'POST',
-                        headers: headers,
-                        contentType: "application/json",
+                        contentType: 'text/plain',
                         processData: false,
-                        data: JSON.stringify({
-                            comment: result
-                        })
+                        data: result
                     }).done(function (data) {
                         observationsTable.ajax.reload();
                     }).fail(function (reason) {
@@ -701,18 +685,9 @@
                 if (selectedRows.length != 1) {
                     this.blur()
                 } else {
-                    /*<![CDATA[*/
-                    var csrfLabel = /*[[${_csrf.headerName}]]*/ null;
-                    var csrfValue = /*[[${_csrf.token}]]*/ null;
-                    var headers = {};
-                    headers[csrfLabel] = csrfValue;
-                    /*]]>*/
-
                     $.ajax({
-                        url: "/rest/petitions/" + pid + "/comments/" + selectedRows[0].id + "/delete",
+                        url: "/api/petitions/" + pid + "/comment/" + selectedRows[0].id + "/delete",
                         method: 'POST',
-                        headers: headers,
-                        contentType: "application/json",
                         processData: false
                     }).done(function (data) {
                         observationsTable.ajax.reload();
@@ -725,11 +700,11 @@
     </script>
 
     <!-- attachments -->
-    <script th:if="${attachmentRestUrl} != null" th:inline="javascript" type="application/javascript">
+    <script th:if="${attachmentApiUrl} != null" th:inline="javascript" type="application/javascript">
         $(document).ready(function() {
             /*<![CDATA[*/
             var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
-            var attachmentsRestUrl = /*[[${attachmentRestUrl}]]*/ '/rest/petitions/{id}/attachments/';
+            var attachmentsApiUrl = /*[[${attachmentApiUrl}]]*/ '/api/petitions/{id}/attachments/';
             var pid = /*[[${petition.id}]]*/ '#';
             /*]]>*/
 
@@ -743,14 +718,8 @@
                 rowId: "id",
                 order: [[3, 'desc']],
                 ajax: {
-                    url: attachmentsRestUrl,
-                    type: 'POST',
-                    data: function(d) {
-                        /*[+
-                         varName = [[${_csrf.parameterName}]];
-                         d[varName] = [[${_csrf.token}]]; +]*/
-                        /*[- */ d.csrfToken = "TOKEN"; /* -]*/
-                    }
+                    url: attachmentsApiUrl,
+                    type: 'POST'
                 },
                 language: {
                     url: languageUrl,
@@ -785,7 +754,7 @@
                         title: '',
                         render: function (data, type, full, meta) {
                             if (data != null) {
-                                return '<a href="/rest/attachments/download/' + data.id + '"><i class="fa fa-paperclip"></i> Salvează</a>';
+                                return '<a href="/api/attachments/download/' + data.id + '"><i class="fa fa-paperclip"></i> Salvează</a>';
                             } else {
                                 return '';
                             }
@@ -797,32 +766,25 @@
             selectActions(attachmentTable);
 
             $('#downloadAttachments').click(function () {
-                window.location.href = '/rest/petitions/' +  pid + '/attachments/zip';
+                window.location.href = '/api/petitions/' +  pid + '/attachments/zip';
             });
 
             $('#addAttachment').click(function () {
-                /*<![CDATA[*/
-                var csrfLabel = /*[[${_csrf.headerName}]]*/ null;
-                var csrfValue = /*[[${_csrf.token}]]*/ null;
-                var headers = {};
-                headers[csrfLabel] = csrfValue;
-                /*]]>*/
-                customUpload('Incarca fisier', function (files) {
+                customUpload('Încarcă fișier', function (files) {
                     var data = new FormData();
-                    $.each(files, function(i,file){
+                    $.each(files, function (i, file) {
                         data.append('files', file);
                     });
                     $.ajax({
-                        url: '/rest/petitions/' + pid + '/attachments/add',
+                        url: '/api/petitions/' + pid + '/attachment/add',
                         method: 'post',
                         data: data,
-                        header: headers,
                         contentType: false,
                         processData: false
                     }).done(function (data) {
-                            attachmentTable.ajax.reload();
+                        attachmentTable.ajax.reload();
                     }).fail(function (reason) {
-                            console.log('Could not upload file: ' + reason);
+                        console.log('Could not upload file: ' + reason);
                     });
                 });
             });
@@ -834,17 +796,9 @@
                 } else {
                     customAlert("Sunteți sigur că doriți ștergerea atașamentului?", function (result) {
                         if (result) {
-                            /*<![CDATA[*/
-                            var csrfLabel = /*[[${_csrf.headerName}]]*/ null;
-                            var csrfValue = /*[[${_csrf.token}]]*/ null;
-                            var headers = {};
-                            headers[csrfLabel] = csrfValue;
-                            /*]]>*/
-
                             $.ajax({
-                                url: "/rest/petitions/" + pid + "/attachments/" + selectedRows[0].id + "/delete/",
-                                method: 'POST',
-                                headers: headers
+                                url: "/api/petitions/" + pid + "/attachment/" + selectedRows[0].id + "/delete/",
+                                method: 'POST'
                             }).done(function (data) {
                                 attachmentTable.ajax.reload();
                             }).fail(function (reason) {

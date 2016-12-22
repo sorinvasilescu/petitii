@@ -1,13 +1,13 @@
-package ro.petitii.model.rest;
+package ro.petitii.model.dt;
 
-public class RestEmailResponseElement {
+public class DTEmailResponseElement {
     private Long id;
     private String sender;
     private String subject;
     private String date;
     private Long petition_id;
 
-    public RestEmailResponseElement() {}
+    public DTEmailResponseElement() {}
 
     public Long getId() {
         return id;

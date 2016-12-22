@@ -18,22 +18,22 @@ function markAs(clickEvent, msgId, actionType, message) {
     customAlert(message, function (result) {
         if (result) {
             /*<![CDATA[*/
-            var actionUrl = "/rest/markAs/?type=" + actionType + "&id=" + msgId;
+            var actionUrl = "/api/markAs/" + actionType + "/" + msgId;
             /*]]>*/
+
+            console.log("mark as: " + actionUrl);
 
             $(clickEvent.target).attr('data-loading-text', '<i class="fa fa-circle-o-notch fa-spin"></i> Se incarca');
             $(clickEvent.target).button('loading');
             $.ajax({
                 url: actionUrl,
-                method: 'get',
-                data: {
-                    /*[[${_csrf.parameterName}]]: [[${_csrf.token}]]*/
-                }
+                method: 'POST'
             }).done(function () {
                 location.reload();
                 $(clickEvent.target).button('reset');
-            }).fail(function () {
-                //console.log('failed');
+            }).fail(function (e) {
+                console.log("Action failed: ");
+                console.log(e);
                 $(clickEvent.target).button('reset');
             });
         }

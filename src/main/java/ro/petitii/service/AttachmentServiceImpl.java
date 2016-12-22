@@ -15,8 +15,8 @@ import ro.petitii.config.EmailAttachmentConfig;
 import ro.petitii.model.Attachment;
 import ro.petitii.model.Petition;
 import ro.petitii.model.User;
-import ro.petitii.model.rest.RestAttachmentResponse;
-import ro.petitii.model.rest.RestAttachmentResponseElement;
+import ro.petitii.model.dt.DTAttachmentResponse;
+import ro.petitii.model.dt.DTAttachmentResponseElement;
 import ro.petitii.repository.AttachmentRepository;
 
 import javax.mail.BodyPart;
@@ -164,7 +164,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
 
     @Override
-    public RestAttachmentResponse getTableContent(Petition petition, int startIndex, int size, Sort.Direction sortDirection, String sortColumn) {
+    public DTAttachmentResponse getTableContent(Petition petition, int startIndex, int size, Sort.Direction sortDirection, String sortColumn) {
         if (Objects.equals(sortColumn, "origin")) {
             sortColumn = "email";
         }
@@ -172,9 +172,9 @@ public class AttachmentServiceImpl implements AttachmentService {
         PageRequest p = new PageRequest(startIndex / size, size, sortDirection, sortColumn);
         Page<Attachment> attachments = attachmentRepository.findByPetitionId(petition.getId(), p);
 
-        List<RestAttachmentResponseElement> data = new LinkedList<>();
+        List<DTAttachmentResponseElement> data = new LinkedList<>();
         for (Attachment e : attachments.getContent()) {
-            RestAttachmentResponseElement re = new RestAttachmentResponseElement();
+            DTAttachmentResponseElement re = new DTAttachmentResponseElement();
             re.setId(e.getId());
             re.setPetitionId(e.getPetition().getId());
             re.setFilename(e.getOriginalFilename());
@@ -186,7 +186,7 @@ public class AttachmentServiceImpl implements AttachmentService {
             re.setDate(df.format(e.getDate()));
             data.add(re);
         }
-        RestAttachmentResponse response = new RestAttachmentResponse();
+        DTAttachmentResponse response = new DTAttachmentResponse();
         response.setData(data);
         Long count = attachmentRepository.countByPetitionId(petition.getId());
         response.setRecordsFiltered(count);

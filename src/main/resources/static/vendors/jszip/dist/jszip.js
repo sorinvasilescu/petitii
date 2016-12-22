@@ -1870,7 +1870,7 @@ var buf2string = function (buf) {
 
         // apply mask on first byte
         c &= c_len === 2 ? 0x1f : c_len === 3 ? 0x0f : 0x07;
-        // join the rest
+        // join the dt
         while (c_len > 1 && i < len) {
             c = (c << 6) | (buf[i++] & 0x3f);
             c_len--;
@@ -3941,7 +3941,7 @@ exports.buf2string = function (buf, max) {
 
     // apply mask on first byte
     c &= c_len === 2 ? 0x1f : c_len === 3 ? 0x0f : 0x07;
-    // join the rest
+    // join the dt
     while (c_len > 1 && i < len) {
       c = (c << 6) | (buf[i++] & 0x3f);
       c_len--;
@@ -5829,7 +5829,7 @@ function deflate(strm, flush) {
 
   flush_pending(strm);
   /* If avail_out is zero, the application will call deflate again
-   * to flush the rest.
+   * to flush the dt.
    */
   if (s.wrap > 0) { s.wrap = -s.wrap; }
   /* write the trailer only once! */
@@ -6144,7 +6144,7 @@ module.exports = function inflate_fast(strm, start) {
                   do {
                     output[_out++] = s_window[from++];
                   } while (--op);
-                  from = _out - dist;  /* rest from output */
+                  from = _out - dist;  /* dt from output */
                   from_source = output;
                 }
               }
@@ -6163,7 +6163,7 @@ module.exports = function inflate_fast(strm, start) {
                     do {
                       output[_out++] = s_window[from++];
                     } while (--op);
-                    from = _out - dist;      /* rest from output */
+                    from = _out - dist;      /* dt from output */
                     from_source = output;
                   }
                 }
@@ -6175,7 +6175,7 @@ module.exports = function inflate_fast(strm, start) {
                   do {
                     output[_out++] = s_window[from++];
                   } while (--op);
-                  from = _out - dist;  /* rest from output */
+                  from = _out - dist;  /* dt from output */
                   from_source = output;
                 }
               }
@@ -6484,7 +6484,7 @@ function inflateReset2(strm, windowBits) {
     state.window = null;
   }
 
-  /* update state and reset the rest of it */
+  /* update state and reset the dt of it */
   state.wrap = wrap;
   state.wbits = windowBits;
   return inflateReset(strm);
@@ -7951,7 +7951,7 @@ module.exports = function inflate_table(type, lens, lens_index, codes, table, ta
    sym increments through all symbols, and the loop terminates when
    all codes of length max, i.e. all codes, have been processed.  This
    routine permits incomplete codes, so another loop after this one fills
-   in the rest of the decoding tables with invalid code markers.
+   in the dt of the decoding tables with invalid code markers.
    */
 
   /* set up for code type */

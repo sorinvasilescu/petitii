@@ -140,7 +140,7 @@ jQuery.fn = jQuery.prototype = {
 					doc = ( context ? context.ownerDocument || context : document );
 
 					// If a single string is passed in and it's a single tag
-					// just do a createElement and skip the rest
+					// just do a createElement and skip the dt
 					ret = rsingleTag.exec( selector );
 
 					if ( ret ) {

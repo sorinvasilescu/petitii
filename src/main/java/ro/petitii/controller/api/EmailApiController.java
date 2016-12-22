@@ -1,4 +1,4 @@
-package ro.petitii.controller.rest;
+package ro.petitii.controller.api;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import ro.petitii.model.Attachment;
 import ro.petitii.model.Email;
-import ro.petitii.model.rest.RestEmailResponse;
+import ro.petitii.model.dt.DTEmailResponse;
 import ro.petitii.service.EmailService;
 import ro.petitii.service.email.ImapService;
 import ro.petitii.util.Pair;
@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-public class EmailRestController {
+public class EmailApiController {
     @Autowired
     EmailService emailService;
 
@@ -38,37 +38,37 @@ public class EmailRestController {
     ImapService imapService;
 
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EmailRestController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EmailApiController.class);
 
-    @RequestMapping(value = "/rest/emails", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/emails", method = RequestMethod.POST)
     @ResponseBody
-    public RestEmailResponse getInbox(@Valid DataTablesInput input) {
+    public DTEmailResponse getInbox(@Valid DataTablesInput input) {
         int sequenceNo = input.getDraw();
         String sortColumn = input.getColumns().get(input.getOrder().get(0).getColumn()).getName();
         Sort.Direction sortDirection = null;
         if (input.getOrder().get(0).getDir().equals("asc")) sortDirection = Sort.Direction.ASC;
         else if (input.getOrder().get(0).getDir().equals("desc")) sortDirection = Sort.Direction.DESC;
-        RestEmailResponse response = emailService.getTableContent(Email.EmailType.Inbox, input.getStart(), input.getLength(), sortDirection, sortColumn);
+        DTEmailResponse response = emailService.getTableContent(Email.EmailType.Inbox, input.getStart(), input.getLength(), sortDirection, sortColumn);
         response.setDraw(sequenceNo);
         return response;
     }
 
-    @RequestMapping(value = "/rest/spam", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/spam", method = RequestMethod.POST)
     @ResponseBody
-    public RestEmailResponse getSpam(@Valid DataTablesInput input) {
+    public DTEmailResponse getSpam(@Valid DataTablesInput input) {
         int sequenceNo = input.getDraw();
         String sortColumn = input.getColumns().get(input.getOrder().get(0).getColumn()).getName();
         Sort.Direction sortDirection = null;
         if (input.getOrder().get(0).getDir().equals("asc")) sortDirection = Sort.Direction.ASC;
         else if (input.getOrder().get(0).getDir().equals("desc")) sortDirection = Sort.Direction.DESC;
-        RestEmailResponse response = emailService.getTableContent(Email.EmailType.Spam, input.getStart(), input.getLength(), sortDirection, sortColumn);
+        DTEmailResponse response = emailService.getTableContent(Email.EmailType.Spam, input.getStart(), input.getLength(), sortDirection, sortColumn);
         response.setDraw(sequenceNo);
         return response;
     }
 
-    @RequestMapping(value = "/rest/markAs", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/markAs/{type}/{id}", method = RequestMethod.POST)
     @ResponseBody
-    public String markSpam(@RequestParam("type") String type, @RequestParam("id") Long id) {
+    public String markSpam(@PathVariable("type") String type, @PathVariable("id") Long id) {
         Email.EmailType emailType = null;
         if ("email".equalsIgnoreCase(type)) {
             emailType = Email.EmailType.Inbox;
@@ -89,10 +89,10 @@ public class EmailRestController {
         return "OK";
     }
 
-    @RequestMapping("/rest/refresh")
+    @RequestMapping("/api/refresh")
     @ResponseBody
     public Map<String, String> inboxRefresh() {
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new HashMap<>();
         try {
             imapService.getMail();
         } catch (Exception e) {
@@ -107,7 +107,7 @@ public class EmailRestController {
         return result;
     }
 
-    @RequestMapping("/rest/email/{id}/attachments/zip")
+    @RequestMapping("/api/email/{id}/attachments/zip")
     public void downloadAllFromEmail(@PathVariable("id") Long id, HttpServletResponse response) {
         try {
 

@@ -1,4 +1,4 @@
-package ro.petitii.controller.rest;
+package ro.petitii.controller.api;
 
 import javax.validation.Valid;
 
@@ -15,12 +15,12 @@ import ro.petitii.model.Contact;
 import ro.petitii.service.ContactService;
 
 @RestController
-public class ContactRestController {  
+public class ContactApiController {
     @Autowired
     private ContactService contactService;
 
     @JsonView(DataTablesOutput.View.class)
-    @RequestMapping(value = "/rest/contacts", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/contacts", method = RequestMethod.POST)
     public DataTablesOutput<Contact> getUsers(@Valid DataTablesInput input) {
         return contactService.findAll(input);
     }

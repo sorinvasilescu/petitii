@@ -438,7 +438,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         // Legacy style validator
 
         if (arguments.length > 3) // If more args then value, requirement, instance...
-          requirementFirstArg = [].slice.call(arguments, 1, -1); // Skip first arg (value) and last (instance), combining the rest
+          requirementFirstArg = [].slice.call(arguments, 1, -1); // Skip first arg (value) and last (instance), combining the dt
         return this.fn.call(this, value, requirementFirstArg);
       }
 

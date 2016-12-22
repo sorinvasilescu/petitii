@@ -36,7 +36,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
             .authorizeRequests()
-                .antMatchers("/css/**","/js/**","/img/**","/webjars/**","/vendors/**","/rest/**")
+                .antMatchers("/css/**","/js/**","/img/**","/webjars/**","/vendors/**","/dt/**")
                     .permitAll()
                 .anyRequest()
                     .authenticated()
@@ -57,7 +57,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .headers()
                 .frameOptions().sameOrigin()
             .and()
-                .csrf().ignoringAntMatchers("/rest/petitions/**/attachments/add");
+                .csrf().ignoringAntMatchers("/api/petitions/**/attachments/add");
 }
 
     @Override

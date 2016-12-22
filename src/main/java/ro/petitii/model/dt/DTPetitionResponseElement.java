@@ -1,6 +1,6 @@
-package ro.petitii.model.rest;
+package ro.petitii.model.dt;
 
-public class RestPetitionResponseElement {
+public class DTPetitionResponseElement {
     private Long id;
     private String regNo;
     private String petitionerName;

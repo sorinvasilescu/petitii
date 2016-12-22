@@ -3220,7 +3220,7 @@
 	     *
 	     * The wrapper methods that support shortcut fusion are:
 	     * `compact`, `drop`, `dropRight`, `dropRightWhile`, `dropWhile`, `filter`,
-	     * `first`, `initial`, `last`, `map`, `pluck`, `reject`, `rest`, `reverse`,
+	     * `first`, `initial`, `last`, `map`, `pluck`, `reject`, `dt`, `reverse`,
 	     * `slice`, `take`, `takeRight`, `takeRightWhile`, `takeWhile`, `toArray`,
 	     * and `where`
 	     *
@@ -3236,7 +3236,7 @@
 	     * `matchesProperty`, `memoize`, `merge`, `method`, `methodOf`, `mixin`,
 	     * `modArgs`, `negate`, `omit`, `once`, `pairs`, `partial`, `partialRight`,
 	     * `partition`, `pick`, `plant`, `pluck`, `property`, `propertyOf`, `pull`,
-	     * `pullAt`, `push`, `range`, `rearg`, `reject`, `remove`, `rest`, `restParam`,
+	     * `pullAt`, `push`, `range`, `rearg`, `reject`, `remove`, `dt`, `restParam`,
 	     * `reverse`, `set`, `shuffle`, `slice`, `sort`, `sortBy`, `sortByAll`,
 	     * `sortByOrder`, `splice`, `spread`, `take`, `takeRight`, `takeRightWhile`,
 	     * `takeWhile`, `tap`, `throttle`, `thru`, `times`, `toArray`, `toPlainObject`,
@@ -7655,7 +7655,7 @@
 	     * @returns {Array} Returns the slice of `array`.
 	     * @example
 	     *
-	     * _.rest([1, 2, 3]);
+	     * _.dt([1, 2, 3]);
 	     * // => [2, 3]
 	     */
 	    function rest(array) {
@@ -10516,13 +10516,13 @@
 	     * Creates a function that invokes `func` with the `this` binding of the
 	     * created function and arguments from `start` and beyond provided as an array.
 	     *
-	     * **Note:** This method is based on the [rest parameter](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/rest_parameters).
+	     * **Note:** This method is based on the [dt parameter](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/rest_parameters).
 	     *
 	     * @static
 	     * @memberOf _
 	     * @category Function
-	     * @param {Function} func The function to apply a rest parameter to.
-	     * @param {number} [start=func.length-1] The start position of the rest parameter.
+	     * @param {Function} func The function to apply a dt parameter to.
+	     * @param {number} [start=func.length-1] The start position of the dt parameter.
 	     * @returns {Function} Returns the new function.
 	     * @example
 	     *
@@ -14556,7 +14556,7 @@
 	      };
 	    });
 
-	    // Add `LazyWrapper` methods for `_.initial` and `_.rest`.
+	    // Add `LazyWrapper` methods for `_.initial` and `_.dt`.
 	    arrayEach(['initial', 'rest'], function(methodName, index) {
 	      var dropName = 'drop' + (index ? '' : 'Right');
 
@@ -16625,7 +16625,7 @@
 			});
 		} else {
 			if (maxW < availableWidth) {
-				// case 2 - we can fit rest of the table within available space
+				// case 2 - we can fit dt of the table within available space
 				autoColumns.forEach(function(col) {
 					col._calcWidth = col._maxWidth;
 					availableWidth -= col._calcWidth;
@@ -17197,7 +17197,7 @@
 		blit(n-8, 0, 8, 9, [0x100, 0x7f, 0x41, 0x5d, 0x5d, 0x5d, 0x41, 0x7f]);
 		blit(0, n-8, 9, 8, [0xfe, 0x82, 0xba, 0xba, 0xba, 0x82, 0xfe, 0x00, 0x00]);
 
-		// the rest of timing patterns
+		// the dt of timing patterns
 		for (var i = 9; i < n-8; ++i) {
 			matrix[6][i] = matrix[i][6] = ~i & 1;
 			reserved[6][i] = reserved[i][6] = 1;
@@ -21419,7 +21419,7 @@
 	// cause the system to run out of memory.
 	//
 	// However, even in such a pathological case, only a single written chunk
-	// would be consumed, and then the rest would wait (un-transformed) until
+	// would be consumed, and then the dt would wait (un-transformed) until
 	// the results of the previous transformed chunk were consumed.
 
 	module.exports = Transform;
@@ -24545,7 +24545,7 @@
 
 	  flush_pending(strm);
 	  /* If avail_out is zero, the application will call deflate again
-	   * to flush the rest.
+	   * to flush the dt.
 	   */
 	  if (s.wrap > 0) { s.wrap = -s.wrap; }
 	  /* write the trailer only once! */
@@ -26232,7 +26232,7 @@
 	    state.window = null;
 	  }
 
-	  /* update state and reset the rest of it */
+	  /* update state and reset the dt of it */
 	  state.wrap = wrap;
 	  state.wbits = windowBits;
 	  return inflateReset(strm);
@@ -27729,7 +27729,7 @@
 	                  do {
 	                    output[_out++] = s_window[from++];
 	                  } while (--op);
-	                  from = _out - dist;  /* rest from output */
+	                  from = _out - dist;  /* dt from output */
 	                  from_source = output;
 	                }
 	              }
@@ -27748,7 +27748,7 @@
 	                    do {
 	                      output[_out++] = s_window[from++];
 	                    } while (--op);
-	                    from = _out - dist;      /* rest from output */
+	                    from = _out - dist;      /* dt from output */
 	                    from_source = output;
 	                  }
 	                }
@@ -27760,7 +27760,7 @@
 	                  do {
 	                    output[_out++] = s_window[from++];
 	                  } while (--op);
-	                  from = _out - dist;  /* rest from output */
+	                  from = _out - dist;  /* dt from output */
 	                  from_source = output;
 	                }
 	              }
@@ -28035,7 +28035,7 @@
 	   sym increments through all symbols, and the loop terminates when
 	   all codes of length max, i.e. all codes, have been processed.  This
 	   routine permits incomplete codes, so another loop after this one fills
-	   in the rest of the decoding tables with invalid code markers.
+	   in the dt of the decoding tables with invalid code markers.
 	   */
 
 	  /* set up for code type */
