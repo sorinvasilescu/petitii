@@ -8,7 +8,7 @@ import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.stereotype.Service;
 import ro.petitii.model.Email;
 import ro.petitii.model.Attachment;
-import ro.petitii.model.dt.DTEmailResponseElement;
+import ro.petitii.model.datatables.EmailResponse;
 import ro.petitii.repository.EmailRepository;
 
 import javax.persistence.EntityManager;
@@ -86,12 +86,12 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public DataTablesOutput<DTEmailResponseElement> getTableContent(Email.EmailType type, int startIndex, int size, Sort.Direction sortDirection, String sortColumn) {
+    public DataTablesOutput<EmailResponse> getTableContent(Email.EmailType type, int startIndex, int size, Sort.Direction sortDirection, String sortColumn) {
         List<Email> result = this.findAllByType(type, startIndex, size, sortDirection, sortColumn);
-        List<DTEmailResponseElement> data = new ArrayList<>();
+        List<EmailResponse> data = new ArrayList<>();
         SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         for (Email e : result) {
-            DTEmailResponseElement re = new DTEmailResponseElement();
+            EmailResponse re = new EmailResponse();
             re.setId(e.getId());
             re.setSender(e.getSender());
             re.setSubject(e.getSubject());
@@ -99,7 +99,7 @@ public class EmailServiceImpl implements EmailService {
             if (e.getPetition() != null) re.setPetition_id(e.getPetition().getId());
             data.add(re);
         }
-        DataTablesOutput<DTEmailResponseElement> response = new DataTablesOutput<>();
+        DataTablesOutput<EmailResponse> response = new DataTablesOutput<>();
         response.setData(data);
         Long count = this.count(type);
         response.setRecordsFiltered(count);

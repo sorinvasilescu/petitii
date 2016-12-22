@@ -6,7 +6,7 @@ import ro.petitii.model.Email;
 import ro.petitii.model.Petition;
 import ro.petitii.model.PetitionStatus;
 import ro.petitii.model.User;
-import ro.petitii.model.dt.DTPetitionResponseElement;
+import ro.petitii.model.datatables.PetitionResponse;
 
 import java.util.List;
 
@@ -32,6 +32,6 @@ public interface PetitionService {
 
     List<Petition> findAll(int startIndex, int size, Sort.Direction sortDirection, String sortColumn);
 
-    DataTablesOutput<DTPetitionResponseElement> getTableContent(User user, PetitionStatus.Status status,
-                                                                int startIndex, int size, Sort.Direction sortDirection, String sortColumn);
+    DataTablesOutput<PetitionResponse> getTableContent(User user, PetitionStatus.Status status,
+                                                       int startIndex, int size, Sort.Direction sortDirection, String sortColumn);
 }

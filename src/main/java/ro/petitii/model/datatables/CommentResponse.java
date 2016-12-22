@@ -1,10 +1,10 @@
-package ro.petitii.model.dt;
+package ro.petitii.model.datatables;
 
-public class DTAttachmentResponseElement {
+public class CommentResponse {
     private Long id;
     private Long petitionId;
-    private String origin;
-    private String filename;
+    private String user;
+    private String comment;
     private String date;
 
     public Long getId() {
@@ -23,20 +23,20 @@ public class DTAttachmentResponseElement {
         this.petitionId = petitionId;
     }
 
-    public String getOrigin() {
-        return origin;
+    public String getUser() {
+        return user;
     }
 
-    public void setOrigin(String origin) {
-        this.origin = origin;
+    public void setUser(String user) {
+        this.user = user;
     }
 
-    public String getFilename() {
-        return filename;
+    public String getComment() {
+        return comment;
     }
 
-    public void setFilename(String filename) {
-        this.filename = filename;
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 
     public String getDate() {

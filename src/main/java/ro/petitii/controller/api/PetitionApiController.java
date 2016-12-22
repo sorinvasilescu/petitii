@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
 import ro.petitii.model.*;
-import ro.petitii.model.dt.DTAttachmentResponseElement;
-import ro.petitii.model.dt.DTCommentResponseElement;
-import ro.petitii.model.dt.DTPetitionResponseElement;
+import ro.petitii.model.datatables.AttachmentResponse;
+import ro.petitii.model.datatables.CommentResponse;
+import ro.petitii.model.datatables.PetitionResponse;
 import ro.petitii.service.AttachmentService;
 import ro.petitii.service.CommentService;
 import ro.petitii.service.PetitionService;
@@ -59,7 +59,7 @@ public class PetitionApiController {
     // will answer to compounded URL /api/petitions/user
     @RequestMapping(value = "/user", method = RequestMethod.POST)
     @ResponseBody
-    public DataTablesOutput<DTPetitionResponseElement> getUserPetitions(@Valid DataTablesInput input, String status) {
+    public DataTablesOutput<PetitionResponse> getUserPetitions(@Valid DataTablesInput input, String status) {
         int sequenceNo = input.getDraw();
         String sortColumn = input.getColumns().get(input.getOrder().get(0).getColumn()).getName();
         Sort.Direction sortDirection = null;
@@ -76,7 +76,7 @@ public class PetitionApiController {
 
         Integer start = input.getStart();
         Integer length = input.getLength();
-        DataTablesOutput<DTPetitionResponseElement> response = petitionService.getTableContent(user, pStatus, start, length, sortDirection, sortColumn);
+        DataTablesOutput<PetitionResponse> response = petitionService.getTableContent(user, pStatus, start, length, sortDirection, sortColumn);
         response.setDraw(sequenceNo);
 
         return response;
@@ -84,7 +84,7 @@ public class PetitionApiController {
 
     @RequestMapping(value = "/all", method = RequestMethod.POST)
     @ResponseBody
-    public DataTablesOutput<DTPetitionResponseElement> getAllPetitions(@Valid DataTablesInput input, String status) {
+    public DataTablesOutput<PetitionResponse> getAllPetitions(@Valid DataTablesInput input, String status) {
         int sequenceNo = input.getDraw();
 
         String sortColumn = input.getColumns().get(input.getOrder().get(0).getColumn()).getName();
@@ -98,14 +98,14 @@ public class PetitionApiController {
         PetitionStatus.Status pStatus = parseStatus(status);
         Integer start = input.getStart();
         Integer length = input.getLength();
-        DataTablesOutput<DTPetitionResponseElement> response = petitionService.getTableContent(null, pStatus, start, length, sortDirection, sortColumn);
+        DataTablesOutput<PetitionResponse> response = petitionService.getTableContent(null, pStatus, start, length, sortDirection, sortColumn);
         response.setDraw(sequenceNo);
         return response;
     }
 
     @RequestMapping(value = "/{id}/attachments", method = RequestMethod.POST)
     @ResponseBody
-    public DataTablesOutput<DTAttachmentResponseElement> getAllAttachments(@PathVariable("id") Long id, @Valid DataTablesInput input) {
+    public DataTablesOutput<AttachmentResponse> getAllAttachments(@PathVariable("id") Long id, @Valid DataTablesInput input) {
         int sequenceNo = input.getDraw();
 
         String sortColumn = input.getColumns().get(input.getOrder().get(0).getColumn()).getName();
@@ -123,7 +123,7 @@ public class PetitionApiController {
 
         Integer start = input.getStart();
         Integer length = input.getLength();
-        DataTablesOutput<DTAttachmentResponseElement> response = attachmentService.getTableContent(petition, start, length, sortDirection, sortColumn);
+        DataTablesOutput<AttachmentResponse> response = attachmentService.getTableContent(petition, start, length, sortDirection, sortColumn);
         response.setDraw(sequenceNo);
         return response;
     }
@@ -180,7 +180,7 @@ public class PetitionApiController {
 
     @RequestMapping(value = "/{id}/comments", method = RequestMethod.POST)
     @ResponseBody
-    public DataTablesOutput<DTCommentResponseElement> getAllComments(@PathVariable("id") Long id, @Valid DataTablesInput input) {
+    public DataTablesOutput<CommentResponse> getAllComments(@PathVariable("id") Long id, @Valid DataTablesInput input) {
         int sequenceNo = input.getDraw();
 
         String sortColumn = input.getColumns().get(input.getOrder().get(0).getColumn()).getName();
@@ -198,7 +198,7 @@ public class PetitionApiController {
 
         Integer start = input.getStart();
         Integer length = input.getLength();
-        DataTablesOutput<DTCommentResponseElement> response = commentService.getTableContent(petition, start, length, sortDirection, sortColumn);
+        DataTablesOutput<CommentResponse> response = commentService.getTableContent(petition, start, length, sortDirection, sortColumn);
         response.setDraw(sequenceNo);
         return response;
     }

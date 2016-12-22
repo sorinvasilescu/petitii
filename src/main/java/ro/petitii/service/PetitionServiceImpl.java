@@ -13,7 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import ro.petitii.config.DefaultsConfig;
 import ro.petitii.model.*;
-import ro.petitii.model.dt.DTPetitionResponseElement;
+import ro.petitii.model.datatables.PetitionResponse;
 import ro.petitii.repository.PetitionRepository;
 import ro.petitii.service.email.ImapService;
 
@@ -88,8 +88,11 @@ public class PetitionServiceImpl implements PetitionService {
         } else {
             existingPetitioner = petitioners.iterator().next();
             // check if the two petitioners are identical, if not, insert the new one in the db
-            if (existingPetitioner.equals(petition.getPetitioner())) petitioner = existingPetitioner;
-            else petitioner = petitionerService.save(petition.getPetitioner());
+            if (existingPetitioner.equals(petition.getPetitioner())) {
+                petitioner = existingPetitioner;
+            } else {
+                petitioner = petitionerService.save(petition.getPetitioner());
+            }
         }
 
         boolean createStatus = petition.getCurrentStatus() == null;
@@ -194,8 +197,10 @@ public class PetitionServiceImpl implements PetitionService {
     }
 
     @Override
-    public DataTablesOutput<DTPetitionResponseElement> getTableContent(User user, PetitionStatus.Status status, int startIndex, int size,
-                                            Sort.Direction sortDirection, String sortColumn) {
+    public DataTablesOutput<PetitionResponse> getTableContent(User user, PetitionStatus.Status status,
+                                                              int startIndex, int size,
+                                                              Sort.Direction sortDirection,
+                                                              String sortColumn) {
         List<Petition> petitions;
         if (user != null) {
             if (status == null) {
@@ -210,10 +215,10 @@ public class PetitionServiceImpl implements PetitionService {
                 petitions = this.findByStatus(status, startIndex, size, sortDirection, sortColumn);
             }
         }
-        DataTablesOutput<DTPetitionResponseElement> response = new DataTablesOutput<>();
-        List<DTPetitionResponseElement> data = new ArrayList<>();
+        DataTablesOutput<PetitionResponse> response = new DataTablesOutput<>();
+        List<PetitionResponse> data = new ArrayList<>();
         for (Petition petition : petitions) {
-            DTPetitionResponseElement element = new DTPetitionResponseElement();
+            PetitionResponse element = new PetitionResponse();
             element.setId(petition.getId());
             element.set_abstract(petition.getSubject());
             element.setPetitionerEmail(petition.getPetitioner().getEmail());
