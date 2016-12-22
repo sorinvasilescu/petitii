@@ -1,4 +1,4 @@
-package ro.petitii.model.rest;
+package ro.petitii.model.dt;
 
 public class RestEmailResponseElement {
     private Long id;

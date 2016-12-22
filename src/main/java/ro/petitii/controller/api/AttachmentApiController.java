@@ -1,4 +1,4 @@
-package ro.petitii.controller.rest;
+package ro.petitii.controller.api;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -9,25 +9,18 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import ro.petitii.model.Attachment;
-import ro.petitii.model.Email;
-import ro.petitii.model.Petition;
 import ro.petitii.service.AttachmentService;
 import ro.petitii.service.EmailService;
 import ro.petitii.service.PetitionService;
-import ro.petitii.util.Pair;
-import ro.petitii.util.ZipUtils;
 
 import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.LinkedList;
-import java.util.List;
 
 @Controller
 public class AttachmentRestController {
@@ -43,7 +36,7 @@ public class AttachmentRestController {
     @Autowired
     private AttachmentService attachmentService;
 
-    @RequestMapping("/rest/attachments/download/{id}")
+    @RequestMapping("/api/attachments/download/{id}")
     public void download(@PathVariable("id") Long id, HttpServletResponse response) {
         try {
             Attachment att = attachmentService.findById(id);

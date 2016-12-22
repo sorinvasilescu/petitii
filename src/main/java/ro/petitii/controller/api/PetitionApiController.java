@@ -1,4 +1,4 @@
-package ro.petitii.controller.rest;
+package ro.petitii.controller.api;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
 import ro.petitii.model.*;
-import ro.petitii.model.rest.MiniComment;
-import ro.petitii.model.rest.RestAttachmentResponse;
-import ro.petitii.model.rest.RestCommentResponse;
-import ro.petitii.model.rest.RestPetitionResponse;
+import ro.petitii.model.dt.MiniComment;
+import ro.petitii.model.dt.RestAttachmentResponse;
+import ro.petitii.model.dt.RestCommentResponse;
+import ro.petitii.model.dt.RestPetitionResponse;
 import ro.petitii.service.AttachmentService;
 import ro.petitii.service.CommentService;
 import ro.petitii.service.PetitionService;

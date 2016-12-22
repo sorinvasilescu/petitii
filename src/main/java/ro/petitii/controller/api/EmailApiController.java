@@ -1,4 +1,4 @@
-package ro.petitii.controller.rest;
+package ro.petitii.controller.api;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import ro.petitii.model.Attachment;
 import ro.petitii.model.Email;
-import ro.petitii.model.rest.RestEmailResponse;
+import ro.petitii.model.dt.RestEmailResponse;
 import ro.petitii.service.EmailService;
 import ro.petitii.service.email.ImapService;
 import ro.petitii.util.Pair;
