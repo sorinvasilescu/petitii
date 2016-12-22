@@ -12,7 +12,6 @@ import java.util.Date;
 
 @Service
 public class RegistrationNumberServiceImpl implements RegistrationNumberService {
-
     @Autowired
     RegNoConfig config;
 
