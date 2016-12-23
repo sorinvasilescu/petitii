@@ -7,6 +7,12 @@
 <!--/*@thymesVar id="user_list" type="java.util.List<ro.petitii.model.User>"*/-->
 <!--/*@thymesVar id="commentsApiUrl" type="java.lang.String"*/-->
 <!--/*@thymesVar id="attachmentApiUrl" type="java.lang.String"*/-->
+<!-- Custom Params -->
+<!--/*@thymesVar id="entity" type="ro.petitii.model.PetitionCustomParam"*/-->
+<!--/*@thymesVar id="information" type="ro.petitii.model.PetitionCustomParam"*/-->
+<!--/*@thymesVar id="problem" type="ro.petitii.model.PetitionCustomParam"*/-->
+<!--/*@thymesVar id="domain" type="ro.petitii.model.PetitionCustomParam"*/-->
+<!--/*@thymesVar id="title" type="ro.petitii.model.PetitionCustomParam"*/-->
 
 <body class="nav-md">
     <div class="container body">
@@ -42,107 +48,116 @@
                                             <label class="control-label col-md-3 col-sm-3 col-xs-12">Responsabil</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <select class="form-control" name="responsible" id="responsible" th:field="*{responsible}">
-                                                    <option value="" selected="selected">Selecteaza responsabilul</option>
+                                                    <option value="" selected="selected">Selectează responsabilul</option>
                                                     <option th:each="user : ${user_list}" th:value="${user.getId()}" th:text="${user.getFullName()}">Responsabil</option>
                                                 </select>
                                             </div>
-                                            <div class="alert" th:if="${#fields.hasErrors('responsible')}">Campul nu poate fi gol</div>
+                                            <div class="alert" th:if="${#fields.hasErrors('responsible')}">Câmpul nu poate fi gol</div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="item form-group">
                                             <label class="control-label col-md-3 col-sm-3 col-xs-12">Nr. înregistrare
                                             </label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <input type="text" name="nr_inreg" class="form-control col-md-10" th:field="*{regNo.number}" disabled="disabled" />
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="item form-group">
                                             <label class="control-label col-md-3 col-sm-3 col-xs-12">Data</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <input type="text" name="date" class="form-control col-md-10" th:field="*{receivedDate}" />
                                             </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('receivedDate')}">Câmpul nu poate fi gol</div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="item form-group">
                                             <label class="control-label col-md-3 col-sm-3 col-xs-12">Status</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <input type="text" name="status" disabled="disabled" class="form-control col-md-10" value="Petitie noua" th:value="#{${petition.statusString()}}" />
                                             </div>
                                         </div>
-                                        <div class="form-group">
-                                            <label for="relation" class="control-label col-md-3 col-sm-3 col-xs-12">Tip relatie</label>
+                                        <div class="item form-group" th:classappend="${#fields.hasErrors('relation')} ? bad">
+                                            <label for="relation" class="control-label col-md-3 col-sm-3 col-xs-12" th:text="${information.getFriendlyName()}">Tip relatie</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <select class="form-control" name="relation" id="relation" th:field="*{relation}">
-                                                    <option value="AUD">AUD</option>
+                                                    <option th:if="!${information.hasDefault()}" value="">Selectează opțiunea</option>
+                                                    <option th:each="et : ${information.getParamValues()}" th:value="${et.value}" th:text="${et.label}">label</option>
                                                 </select>
                                             </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('relation')}">Câmpul nu poate fi gol</div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="item form-group">
                                             <label for="origin" class="control-label col-md-3 col-sm-3 col-xs-12">Proveniență</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <input class="form-control" name="relation" id="origin" th:field="*{origin}"/>
                                             </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('origin')}">Câmpul nu poate fi gol</div>
                                         </div>
-                                        <div class="form-group">
-                                            <label for="entity-type" class="control-label col-md-3 col-sm-3 col-xs-12">Tip entitate</label>
+                                        <div class="item form-group" th:classappend="${#fields.hasErrors('petitioner.entity_type')} ? bad">
+                                            <label for="entity-type" class="control-label col-md-3 col-sm-3 col-xs-12" th:text="${entity.getFriendlyName()}">Tip entitate</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <select class="form-control" name="type" id="entity-type" th:field="*{petitioner.entity_type}">
-                                                    <option value="PF">Persoană fizică</option>
-                                                    <option value="PJ">Persoană juridică</option>
+                                                    <option th:if="!${entity.hasDefault()}" value="">Selectează opțiunea</option>
+                                                    <option th:each="et : ${entity.getParamValues()}" th:value="${et.value}" th:text="${et.label}">label</option>
                                                 </select>
                                             </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('petitioner.entity_type')}">Câmpul nu poate fi gol</div>
                                         </div>
-                                        <div class="form-group">
-                                            <label for="organization" class="control-label col-md-3 col-sm-3 col-xs-12">Organizatie</label>
+                                        <div class="item form-group">
+                                            <label for="organization" class="control-label col-md-3 col-sm-3 col-xs-12">Organizație</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <input id="organization" type="text" name="organization" class="form-control col-md-10" placeholder="Denumire organizatie"  th:field="*{petitioner.organization}"/>
+                                                <input id="organization" type="text" name="organization" class="form-control col-md-10" placeholder="Denumire organizație"  th:field="*{petitioner.organization}"/>
                                             </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('petitioner.organization')}">Câmpul nu poate fi gol</div>
                                         </div>
-                                        <div class="form-group">
-                                            <label for="problem-type" class="control-label col-md-3 col-sm-3 col-xs-12">Tip problematica</label>
+                                        <div class="item form-group" th:classappend="${#fields.hasErrors('problemType')} ? bad">
+                                            <label for="problem-type" class="control-label col-md-3 col-sm-3 col-xs-12" th:text="${problem.getFriendlyName()}">Tip problematica</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <select class="form-control" name="type" id="problem-type" th:field="*{problemType}">
-                                                    <option value="Plangere">Plangere</option>
-                                                    <option value="Reclamatie">Reclamatie</option>
+                                                    <option th:if="!${problem.hasDefault()}" value="">Selectează opțiunea</option>
+                                                    <option th:each="et : ${problem.getParamValues()}" th:value="${et.value}" th:text="${et.label}">label</option>
                                                 </select>
                                             </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('problemType')}">Câmpul nu poate fi gol</div>
                                         </div>
-                                        <div class="form-group">
-                                            <label for="domeniu" class="control-label col-md-3 col-sm-3 col-xs-12">Domeniu</label>
+                                        <div class="item form-group" th:classappend="${#fields.hasErrors('field')} ? bad">
+                                            <label for="domeniu" class="control-label col-md-3 col-sm-3 col-xs-12" th:text="${domain.getFriendlyName()}">Domeniu</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <select class="form-control" name="domeniu" id="domeniu" th:field="*{field}">
-                                                    <option value="adm. centrata">adm. centrala</option>
-                                                    <option value="adm. locala">adm. locala</option>
+                                                    <option th:if="!${domain.hasDefault()}" value="">Selectează opțiunea</option>
+                                                    <option th:each="et : ${domain.getParamValues()}" th:value="${et.value}" th:text="${et.label}">label</option>
                                                 </select>
                                             </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('field')}">Câmpul nu poate fi gol</div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-6 col-xs-12">
                                     <div class="x_content">
-                                        <div class="form-group">
-                                            <label for="title" class="control-label col-md-3 col-sm-3 col-xs-12">Adresare</label>
+                                        <div class="item form-group" th:classappend="${#fields.hasErrors('petitioner.title')} ? bad">
+                                            <label for="title" class="control-label col-md-3 col-sm-3 col-xs-12" th:text="${title.getFriendlyName()}">Adresare</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <select class="form-control" name="title" id="title" th:field="*{petitioner.title}">
-                                                    <option value="Domnul">Domnul</option>
-                                                    <option value="Doamna">Doamna</option>
+                                                    <option th:if="!${title.hasDefault()}" value="">Selectează opțiunea</option>
+                                                    <option th:each="et : ${title.getParamValues()}" th:value="${et.value}" th:text="${et.label}">label</option>
                                                 </select>
                                             </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('petitioner.title')}">Câmpul nu poate fi gol</div>
                                         </div>
                                         <div class="item form-group" th:classappend="${#fields.hasErrors('petitioner.firstName')} ? bad">
                                             <label for="petitioner-firstname" class="control-label col-md-3 col-sm-3 col-xs-12">Nume</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <input id="petitioner-firstname" type="text" name="first_name" placeholder="Numele de familie" class="form-control col-md-10" required="required" th:field="*{petitioner.firstName}" />
                                             </div>
-                                            <div class="alert" th:if="${#fields.hasErrors('petitioner.firstName')}">Campul nu poate fi gol</div>
+                                            <div class="alert" th:if="${#fields.hasErrors('petitioner.firstName')}">Câmpul nu poate fi gol</div>
                                         </div>
                                         <div class="item form-group" th:classappend="${#fields.hasErrors('petitioner.lastName')} ? bad">
                                             <label for="petitioner-lastname" class="control-label col-md-3 col-sm-3 col-xs-12">Prenume</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <input id="petitioner-lastname" type="text" name="last_name" placeholder="Prenumele" class="form-control col-md-10" required="required" th:field="*{petitioner.lastName}" />
                                             </div>
-                                            <div class="alert" th:if="${#fields.hasErrors('petitioner.lastName')}">Campul nu poate fi gol</div>
+                                            <div class="alert" th:if="${#fields.hasErrors('petitioner.lastName')}">Câmpul nu poate fi gol</div>
                                         </div>
-                                        <div class="form-group">
-                                            <label for="country" class="control-label col-md-3 col-sm-3 col-xs-12">Tara</label>
+                                        <div class="item form-group" th:classappend="${#fields.hasErrors('petitioner.country')} ? bad">
+                                            <label for="country" class="control-label col-md-3 col-sm-3 col-xs-12">Țara</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <select class="form-control" name="country" id="country" tabindex="-1" th:field="*{petitioner.country}">
                                                     <option value="AF">Afghanistan</option>
@@ -396,39 +411,44 @@
                                                     <option value="ZW">Zimbabwe</option>
                                                 </select>
                                             </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('petitioner.country')}">Câmpul nu poate fi gol</div>
                                         </div>
-                                        <div class="form-group">
-                                            <label for="county" class="control-label col-md-3 col-sm-3 col-xs-12">Judet</label>
+                                        <div class="item form-group">
+                                            <label for="county" class="control-label col-md-3 col-sm-3 col-xs-12">Județ</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <input id="county" type="text" name="county" placeholder="Judetul" class="form-control col-md-10" th:field="*{petitioner.county}" />
+                                                <input id="county" type="text" name="county" placeholder="Județul" class="form-control col-md-10" th:field="*{petitioner.county}" />
                                             </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('petitioner.county')}">Câmpul nu poate fi gol</div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="item form-group">
                                             <label for="city" class="control-label col-md-3 col-sm-3 col-xs-12">Localitate</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <input id="city" type="text" name="city" placeholder="Localitatea" class="form-control col-md-10" th:field="*{petitioner.city}" />
                                             </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('petitioner.city')}">Câmpul nu poate fi gol</div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="item form-group">
                                             <label for="address" class="control-label col-md-3 col-sm-3 col-xs-12">Adresa</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <textarea class="form-control" rows="2" name="address" id="address" placeholder="Adresa" th:field="*{petitioner.address}"></textarea>
                                             </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('petitioner.address')}">Câmpul nu poate fi gol</div>
                                         </div>
-                                        <div class="form-group  has-feedback">
+                                        <div class="item form-group  has-feedback">
                                             <label for="phone" class="control-label col-md-3 col-sm-3 col-xs-12">Telefon</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <input type="text" class="form-control has-feedback-left" id="phone" name="phone" placeholder="Nr. de telefon" th:field="*{petitioner.phone}" />
                                                 <span class="fa fa-phone form-control-feedback left" aria-hidden="true"></span>
                                             </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('petitioner.phone')}">Câmpul nu poate fi gol</div>
                                         </div>
                                         <div class="item form-group has-feedback" th:classappend="${#fields.hasErrors('petitioner.email')} ? bad">
                                             <label for="email" class="control-label col-md-3 col-sm-3 col-xs-12">Email</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <input type="text" class="form-control has-feedback-left" id="email" name="email" placeholder="Adresa de email" required="required" th:field="*{petitioner.email}" />
-                                                <div class="alert" th:if="${#fields.hasErrors('petitioner.email')}">Campul nu poate fi gol</div>
                                                 <span class="fa fa-envelope form-control-feedback left" aria-hidden="true"></span>
                                             </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('petitioner.email')}">Câmpul nu poate fi gol</div>
                                         </div>
                                     </div>
                                 </div>
@@ -454,17 +474,17 @@
                                 <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="home-tab">
                                     <div class="item form-group"  th:classappend="${#fields.hasErrors('subject')} ? bad">
                                         <div>
-                                            <label for="subject" class="control-label col-md-3 col-sm-3 col-xs-12">Rezumat</label>
+                                            <label for="subject" class="control-label col-md-2 col-sm-2 col-xs-12">Rezumat</label>
                                         </div>
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="col-md-8 col-sm-8 col-xs-12">
                                             <input id="subject" type="text" name="abstract" placeholder="Descrierea pe scurt" class="form-control col-md-10" th:field="*{subject}" />
                                         </div>
                                         <div class="alert" th:if="${#fields.hasErrors('subject')}">Minim 5 caractere</div>
                                     </div>
                                     <div class="form-group">
-                                        <label class="control-label col-md-3 col-sm-3 col-xs-12">Descriere</label>
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <textarea name="description" id="description" rows="10" style="width:520px" th:field="*{description}"></textarea>
+                                        <label class="control-label col-md-2 col-sm-2 col-xs-12">Descriere</label>
+                                        <div class="col-md-8 col-sm-8 col-xs-12">
+                                            <textarea name="description" id="description" rows="30" style="width:100%" th:field="*{description}"></textarea>
                                         </div>
                                     </div>
                                 </div>

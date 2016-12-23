@@ -13,14 +13,21 @@
             <!-- page content -->
             <div class="right_col" role="main">
                 <div class="">
-                    <h2>Redirecționeaza petiție</h2>
+                    <h2>Redirecționează petiție</h2>
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
                     <form class="form-horizontal form-label-left">
+                        <div class="row">
+                            <div class="col-md-10 col-sm-10 col-xs-12">
+                                <div class="buttons pull-right">
+                                    <button id="top-submit" type="submit" class="btn btn-success btn-md"><i class="fa fa-share"></i> <span>Redirecționează</span></button>
+                                </div>
+                            </div>
+                        </div>
                         <div class="form-group">
-                            <label class="control-label col-md-3 col-sm-3 col-xs-12">Responsabil: </label>
-                            <div class="col-md-6 col-sm-6 col-xs-12">
+                            <label class="control-label col-md-2 col-sm-2 col-xs-12">Responsabil: </label>
+                            <div class="col-md-8 col-sm-8 col-xs-12">
                                 <select class="form-control" name="responsible" id="responsible">
                                     <option></option>
                                     <option>Responsabil 1</option>
@@ -29,8 +36,8 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="control-label col-md-3 col-sm-3 col-xs-12">Redirecționează către:</label>
-                            <div class="col-md-9 col-sm-9 col-xs-12">
+                            <label class="control-label col-md-2 col-sm-2 col-xs-12">Redirecționează către:</label>
+                            <div class="col-md-8 col-sm-8 col-xs-12">
                                 <select class="form-control" id="institutii" multiple="multiple">
                                     <option></option>
                                     <option>Institutia 1</option>
@@ -44,13 +51,10 @@
                         </div>
                         <div class="ln_solid"></div>
                         <div class="form-group">
-                            <label class="control-label col-md-3 col-sm-3 col-xs-12">Mesaj: </label>
-                            <div class="col-md-9 col-sm-9 col-xs-12">
-                                <textarea class="resizable_textarea form-control" placeholder="mesaj..."></textarea>
+                            <label class="control-label col-md-2 col-sm-2 col-xs-12">Mesaj: </label>
+                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                <textarea class="resizable_textarea form-control" name="description" id="description" rows="30" style="width:100%"></textarea>
                             </div>
-                        </div>
-                        <div class="col-md-9 col-sm-9 col-xs-12 col-md-offset-3">
-                            <button type="submit" class="btn btn-default"><i class="fa fa-paste"></i> <span>Salveaza</span></button>
                         </div>
                     </form>
                 </div>
@@ -81,12 +85,15 @@
         });
         $("#institutii").select2({
             maximumSelectionLength: 4,
-            placeholder: "Maxim 4 institutii",
+            placeholder: "Maxim 4 instituții",
             allowClear: true
         });
     });
     </script>
     <!-- /Datatables -->
+    <script type="text/javascript">
+        $("#description").wysihtml5();
+    </script>
     <div th:substituteby="fragments/main_head::toast"></div>
 </body>
 
