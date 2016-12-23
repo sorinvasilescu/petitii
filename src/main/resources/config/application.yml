@@ -9,6 +9,9 @@ spring:
     password: petitions
     driver-class-name: com.mysql.jdbc.Driver
   jpa.hibernate.ddl-auto: none
+  http.multipart:
+    max-file-size: 4MB
+    max-request-size: 4MB
   #jpa:
     #show-sql: true
 

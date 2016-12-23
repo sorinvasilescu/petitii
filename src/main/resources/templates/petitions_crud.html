@@ -785,7 +785,11 @@
                     }).done(function (data) {
                         attachmentTable.ajax.reload();
                     }).fail(function (reason) {
-                        console.log('Could not upload file: ' + reason);
+                        if (reason.status == 422) {
+                            addError($('.right_col'), reason.responseText)
+                        }
+                        console.log('Could not upload file: ' + reason.responseText);
+                        console.log(reason)
                     });
                 });
             });

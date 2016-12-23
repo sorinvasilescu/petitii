@@ -8,11 +8,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
 import ro.petitii.model.*;
 import ro.petitii.model.datatables.AttachmentResponse;
@@ -26,6 +29,7 @@ import ro.petitii.util.Pair;
 import ro.petitii.util.ZipUtils;
 
 import javax.persistence.EntityNotFoundException;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
@@ -39,6 +43,7 @@ import java.util.List;
 import static ro.petitii.util.CleanUtil.cleanHtml;
 
 @Controller
+@ControllerAdvice
 // url base for all class methods
 @RequestMapping("/api/petitions")
 public class PetitionApiController {
@@ -76,7 +81,8 @@ public class PetitionApiController {
 
         Integer start = input.getStart();
         Integer length = input.getLength();
-        DataTablesOutput<PetitionResponse> response = petitionService.getTableContent(user, pStatus, start, length, sortDirection, sortColumn);
+        DataTablesOutput<PetitionResponse> response = petitionService
+                .getTableContent(user, pStatus, start, length, sortDirection, sortColumn);
         response.setDraw(sequenceNo);
 
         return response;
@@ -98,14 +104,16 @@ public class PetitionApiController {
         PetitionStatus.Status pStatus = parseStatus(status);
         Integer start = input.getStart();
         Integer length = input.getLength();
-        DataTablesOutput<PetitionResponse> response = petitionService.getTableContent(null, pStatus, start, length, sortDirection, sortColumn);
+        DataTablesOutput<PetitionResponse> response = petitionService
+                .getTableContent(null, pStatus, start, length, sortDirection, sortColumn);
         response.setDraw(sequenceNo);
         return response;
     }
 
     @RequestMapping(value = "/{id}/attachments", method = RequestMethod.POST)
     @ResponseBody
-    public DataTablesOutput<AttachmentResponse> getAllAttachments(@PathVariable("id") Long id, @Valid DataTablesInput input) {
+    public DataTablesOutput<AttachmentResponse> getAllAttachments(@PathVariable("id") Long id,
+                                                                  @Valid DataTablesInput input) {
         int sequenceNo = input.getDraw();
 
         String sortColumn = input.getColumns().get(input.getOrder().get(0).getColumn()).getName();
@@ -123,7 +131,8 @@ public class PetitionApiController {
 
         Integer start = input.getStart();
         Integer length = input.getLength();
-        DataTablesOutput<AttachmentResponse> response = attachmentService.getTableContent(petition, start, length, sortDirection, sortColumn);
+        DataTablesOutput<AttachmentResponse> response = attachmentService
+                .getTableContent(petition, start, length, sortDirection, sortColumn);
         response.setDraw(sequenceNo);
         return response;
     }
@@ -133,6 +142,32 @@ public class PetitionApiController {
     public void addAttachment(@RequestParam("files") MultipartFile[] files,
                               @PathVariable("id") Long petitionId) throws IOException {
         attachmentService.saveFromForm(files, petitionId);
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    @ResponseStatus(value = HttpStatus.PRECONDITION_FAILED)
+    @ResponseBody
+    protected ResponseEntity handleMaxUploadSizeExceededException(HttpServletRequest request,
+                                                                  HttpServletResponse response,
+                                                                  Throwable e) throws IOException {
+        LOGGER.warn(e.getMessage());
+        return ResponseEntity.unprocessableEntity().body("Fișierul depășește mărimea admisă de server");
+    }
+
+    @ExceptionHandler(MultipartException.class)
+    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    protected ResponseEntity handleGenericMultipartException(final HttpServletRequest request,
+                                                           final HttpServletResponse response,
+                                                           final Throwable e) throws IOException {
+        Throwable rootCause = e;
+        Throwable cause = e.getCause();
+        while (cause != null && !cause.equals(rootCause)) {
+            rootCause = cause;
+            cause = cause.getCause();
+        }
+        LOGGER.error(rootCause.getMessage());
+        return ResponseEntity.unprocessableEntity().body("Fișierul depășește mărimea admisă de server");
     }
 
     @RequestMapping("/{id}/attachments/zip")
@@ -198,7 +233,8 @@ public class PetitionApiController {
 
         Integer start = input.getStart();
         Integer length = input.getLength();
-        DataTablesOutput<CommentResponse> response = commentService.getTableContent(petition, start, length, sortDirection, sortColumn);
+        DataTablesOutput<CommentResponse> response = commentService
+                .getTableContent(petition, start, length, sortDirection, sortColumn);
         response.setDraw(sequenceNo);
         return response;
     }
