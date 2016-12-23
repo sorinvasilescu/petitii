@@ -30,11 +30,12 @@
                 </div>
                 <div class="col-md-6 col-sm-6 col-xs-12">
                 	  <div class="buttons pull-right">
-                	  	<button id="add" type="button" class="btn btn-default btn-md"><i class="fa fa-plus-square-o"></i>&nbsp;<span>Adaugă</span></button>
-                	  	<button id="modify" type="button" class="btn btn-default btn-md"><i class="fa fa-pencil-square-o"></i>&nbsp;<span>Modifică</span></button>
-                	  	<button id="classify" type="button" class="btn btn-default btn-md"><i class="fa fa-share-square-o"></i>&nbsp;<span>Clasează</span></button>
-                	  	<button id="resolve" type="button" class="btn btn-default btn-md"><i class="fa fa-check-square-o"></i>&nbsp;<span>Rezolvă</span></button>
-                	  	<button id="redirect" type="button" class="btn btn-default btn-md"><i class="fa fa-mail-forward"></i>&nbsp;<span>Redirecționează</span></button>
+                          <button id="add" type="button" class="btn btn-default btn-md"><i class="fa fa-plus-square-o"></i>&nbsp;<span>Adaugă</span></button>
+                          <button id="modify" type="button" class="btn btn-default btn-md"><i class="fa fa-pencil-square-o"></i>&nbsp;<span>Modifică</span></button>
+                          <button id="start" type="button" class="btn btn-default btn-md"><i class="fa fa-hourglass-start"></i>&nbsp;<span>Incepe lucrul</span></button>
+                          <button id="classify" type="button" class="btn btn-default btn-md"><i class="fa fa-share-square-o"></i>&nbsp;<span>Clasează</span></button>
+                          <button id="resolve" type="button" class="btn btn-default btn-md"><i class="fa fa-check-square-o"></i>&nbsp;<span>Rezolvă</span></button>
+                          <button id="redirect" type="button" class="btn btn-default btn-md"><i class="fa fa-mail-forward"></i>&nbsp;<span>Redirecționează</span></button>
                 	  </div>
                 </div>
                 <div class="clearfix"></div>
@@ -63,10 +64,11 @@
 <script th:inline="javascript">
     /*<![CDATA[*/
     var apiUrl = /*[[${apiUrl}]]*/ '/api/emails';
+    var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
     /*]]>*/
 </script>
 
-<script th:inline="javascript" type="text/javascript">
+<script type="text/javascript">
     /*<![CDATA[*/
     function strLimit(data, limit) {
         if ((data!=null) && (data.length > limit)){
@@ -75,9 +77,6 @@
         }
         return data;
     }
-
-    var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
-    /*]]>*/
 
     var emailTable;
     $(document).ready(function () {
@@ -165,11 +164,38 @@
             }
         });
 
+        $("#start").click(function () {
+            var selectedRows = [];
+            $.each(dtable.rows({selected: true}).data().toArray(),function (i, row) {
+                selectedRows.push(row.id);
+            });
+            console.log(selectedRows);
+            if (selectedRows.length < 1) {
+                addWarning("#error-messages", "Pentru a schimba statusul, selectati macar o petitie");
+                this.blur()
+            } else {
+                $.ajax({
+                    url: "/api/petitions/start-work",
+                    data: {'petitions':selectedRows},
+                    method: 'post'
+                }).success(function(data){
+                    if (data.success=="true") {
+                        addSuccess("#error-messages", data.errorMsg);
+                    } else {
+                        addError("#error-messages", data.errorMsg);
+                    }
+                }).fail(function(){
+
+                });
+            }
+        });
+
         $('input[name=iCheck]').on('ifChecked', function (event) {
             statusFilter = event.target.id;
             dtable.ajax.reload();
         });
     });
+    /*]]>*/
 </script>
 
 <div th:substituteby="fragments/main_head::toast"></div>

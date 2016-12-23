@@ -21,10 +21,7 @@ import ro.petitii.model.*;
 import ro.petitii.model.datatables.AttachmentResponse;
 import ro.petitii.model.datatables.CommentResponse;
 import ro.petitii.model.datatables.PetitionResponse;
-import ro.petitii.service.AttachmentService;
-import ro.petitii.service.CommentService;
-import ro.petitii.service.PetitionService;
-import ro.petitii.service.UserService;
+import ro.petitii.service.*;
 import ro.petitii.util.Pair;
 import ro.petitii.util.ZipUtils;
 
@@ -36,9 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static ro.petitii.util.CleanUtil.cleanHtml;
 
@@ -60,6 +55,9 @@ public class PetitionApiController {
 
     @Autowired
     private CommentService commentService;
+
+    @Autowired
+    private PetitionStatusService statusService;
 
     // will answer to compounded URL /api/petitions/user
     @RequestMapping(value = "/user", method = RequestMethod.POST)
@@ -147,7 +145,7 @@ public class PetitionApiController {
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     @ResponseStatus(value = HttpStatus.PRECONDITION_FAILED)
     @ResponseBody
-    protected ResponseEntity handleMaxUploadSizeExceededException(HttpServletRequest request,
+    protected ResponseEntity<String> handleMaxUploadSizeExceededException(HttpServletRequest request,
                                                                   HttpServletResponse response,
                                                                   Throwable e) throws IOException {
         LOGGER.warn(e.getMessage());
@@ -157,7 +155,7 @@ public class PetitionApiController {
     @ExceptionHandler(MultipartException.class)
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
-    protected ResponseEntity handleGenericMultipartException(final HttpServletRequest request,
+    protected ResponseEntity<String> handleGenericMultipartException(final HttpServletRequest request,
                                                            final HttpServletResponse response,
                                                            final Throwable e) throws IOException {
         Throwable rootCause = e;
@@ -270,5 +268,35 @@ public class PetitionApiController {
     public String deleteComment(@PathVariable("cid") Long cid) {
         commentService.delete(cid);
         return "done";
+    }
+
+    @RequestMapping(value = "/start-work", method = RequestMethod.POST)
+    @ResponseBody
+    public  Map<String, String> startWork(@RequestParam("petitions[]") long[] petitionIds) {
+        Map<String, String> result = new HashMap<>();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.findUserByEmail(auth.getName()).get(0);
+        List<Long> errors = new ArrayList<>();
+
+        for (long id : petitionIds) {
+            Petition pet = petitionService.findById(id);
+            if ((pet!=null)&&(pet.getCurrentStatus()== PetitionStatus.Status.RECEIVED)) {
+                statusService.create(PetitionStatus.Status.IN_PROGRESS,pet,user);
+            } else {
+                errors.add(id);
+            }
+        }
+
+        if (errors.size()>0)
+            if (errors.size()==petitionIds.length) {
+                result.put("success","false");
+                result.put("errorMsg", "Statusul nu a fost modificat pentru petitiile: " + errors.toString());
+            }
+        else {
+            result.put("success","true");
+            result.put("errorMsg","Statusul petitiilor a fost modificat.");
+        }
+
+        return result;
     }
 }
