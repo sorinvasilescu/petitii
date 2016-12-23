@@ -9,15 +9,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ro.petitii.config.DefaultsConfig;
-import ro.petitii.model.Email;
-import ro.petitii.model.Petition;
-import ro.petitii.model.Petitioner;
+import ro.petitii.model.*;
 import ro.petitii.service.EmailService;
+import ro.petitii.service.PetitionCustomParamService;
 import ro.petitii.service.PetitionService;
 import ro.petitii.service.UserService;
 
 import javax.validation.Valid;
 import java.util.Date;
+import java.util.List;
 
 @Controller
 public class PetitionController extends ControllerBase {
@@ -34,6 +34,9 @@ public class PetitionController extends ControllerBase {
     @Autowired
     DefaultsConfig defaultsConfig;
 
+    @Autowired
+    PetitionCustomParamService petitionCustomParamService;
+
     @RequestMapping(path = "/petition", method = RequestMethod.GET)
     public ModelAndView addPetition() {
         Petitioner petitioner = new Petitioner();
@@ -45,7 +48,8 @@ public class PetitionController extends ControllerBase {
 
         ModelAndView modelAndView = new ModelAndView("petitions_crud");
         modelAndView.addObject("petition", petition);
-        modelAndView.addObject("user_list", userService.getAllUsers());
+
+        addCustomParams(modelAndView);
 
         return modelAndView;
     }
@@ -56,9 +60,10 @@ public class PetitionController extends ControllerBase {
 
         Petition petition = petitionService.findById(id);
         modelAndView.addObject("petition", petition);
-        modelAndView.addObject("user_list", userService.getAllUsers());
         modelAndView.addObject("commentsApiUrl", "/api/petitions/" + petition.getId() + "/comments");
         modelAndView.addObject("attachmentApiUrl", "/api/petitions/" + petition.getId() + "/attachments");
+
+        addCustomParams(modelAndView);
 
         return modelAndView;
     }
@@ -71,7 +76,8 @@ public class PetitionController extends ControllerBase {
 
         ModelAndView modelAndView = new ModelAndView("petitions_crud");
         modelAndView.addObject("petition", petition);
-        modelAndView.addObject("user_list", userService.getAllUsers());
+
+        addCustomParams(modelAndView);
 
         return modelAndView;
     }
@@ -109,5 +115,14 @@ public class PetitionController extends ControllerBase {
     @RequestMapping("/redirect")
     public String redirectPetition() {
         return "petitions_redirect";
+    }
+
+    private void addCustomParams(ModelAndView modelAndView) {
+        modelAndView.addObject("user_list", userService.getAllUsers());
+
+        for (PetitionCustomParamType type : PetitionCustomParamType.values()) {
+            PetitionCustomParam param = petitionCustomParamService.findByType(type);
+            modelAndView.addObject(type.getDbName(), param);
+        }
     }
 }
