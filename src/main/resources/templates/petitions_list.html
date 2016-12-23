@@ -83,7 +83,7 @@
         var statusFilter = "all";
 
         <!-- Datatables -->
-        var dtable = $('#datatable-responsive').DataTable({
+        var petitionTable = $('#datatable-responsive').DataTable({
             select: {
                 style: 'multi'
             },
@@ -148,14 +148,14 @@
             ]
         });
 
-        selectActions(dtable);
+        selectActions(petitionTable);
 
         $("#add").click(function () {
             window.location.href = '/petition';
         });
 
         $("#modify").click(function () {
-            var selectedRows = dtable.rows({selected: true}).data().toArray();
+            var selectedRows = petitionTable.rows({selected: true}).data().toArray();
             if (selectedRows.length != 1) {
                 addWarning("#error-messages", "Pentru modificări selectați o singură petiție");
                 this.blur()
@@ -166,7 +166,7 @@
 
         $("#start").click(function () {
             var selectedRows = [];
-            $.each(dtable.rows({selected: true}).data().toArray(),function (i, row) {
+            $.each(petitionTable.rows({selected: true}).data().toArray(),function (i, row) {
                 selectedRows.push(row.id);
             });
             console.log(selectedRows);
@@ -181,8 +181,10 @@
                 }).success(function(data){
                     if (data.success=="true") {
                         addSuccess("#error-messages", data.errorMsg);
+                        petitionTable.ajax.reload();
                     } else {
                         addError("#error-messages", data.errorMsg);
+                        petitionTable.ajax.reload();
                     }
                 }).fail(function(){
 
@@ -192,7 +194,7 @@
 
         $('input[name=iCheck]').on('ifChecked', function (event) {
             statusFilter = event.target.id;
-            dtable.ajax.reload();
+            petitionTable.ajax.reload();
         });
     });
     /*]]>*/

@@ -280,7 +280,7 @@ public class PetitionApiController {
 
         for (long id : petitionIds) {
             Petition pet = petitionService.findById(id);
-            if ((pet!=null)&&(pet.getCurrentStatus()== PetitionStatus.Status.RECEIVED)) {
+            if ((pet!=null)&&(pet.getCurrentStatus().equals(PetitionStatus.Status.RECEIVED))) {
                 statusService.create(PetitionStatus.Status.IN_PROGRESS,pet,user);
             } else {
                 errors.add(id);
@@ -288,7 +288,7 @@ public class PetitionApiController {
         }
 
         if (errors.size()>0)
-            if (errors.size()==petitionIds.length) {
+            if (errors.size()>0) {
                 result.put("success","false");
                 result.put("errorMsg", "Statusul nu a fost modificat pentru petitiile: " + errors.toString());
             }
