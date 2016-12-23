@@ -113,7 +113,7 @@
         	$("#modify").click(function () {
                 var selectedRows = contactTable.rows({selected: true}).data().toArray();
                 if (selectedRows.length != 1) {
-                    addWarning("#error-messages", "Pentru modificări selectați o singură Intituție");
+                    addWarning("#error-messages", "Pentru modificări selectați o singură Instituție");
                     this.blur()
                 } else {
                     window.location.href = '/contact/' + selectedRows[0].id;
