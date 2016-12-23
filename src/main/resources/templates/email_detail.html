@@ -66,13 +66,13 @@
                                     <span th:if="${data.attachments.size() > 1}" th:remove="tag"> - </span>
                                 </span>
                                 <a th:if="${data.attachments.size() > 1}"
-                                   th:href="@{/action/download/email/__(${data.id})__}" href="#">
+                                   th:href="@{/api/email/__(${data.id})__/attachments/zip}" href="#">
                                     Salvează toate atașamentele
                                 </a>
                             </p>
                             <ul>
                                 <li th:each="attachment : ${data.attachments}">
-                                    <a th:href="@{/action/download/__(${attachment.id})__}" href="#">
+                                    <a th:href="@{/api/attachments/download/__(${attachment.id})__}" href="#">
                                         <i class="fa fa-paperclip"></i>
                                         <span th:text="${attachment.originalFilename}" th:remove="tag">filename.jpg</span>
                                     </a>
