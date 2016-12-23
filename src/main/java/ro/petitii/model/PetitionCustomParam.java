@@ -3,16 +3,23 @@ package ro.petitii.model;
 import javax.persistence.*;
 import java.util.List;
 
-import static ro.petitii.model.PetitionCustomParamType.getParamType;
-
 @Entity
 @Table(name = "petition_custom_params")
 public class PetitionCustomParam {
+    public enum Type {
+        entity,
+        information,
+        problem,
+        domain,
+        title
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    private String param;
+    @Enumerated(value = EnumType.STRING)
+    private Type param;
 
     @Column(name = "friendly_name")
     private String friendlyName;
@@ -34,12 +41,12 @@ public class PetitionCustomParam {
         this.id = id;
     }
 
-    public PetitionCustomParamType getParam() {
-        return getParamType(param);
+    public Type getParam() {
+        return param;
     }
 
-    public void setParam(PetitionCustomParamType param) {
-        this.param = param.getDbName();
+    public void setParam(Type param) {
+        this.param = param;
     }
 
     public String getFriendlyName() {

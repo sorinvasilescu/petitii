@@ -9,7 +9,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ro.petitii.config.DefaultsConfig;
-import ro.petitii.model.*;
+import ro.petitii.model.Email;
+import ro.petitii.model.Petition;
+import ro.petitii.model.PetitionCustomParam;
+import ro.petitii.model.Petitioner;
 import ro.petitii.service.EmailService;
 import ro.petitii.service.PetitionCustomParamService;
 import ro.petitii.service.PetitionService;
@@ -17,7 +20,6 @@ import ro.petitii.service.UserService;
 
 import javax.validation.Valid;
 import java.util.Date;
-import java.util.List;
 
 @Controller
 public class PetitionController extends ControllerBase {
@@ -46,6 +48,8 @@ public class PetitionController extends ControllerBase {
         petition.setReceivedDate(new Date());
         petition.setPetitioner(petitioner);
 
+        petitionCustomParamService.initDefaults(petition);
+
         ModelAndView modelAndView = new ModelAndView("petitions_crud");
         modelAndView.addObject("petition", petition);
 
@@ -73,6 +77,7 @@ public class PetitionController extends ControllerBase {
         Email email = emailService.searchById(id);
 
         Petition petition = petitionService.createFromEmail(email);
+        petitionCustomParamService.initDefaults(petition);
 
         ModelAndView modelAndView = new ModelAndView("petitions_crud");
         modelAndView.addObject("petition", petition);
@@ -83,11 +88,15 @@ public class PetitionController extends ControllerBase {
     }
 
     @RequestMapping(path = "/petition", method = RequestMethod.POST)
-    public ModelAndView savePetition(@Valid Petition petition, BindingResult bindingResult, final RedirectAttributes attr) {
+    public ModelAndView savePetition(@Valid Petition petition, BindingResult bindingResult,
+                                     final RedirectAttributes attr) {
         ModelAndView modelAndView = new ModelAndView();
+
+        petitionCustomParamService.validate(petition, bindingResult);
+
         if (bindingResult.hasErrors()) {
             modelAndView.setViewName("petitions_crud");
-            modelAndView.addObject("user_list", userService.getAllUsers());
+            addCustomParams(modelAndView);
             modelAndView.addObject("petition", petition);
             modelAndView.addObject("toast", createToast("Petitia nu a fost salvata", ToastType.danger));
         } else {
@@ -95,6 +104,7 @@ public class PetitionController extends ControllerBase {
             modelAndView.setViewName("redirect:/petition/" + petition.getId());
             attr.addFlashAttribute("toast", createToast("Petitia a fost salvata cu succes", ToastType.success));
         }
+
         return modelAndView;
     }
 
@@ -120,9 +130,9 @@ public class PetitionController extends ControllerBase {
     private void addCustomParams(ModelAndView modelAndView) {
         modelAndView.addObject("user_list", userService.getAllUsers());
 
-        for (PetitionCustomParamType type : PetitionCustomParamType.values()) {
+        for (PetitionCustomParam.Type type : PetitionCustomParam.Type.values()) {
             PetitionCustomParam param = petitionCustomParamService.findByType(type);
-            modelAndView.addObject(type.getDbName(), param);
+            modelAndView.addObject(type.name(), param);
         }
     }
 }

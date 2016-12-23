@@ -2,7 +2,7 @@
 -- Entity type
 --
 INSERT INTO `petitions`.`petition_custom_params` (`id`, `param`, `friendly_name`, `default_value`, `required`)
-VALUES (1, 'entity_type', 'Tipul entității', NULL, FALSE);
+VALUES (1, 'entity', 'Tipul entității', NULL, TRUE);
 
 INSERT INTO `petitions`.`petition_custom_params_values` (`id`, `cp_id`, `label`, `value`)
 VALUES (NULL, 1, 'Persoană Fizică', 'PF');
@@ -13,7 +13,7 @@ VALUES (NULL, 1, 'Persoană Juridică', 'PJ');
 -- Information type
 --
 INSERT INTO `petitions`.`petition_custom_params` (`id`, `param`, `friendly_name`, `default_value`, `required`)
-VALUES (2, 'information_type', 'Tipul relației', NULL, FALSE);
+VALUES (2, 'information', 'Tipul relației', NULL, TRUE);
 
 INSERT INTO `petitions`.`petition_custom_params_values` (`id`, `cp_id`, `label`, `value`)
 VALUES (NULL, 2, 'Audiență', 'audienta');
@@ -33,7 +33,7 @@ VALUES (NULL, 2, 'Online', 'online');
 -- Problem type
 --
 INSERT INTO `petitions`.`petition_custom_params` (`id`, `param`, `friendly_name`, `default_value`, `required`)
-VALUES (3, 'problem_type', 'Tip problematică', NULL, FALSE);
+VALUES (3, 'problem', 'Tip problematică', NULL, FALSE);
 
 INSERT INTO `petitions`.`petition_custom_params_values` (`id`, `cp_id`, `label`, `value`)
 VALUES (NULL, 3, 'Solicitare privată', 'solicitare');
@@ -50,7 +50,7 @@ VALUES (NULL, 3, 'Cerere audiență', 'cerere_audienta');
 -- Domain type
 --
 INSERT INTO `petitions`.`petition_custom_params` (`id`, `param`, `friendly_name`, `default_value`, `required`)
-VALUES (4, 'domain_type', 'Domenii', NULL, FALSE);
+VALUES (4, 'domain', 'Domenii', NULL, FALSE);
 
 INSERT INTO `petitions`.`petition_custom_params_values` (`id`, `cp_id`, `label`, `value`)
 VALUES (NULL, 4, 'Administrație publică centrală', 'APC');
@@ -94,7 +94,7 @@ VALUES (NULL, 4, 'Dezvoltare regională', 'DR');
 -- title type
 --
 INSERT INTO `petitions`.`petition_custom_params` (`id`, `param`, `friendly_name`, `default_value`, `required`)
-VALUES (5, 'title_type', 'Adresare', NULL, FALSE);
+VALUES (5, 'title', 'Adresare', NULL, TRUE);
 
 INSERT INTO `petitions`.`petition_custom_params_values` (`id`, `cp_id`, `label`, `value`)
 VALUES (NULL, 5, 'Domnul', 'dl');

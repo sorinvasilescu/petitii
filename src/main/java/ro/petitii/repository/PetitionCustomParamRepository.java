@@ -6,5 +6,5 @@ import ro.petitii.model.PetitionCustomParam;
 
 @Repository
 public interface PetitionCustomParamRepository extends CrudRepository<PetitionCustomParam, Long> {
-    PetitionCustomParam findByParam(String param);
+    PetitionCustomParam findByParam(PetitionCustomParam.Type param);
 }

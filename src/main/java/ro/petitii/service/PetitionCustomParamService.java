@@ -1,8 +1,13 @@
 package ro.petitii.service;
 
+import org.springframework.validation.Errors;
+import ro.petitii.model.Petition;
 import ro.petitii.model.PetitionCustomParam;
-import ro.petitii.model.PetitionCustomParamType;
 
 public interface PetitionCustomParamService {
-    PetitionCustomParam findByType(PetitionCustomParamType type);
+    void initDefaults(Petition petition);
+
+    void validate(Petition petition, Errors errors);
+
+    PetitionCustomParam findByType(PetitionCustomParam.Type type);
 }
