@@ -11,7 +11,7 @@ toastCode =
 function showToast(container, message, type) {
     $(container).prepend(toastCode);
     $('#alert')
-        .removeClass('hidden')
+        .removeClass('hidden','alert-success','alert-danger','alert-warning','alert-info')
         .addClass('alert-' + type)
         .children('#alert-content').text(message);
 }
