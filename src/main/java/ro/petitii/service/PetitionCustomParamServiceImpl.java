@@ -52,19 +52,19 @@ public class PetitionCustomParamServiceImpl implements PetitionCustomParamServic
             if (param.isRequired()) {
                 switch (type) {
                     case domain:
-                        rejectIfEmptyOrWhitespace(errors, "field", errors.getFieldError().getCode());
+                        rejectIfEmptyOrWhitespace(errors, "field", null);
                         break;
                     case entity:
-                        rejectIfEmptyOrWhitespace(errors, "petitioner.entity_type", errors.getFieldError().getCode());
+                        rejectIfEmptyOrWhitespace(errors, "petitioner.entity_type", null);
                         break;
                     case information:
-                        rejectIfEmptyOrWhitespace(errors, "relation", errors.getFieldError().getCode());
+                        rejectIfEmptyOrWhitespace(errors, "relation", null);
                         break;
                     case problem:
-                        rejectIfEmptyOrWhitespace(errors, "problemType", errors.getFieldError().getCode());
+                        rejectIfEmptyOrWhitespace(errors, "problemType", null);
                         break;
                     case title:
-                        rejectIfEmptyOrWhitespace(errors, "petitioner.title", errors.getFieldError().getCode());
+                        rejectIfEmptyOrWhitespace(errors, "petitioner.title", null);
                         break;
                 }
             }
