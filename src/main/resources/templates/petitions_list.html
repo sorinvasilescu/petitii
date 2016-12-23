@@ -178,7 +178,7 @@
                     url: "/api/petitions/start-work",
                     data: {'petitions':selectedRows},
                     method: 'post'
-                }).success(function(data){
+                }).done(function(data){
                     if (data.success=="true") {
                         addSuccess("#error-messages", data.errorMsg);
                         petitionTable.ajax.reload();
