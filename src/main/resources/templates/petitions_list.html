@@ -166,28 +166,27 @@
 
         $("#start").click(function () {
             var selectedRows = [];
-            $.each(petitionTable.rows({selected: true}).data().toArray(),function (i, row) {
+            $.each(petitionTable.rows({selected: true}).data().toArray(), function (i, row) {
                 selectedRows.push(row.id);
             });
-            console.log(selectedRows);
             if (selectedRows.length < 1) {
-                addWarning("#error-messages", "Pentru a schimba statusul, selectati macar o petitie");
+                addWarning("#error-messages", "Pentru a schimba statusul, selectați măcar o petiție");
                 this.blur()
             } else {
                 $.ajax({
                     url: "/api/petitions/start-work",
-                    data: {'petitions':selectedRows},
+                    data: {'petitions': selectedRows},
                     method: 'post'
-                }).done(function(data){
-                    if (data.success=="true") {
+                }).done(function (data) {
+                    if (data.success == "true") {
                         addSuccess("#error-messages", data.errorMsg);
                         petitionTable.ajax.reload();
                     } else {
                         addError("#error-messages", data.errorMsg);
                         petitionTable.ajax.reload();
                     }
-                }).fail(function(){
-
+                }).fail(function (result) {
+                    console.log(result)
                 });
             }
         });
