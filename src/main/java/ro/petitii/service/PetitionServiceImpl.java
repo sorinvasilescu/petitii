@@ -58,8 +58,10 @@ public class PetitionServiceImpl implements PetitionService {
     @Override
     public Petition save(Petition petition) {
         // if registration number does not exist, generate one
-        if (petition.getRegNo() == null || petition.getRegNo().getNumber() == null) {
+        if (petition.getRegNo() == null || petition.getRegNo().getId() == null) {
             petition.setRegNo(regNoService.generate());
+        } else {
+            petition.setRegNo(regNoService.findById(petition.getRegNo().getId()));
         }
 
         // find petitioners from database

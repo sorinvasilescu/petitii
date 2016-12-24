@@ -26,4 +26,9 @@ public class RegistrationNumberServiceImpl implements RegistrationNumberService 
         registrationNo.setNumber(String.format(config.getPattern(),registrationNo.getId()));
         return registrationNo;
     }
+
+    @Override
+    public RegistrationNo findById(long id) {
+        return em.find(RegistrationNo.class, id);
+    }
 }
