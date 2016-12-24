@@ -8,19 +8,19 @@ import java.util.Date;
 public class RegistrationNo {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    long id;
+    private Long id;
 
-    String number;
-    Date date;
+    private String number;
+    private Date date;
 
     @OneToOne(mappedBy = "regNo")
-    Petition petition;
+    private Petition petition;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
