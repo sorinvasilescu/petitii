@@ -18,14 +18,15 @@ import ro.petitii.service.email.ImapService;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PetitionServiceImpl implements PetitionService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ImapService.class);
+    private static final DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
 
     @Autowired
     private PetitionRepository petitionRepository;
@@ -53,16 +54,6 @@ public class PetitionServiceImpl implements PetitionService {
 
     @Autowired
     private AttachmentService attachmentService;
-
-    @Override
-    public Long count() {
-        return petitionRepository.count();
-    }
-
-    @Override
-    public Long countByResponsible(User responsible) {
-        return petitionRepository.countByResponsible(responsible);
-    }
 
     @Override
     public Petition save(Petition petition) {
@@ -163,66 +154,78 @@ public class PetitionServiceImpl implements PetitionService {
     }
 
     @Override
-    public List<Petition> findByResponsible(User user, PageRequest p) {
-        Page<Petition> petitions = petitionRepository.findByResponsible(user, p);
-        return petitions.getContent();
-    }
-
-    @Override
-    public List<Petition> findByResponsibleAndStatus(User user, PetitionStatus.Status status, PageRequest p) {
-        Page<Petition> petitions = petitionRepository.findByResponsibleAndCurrentStatus(user, status, p);
-        return petitions.getContent();
-    }
-
-    @Override
-    public List<Petition> findByStatus(PetitionStatus.Status status, PageRequest p) {
-        Page<Petition> petitions = petitionRepository.findByCurrentStatus(status, p);
-        return petitions.getContent();
-    }
-
-    @Override
-    public List<Petition> findAll(PageRequest p) {
-        Page<Petition> petitions = petitionRepository.findAll(p);
-        return petitions.getContent();
-    }
-
-    @Override
     public DataTablesOutput<PetitionResponse> getTableContent(User user, PetitionStatus.Status status,
                                                               PageRequest p) {
-        List<Petition> petitions;
+        Page<Petition> petitions;
         if (user != null) {
             if (status == null) {
-                petitions = this.findByResponsible(user, p);
+                petitions = petitionRepository.findByResponsible(user, p);
             } else {
-                petitions = this.findByResponsibleAndStatus(user, status, p);
+                petitions = petitionRepository.findByResponsibleAndCurrentStatus(user, status, p);
             }
         } else {
             if (status == null) {
-                petitions = this.findAll(p);
+                petitions = petitionRepository.findAll(p);
             } else {
-                petitions = this.findByStatus(status, p);
+                petitions = petitionRepository.findByCurrentStatus(status, p);
             }
         }
         DataTablesOutput<PetitionResponse> response = new DataTablesOutput<>();
-        List<PetitionResponse> data = new ArrayList<>();
-        for (Petition petition : petitions) {
-            PetitionResponse element = new PetitionResponse();
-            element.setId(petition.getId());
-            element.set_abstract(petition.getSubject());
-            element.setPetitionerEmail(petition.getPetitioner().getEmail());
-            element.setPetitionerName(petition.getPetitioner().getFirstName() + " " +
-                                              petition.getPetitioner().getLastName());
-            element.setRegNo(petition.getRegNo().getNumber());
-            element.setStatus(messageSource.getMessage(petition.statusString(), null, new Locale("ro")));
-            data.add(element);
-        }
-        response.setData(data);
+        response.setData(convert(petitions));
         Long count;
-        if (user != null) count = this.countByResponsible(user);
-        else count = this.count();
+        if (user != null) {
+            count = petitionRepository.countByResponsible(user);
+        } else {
+            count = petitionRepository.count();
+        }
         response.setRecordsTotal(count);
         response.setRecordsFiltered(count);
 
         return response;
+    }
+
+    @Override
+    public DataTablesOutput<PetitionResponse> getTableContent(Petition petition, Petitioner petitioner, PageRequest p) {
+        Page<Petition> petitions = petitionRepository.findByPetitioner(petitioner, p);
+        DataTablesOutput<PetitionResponse> response = new DataTablesOutput<>();
+        response.setData(convertAndFilter(petitions, petition.getId()));
+        Long count = petitionRepository.countByPetitioner(petitioner) - 1;
+        response.setRecordsTotal(count);
+        response.setRecordsFiltered(count);
+        return response;
+    }
+
+    @Override
+    public DataTablesOutput<PetitionResponse> getTableLinkedPetitions(Petition petition, PageRequest p) {
+        Page<Petition> petitions = petitionRepository.findLinkedPetitions(petition.getId(), p);
+        DataTablesOutput<PetitionResponse> response = new DataTablesOutput<>();
+        response.setData(convert(petitions));
+        Long count = petitionRepository.countLinkedPetitions(petition.getId());
+        response.setRecordsTotal(count);
+        response.setRecordsFiltered(count);
+        return response;
+    }
+
+    private List<PetitionResponse> convert(Page<Petition> petitions) {
+        return petitions.getContent().stream().map(this::convert).collect(Collectors.toList());
+    }
+
+    private List<PetitionResponse> convertAndFilter(Page<Petition> petitions, Long filterPetitionId) {
+        return petitions.getContent().stream().filter(p -> !Objects.equals(filterPetitionId, p.getId()))
+                        .map(this::convert).collect(Collectors.toList());
+    }
+
+    private PetitionResponse convert(Petition petition) {
+        PetitionResponse element = new PetitionResponse();
+        element.setId(petition.getId());
+        element.set_abstract(petition.getSubject());
+        element.setPetitionerEmail(petition.getPetitioner().getEmail());
+        element.setPetitionerName(petition.getPetitioner().getFullName());
+        element.setUser(petition.getResponsible().getFullName());
+        element.setReceivedDate(df.format(petition.getReceivedDate()));
+        element.setLastUpdateDate(df.format(petition.getLastUpdateDate()));
+        element.setRegNo(petition.getRegNo().getNumber());
+        element.setStatus(messageSource.getMessage(petition.statusString(), null, new Locale("ro")));
+        return element;
     }
 }

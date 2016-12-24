@@ -61,3 +61,80 @@ function onInputChange() {
         span.text(span.text() + (i!=0?', ':'') + file.name);
     });
 }
+
+function linkPopup(title, petitionsApiUrl, languageUrl, callback) {
+    var dialog = bootbox.dialog({
+        title: title,
+        size: 'large',
+        backdrop: true,
+        message: '<div class="container"><table id="linked-petitions-popup"' +
+        ' class="table table-striped row-border compact stripe dt-responsive nowrap"' +
+        ' cellspacing="0" width="100%">' +
+        '</table></div>',
+        buttons: {
+            upload: {
+                label: 'Selectează',
+                className: 'btn-success',
+                callback: function () {
+                    var selected = $('#linked-petitions-popup').DataTable().rows({selected: true}).data().toArray();
+                    if (selected.length > 0) {
+                        callback(selected);
+                    }
+                }
+            },
+            cancel: {
+                label: 'Anulează',
+                className: 'btn-default'
+            }
+        }
+    });
+
+    dialog.init(function () {
+        $('#linked-petitions-popup').DataTable({
+            select: {
+                style: 'multi'
+            },
+            processing: true,
+            serverSide: true,
+            sDom: 'lrtip ',
+            rowId: "id",
+            order: [[3, 'desc']],
+            ajax: {
+                url: petitionsApiUrl,
+                type: 'POST'
+            },
+            language: {
+                url: languageUrl,
+                select: selectTranslation()
+            },
+            fixedColumns: true,
+            columns: [
+                {
+                    name: 'id',
+                    data: 'id',
+                    title: '#'
+                },
+                {
+                    name: 'regNo',
+                    data: 'regNo',
+                    title: 'Nr. înregistrare'
+                },
+                {
+                    name: '_abstract',
+                    data: '_abstract',
+                    title: 'Titlu'
+                },
+                {
+                    name: 'receivedDate',
+                    data: 'receivedDate',
+                    title: 'Data'
+                },
+                {
+                    name: 'user',
+                    data: 'user',
+                    title: 'Responsabil'
+                }
+            ]
+        });
+    })
+}
