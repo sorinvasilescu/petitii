@@ -11,9 +11,8 @@ import java.util.Date;
 
 @Service
 public class PetitionStatusServiceImpl implements PetitionStatusService {
-
     @Autowired
-    PetitionStatusRepository psRepository;
+    private PetitionStatusRepository psRepository;
 
     // private method, not for external use
     private PetitionStatus save(PetitionStatus petitionStatus) {

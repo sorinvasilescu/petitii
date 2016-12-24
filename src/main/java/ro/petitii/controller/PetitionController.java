@@ -23,21 +23,20 @@ import java.util.Date;
 
 @Controller
 public class PetitionController extends ControllerBase {
+    @Autowired
+    private UserService userService;
 
     @Autowired
-    UserService userService;
+    private PetitionService petitionService;
 
     @Autowired
-    PetitionService petitionService;
+    private EmailService emailService;
 
     @Autowired
-    EmailService emailService;
+    private DefaultsConfig defaultsConfig;
 
     @Autowired
-    DefaultsConfig defaultsConfig;
-
-    @Autowired
-    PetitionCustomParamService petitionCustomParamService;
+    private PetitionCustomParamService petitionCustomParamService;
 
     @RequestMapping(path = "/petition", method = RequestMethod.GET)
     public ModelAndView addPetition() {

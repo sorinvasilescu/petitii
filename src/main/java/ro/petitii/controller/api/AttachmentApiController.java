@@ -6,12 +6,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.client.HttpClientErrorException;
 import ro.petitii.model.Attachment;
 import ro.petitii.service.AttachmentService;
-import ro.petitii.service.EmailService;
-import ro.petitii.service.PetitionService;
 
 import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletResponse;
@@ -24,14 +23,7 @@ import java.nio.file.Paths;
 
 @Controller
 public class AttachmentApiController {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(AttachmentApiController.class);
-
-    @Autowired
-    private PetitionService petitionService;
-
-    @Autowired
-    private EmailService emailService;
 
     @Autowired
     private AttachmentService attachmentService;
@@ -43,7 +35,8 @@ public class AttachmentApiController {
             Path filepath = Paths.get(att.getFilename());
             FileInputStream is = new FileInputStream(new File(filepath.toUri()));
             response.setContentType("application/octet-stream");
-            response.setHeader("Content-disposition", "attachment; filename=" + URLEncoder.encode(att.getOriginalFilename(), "UTF-8"));
+            String encoded = URLEncoder.encode(att.getOriginalFilename(), "UTF-8");
+            response.setHeader("Content-disposition", "attachment; filename=" + encoded);
             IOUtils.copy(is, response.getOutputStream());
             is.close();
             response.flushBuffer();

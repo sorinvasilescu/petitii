@@ -12,9 +12,8 @@ import ro.petitii.repository.ContactRepository;
 
 @Service
 public class ContactServiceImpl implements ContactService {
-
 	@Autowired
-	ContactRepository contactRepository;
+	private ContactRepository contactRepository;
 	 
 	@Override
 	public Iterable<Contact> getAllContacts() {

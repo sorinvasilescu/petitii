@@ -13,12 +13,8 @@ import javax.mail.MessagingException;
 
 @Controller
 public class MainController implements ErrorController {
-
     @Autowired
-    ImapService imapService;
-
-    @Autowired
-    SmtpService smtpService;
+    private SmtpService smtpService;
 
     @RequestMapping("/error")
     public String error() {

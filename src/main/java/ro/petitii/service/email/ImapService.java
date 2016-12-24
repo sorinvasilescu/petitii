@@ -25,10 +25,10 @@ import static ro.petitii.util.CleanUtil.cleanHtml;
 @Service
 public class ImapService {
     @Autowired
-    ImapConfig imapConfig;
+    private ImapConfig imapConfig;
 
     @Autowired
-    EmailService emailService;
+    private EmailService emailService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ImapService.class);
 

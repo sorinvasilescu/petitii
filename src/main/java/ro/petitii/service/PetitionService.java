@@ -1,5 +1,6 @@
 package ro.petitii.service;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import ro.petitii.model.Email;
@@ -21,17 +22,13 @@ public interface PetitionService {
 
     Long countByResponsible(User responsible);
 
-    List<Petition> findByResponsible(User user, int startIndex, int size,
-                                     Sort.Direction sortDirection, String sortColumn);
+    List<Petition> findByResponsible(User user, PageRequest p);
 
-    List<Petition> findByResponsibleAndStatus(User user, PetitionStatus.Status status, int startIndex, int size,
-                                              Sort.Direction sortDirection, String sortColumn);
+    List<Petition> findByResponsibleAndStatus(User user, PetitionStatus.Status status, PageRequest p);
 
-    List<Petition> findByStatus(PetitionStatus.Status status, int startIndex, int size,
-                                Sort.Direction sortDirection, String sortColumn);
+    List<Petition> findByStatus(PetitionStatus.Status status, PageRequest p);
 
-    List<Petition> findAll(int startIndex, int size, Sort.Direction sortDirection, String sortColumn);
+    List<Petition> findAll(PageRequest p);
 
-    DataTablesOutput<PetitionResponse> getTableContent(User user, PetitionStatus.Status status,
-                                                       int startIndex, int size, Sort.Direction sortDirection, String sortColumn);
+    DataTablesOutput<PetitionResponse> getTableContent(User user, PetitionStatus.Status status, PageRequest p);
 }
