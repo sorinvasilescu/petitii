@@ -4,7 +4,6 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.http.HttpStatus;
@@ -30,13 +29,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import static ro.petitii.controller.api.DatatableUtils.pageRequest;
+
 @RestController
 public class EmailApiController {
     @Autowired
-    EmailService emailService;
+    private EmailService emailService;
 
     @Autowired
-    ImapService imapService;
+    private ImapService imapService;
 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EmailApiController.class);
@@ -45,11 +46,7 @@ public class EmailApiController {
     @ResponseBody
     public DataTablesOutput<EmailResponse> getInbox(@Valid DataTablesInput input) {
         int sequenceNo = input.getDraw();
-        String sortColumn = input.getColumns().get(input.getOrder().get(0).getColumn()).getName();
-        Sort.Direction sortDirection = null;
-        if (input.getOrder().get(0).getDir().equals("asc")) sortDirection = Sort.Direction.ASC;
-        else if (input.getOrder().get(0).getDir().equals("desc")) sortDirection = Sort.Direction.DESC;
-        DataTablesOutput<EmailResponse> response = emailService.getTableContent(Email.EmailType.Inbox, input.getStart(), input.getLength(), sortDirection, sortColumn);
+        DataTablesOutput<EmailResponse> response = emailService.getTableContent(Email.EmailType.Inbox, pageRequest(input));
         response.setDraw(sequenceNo);
         return response;
     }
@@ -58,11 +55,8 @@ public class EmailApiController {
     @ResponseBody
     public DataTablesOutput<EmailResponse> getSpam(@Valid DataTablesInput input) {
         int sequenceNo = input.getDraw();
-        String sortColumn = input.getColumns().get(input.getOrder().get(0).getColumn()).getName();
-        Sort.Direction sortDirection = null;
-        if (input.getOrder().get(0).getDir().equals("asc")) sortDirection = Sort.Direction.ASC;
-        else if (input.getOrder().get(0).getDir().equals("desc")) sortDirection = Sort.Direction.DESC;
-        DataTablesOutput<EmailResponse> response = emailService.getTableContent(Email.EmailType.Spam, input.getStart(), input.getLength(), sortDirection, sortColumn);
+
+        DataTablesOutput<EmailResponse> response = emailService.getTableContent(Email.EmailType.Spam, pageRequest(input));
         response.setDraw(sequenceNo);
         return response;
     }

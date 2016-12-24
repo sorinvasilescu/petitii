@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,35 +25,34 @@ import java.util.Locale;
 
 @Service
 public class PetitionServiceImpl implements PetitionService {
-
-    @Autowired
-    PetitionRepository petitionRepository;
-
-    @Autowired
-    RegistrationNumberService regNoService;
-
-    @Autowired
-    PetitionerService petitionerService;
-
-    @Autowired
-    EmailService emailService;
-
-    @Autowired
-    UserService userService;
-
-    @Autowired
-    PetitionStatusService psService;
-
-    @Autowired
-    MessageSource messageSource;
-
-    @Autowired
-    DefaultsConfig defaultsConfig;
-
-    @Autowired
-    AttachmentService attachmentService;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(ImapService.class);
+
+    @Autowired
+    private PetitionRepository petitionRepository;
+
+    @Autowired
+    private RegistrationNumberService regNoService;
+
+    @Autowired
+    private PetitionerService petitionerService;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private PetitionStatusService psService;
+
+    @Autowired
+    private MessageSource messageSource;
+
+    @Autowired
+    private DefaultsConfig defaultsConfig;
+
+    @Autowired
+    private AttachmentService attachmentService;
 
     @Override
     public Long count() {
@@ -165,53 +163,44 @@ public class PetitionServiceImpl implements PetitionService {
     }
 
     @Override
-    public List<Petition> findByResponsible(User user, int startIndex, int size,
-                                            Sort.Direction sortDirection, String sortColumn) {
-        PageRequest p = new PageRequest(startIndex / size, size, sortDirection, sortColumn);
+    public List<Petition> findByResponsible(User user, PageRequest p) {
         Page<Petition> petitions = petitionRepository.findByResponsible(user, p);
         return petitions.getContent();
     }
 
     @Override
-    public List<Petition> findByResponsibleAndStatus(User user, PetitionStatus.Status status, int startIndex, int size,
-                                                     Sort.Direction sortDirection, String sortColumn) {
-        PageRequest p = new PageRequest(startIndex / size, size, sortDirection, sortColumn);
+    public List<Petition> findByResponsibleAndStatus(User user, PetitionStatus.Status status, PageRequest p) {
         Page<Petition> petitions = petitionRepository.findByResponsibleAndCurrentStatus(user, status, p);
         return petitions.getContent();
     }
 
     @Override
-    public List<Petition> findByStatus(PetitionStatus.Status status, int startIndex, int size,
-                                       Sort.Direction sortDirection, String sortColumn) {
-        PageRequest p = new PageRequest(startIndex / size, size, sortDirection, sortColumn);
+    public List<Petition> findByStatus(PetitionStatus.Status status, PageRequest p) {
         Page<Petition> petitions = petitionRepository.findByCurrentStatus(status, p);
         return petitions.getContent();
     }
 
     @Override
-    public List<Petition> findAll(int startIndex, int size, Sort.Direction sortDirection, String sortcolumn) {
-        PageRequest p = new PageRequest(startIndex / size, size, sortDirection, sortcolumn);
+    public List<Petition> findAll(PageRequest p) {
         Page<Petition> petitions = petitionRepository.findAll(p);
         return petitions.getContent();
     }
 
     @Override
     public DataTablesOutput<PetitionResponse> getTableContent(User user, PetitionStatus.Status status,
-                                                              int startIndex, int size,
-                                                              Sort.Direction sortDirection,
-                                                              String sortColumn) {
+                                                              PageRequest p) {
         List<Petition> petitions;
         if (user != null) {
             if (status == null) {
-                petitions = this.findByResponsible(user, startIndex, size, sortDirection, sortColumn);
+                petitions = this.findByResponsible(user, p);
             } else {
-                petitions = this.findByResponsibleAndStatus(user, status, startIndex, size, sortDirection, sortColumn);
+                petitions = this.findByResponsibleAndStatus(user, status, p);
             }
         } else {
             if (status == null) {
-                petitions = this.findAll(startIndex, size, sortDirection, sortColumn);
+                petitions = this.findAll(p);
             } else {
-                petitions = this.findByStatus(status, startIndex, size, sortDirection, sortColumn);
+                petitions = this.findByStatus(status, p);
             }
         }
         DataTablesOutput<PetitionResponse> response = new DataTablesOutput<>();

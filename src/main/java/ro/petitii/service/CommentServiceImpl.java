@@ -1,17 +1,18 @@
 package ro.petitii.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.stereotype.Service;
 import ro.petitii.model.Comment;
 import ro.petitii.model.Petition;
+import ro.petitii.model.User;
 import ro.petitii.model.datatables.CommentResponse;
 import ro.petitii.repository.CommentRepository;
 
-import javax.inject.Inject;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -19,16 +20,23 @@ import java.util.List;
 public class CommentServiceImpl implements CommentService {
     private static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
+    @Autowired
     private CommentRepository commentRepository;
-
-    @Inject
-    public CommentServiceImpl(CommentRepository commentRepository) {
-        this.commentRepository = commentRepository;
-    }
 
     @Override
     public Comment save(Comment comment) {
         return commentRepository.save(comment);
+    }
+
+    @Override
+    public Comment createAndSave(User user, Petition petition, String body) {
+        Comment comment = new Comment();
+        comment.setComment(body);
+        comment.setUser(user);
+        comment.setDate(new Date());
+        comment.setPetition(petition);
+
+        return this.save(comment);
     }
 
     @Override
@@ -37,8 +45,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public DataTablesOutput<CommentResponse> getTableContent(Petition petition, int startIndex, int size, Sort.Direction sortDirection, String sortColumn) {
-        PageRequest p = new PageRequest(startIndex / size, size, sortDirection, sortColumn);
+    public DataTablesOutput<CommentResponse> getTableContent(Petition petition, PageRequest p) {
         Page<Comment> comments = commentRepository.findByPetitionId(petition.getId(), p);
 
         List<CommentResponse> data = new LinkedList<>();

@@ -17,7 +17,6 @@ import java.util.Properties;
 
 @Service
 public class SmtpService {
-
     @Autowired
     private SmtpConfig config;
 

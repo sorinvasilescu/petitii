@@ -20,7 +20,6 @@ import java.util.List;
 
 @Service
 public class EmailServiceImpl implements EmailService {
-
     @Autowired
     private EmailRepository emailRepository;
 
@@ -28,7 +27,7 @@ public class EmailServiceImpl implements EmailService {
     private AttachmentService attachmentService;
 
     @PersistenceContext
-    EntityManager em;
+    private EntityManager em;
 
     @Override
     @Transactional
@@ -72,22 +71,20 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public List<Email> findAll(int startIndex, int size, Sort.Direction sortDirection, String sortcolumn) {
-        PageRequest p = new PageRequest(startIndex / size, size, sortDirection, sortcolumn);
+    public List<Email> findAll(PageRequest p) {
         Page<Email> emails = emailRepository.findAll(p);
         return emails.getContent();
     }
 
     @Override
-    public List<Email> findAllByType(Email.EmailType type, int startIndex, int size, Sort.Direction sortDirection, String sortcolumn) {
-        PageRequest p = new PageRequest(startIndex / size, size, sortDirection, sortcolumn);
+    public List<Email> findAllByType(Email.EmailType type, PageRequest p) {
         Page<Email> emails = emailRepository.findByType(type, p);
         return emails.getContent();
     }
 
     @Override
-    public DataTablesOutput<EmailResponse> getTableContent(Email.EmailType type, int startIndex, int size, Sort.Direction sortDirection, String sortColumn) {
-        List<Email> result = this.findAllByType(type, startIndex, size, sortDirection, sortColumn);
+    public DataTablesOutput<EmailResponse> getTableContent(Email.EmailType type, PageRequest p) {
+        List<Email> result = this.findAllByType(type, p);
         List<EmailResponse> data = new ArrayList<>();
         SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         for (Email e : result) {

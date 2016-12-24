@@ -12,12 +12,8 @@ import static org.springframework.validation.ValidationUtils.rejectIfEmptyOrWhit
 
 @Service
 public class PetitionCustomParamServiceImpl implements PetitionCustomParamService {
-    private PetitionCustomParamRepository repository;
-
     @Autowired
-    public PetitionCustomParamServiceImpl(PetitionCustomParamRepository repository) {
-        this.repository = repository;
-    }
+    private PetitionCustomParamRepository repository;
 
     @Override
     public void initDefaults(Petition petition) {
