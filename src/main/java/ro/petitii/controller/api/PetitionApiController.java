@@ -59,6 +59,9 @@ public class PetitionApiController {
     @Autowired
     private PetitionStatusService statusService;
 
+    @Autowired
+    private ConnectionService connectionService;
+
     // will answer to compounded URL /api/petitions/user
     @RequestMapping(value = "/user", method = RequestMethod.POST)
     @ResponseBody
@@ -70,8 +73,7 @@ public class PetitionApiController {
 
         PetitionStatus.Status pStatus = parseStatus(status);
 
-        DataTablesOutput<PetitionResponse> response = petitionService
-                .getTableContent(user, pStatus, pageRequest(input));
+        DataTablesOutput<PetitionResponse> response = petitionService.getTableContent(user, pStatus, pageRequest(input, PetitionResponse.sortMapping));
         response.setDraw(sequenceNo);
 
         return response;
@@ -82,8 +84,35 @@ public class PetitionApiController {
     public DataTablesOutput<PetitionResponse> getAllPetitions(@Valid DataTablesInput input, String status) {
         int sequenceNo = input.getDraw();
         PetitionStatus.Status pStatus = parseStatus(status);
-        DataTablesOutput<PetitionResponse> response = petitionService
-                .getTableContent(null, pStatus, pageRequest(input));
+        DataTablesOutput<PetitionResponse> response = petitionService.getTableContent(null, pStatus, pageRequest(input, PetitionResponse.sortMapping));
+        response.setDraw(sequenceNo);
+        return response;
+    }
+
+ @RequestMapping(value = "{id}/by/petitioner", method = RequestMethod.POST)
+    @ResponseBody
+    public DataTablesOutput<PetitionResponse> getPetitionsByPetitioner(@Valid DataTablesInput input,
+                                                                       @PathVariable("id") long id) {
+        int sequenceNo = input.getDraw();
+        Petition petition = petitionService.findById(id);
+        if (petition == null) {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        }
+        DataTablesOutput<PetitionResponse> response = petitionService.getTableContent(petition, petition.getPetitioner(), pageRequest(input, PetitionResponse.sortMapping));
+        response.setDraw(sequenceNo);
+        return response;
+    }
+
+    @RequestMapping(value = "{id}/linked", method = RequestMethod.POST)
+    @ResponseBody
+    public DataTablesOutput<PetitionResponse> getLinkedPetitions(@Valid DataTablesInput input,
+                                                              @PathVariable("id") long id) {
+        int sequenceNo = input.getDraw();
+        Petition petition = petitionService.findById(id);
+        if (petition == null) {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        }
+        DataTablesOutput<PetitionResponse> response = petitionService.getTableLinkedPetitions(petition, pageRequest(input, PetitionResponse.sortMapping));
         response.setDraw(sequenceNo);
         return response;
     }
@@ -98,8 +127,7 @@ public class PetitionApiController {
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
         }
 
-        DataTablesOutput<AttachmentResponse> response = attachmentService
-                .getTableContent(petition, pageRequest(input, AttachmentResponse.sortMapping));
+        DataTablesOutput<AttachmentResponse> response = attachmentService.getTableContent(petition, pageRequest(input, AttachmentResponse.sortMapping));
         response.setDraw(sequenceNo);
         return response;
     }
@@ -216,6 +244,38 @@ public class PetitionApiController {
     @ResponseBody
     public String deleteComment(@PathVariable("cid") Long cid) {
         commentService.delete(cid);
+        return "done";
+    }
+
+    @RequestMapping(value = "/{pid}/link/{vid}", method = RequestMethod.POST)
+    @ResponseBody
+    public String linkPetitions(@PathVariable("pid") Long pid, @PathVariable("vid") Long vid) {
+        Petition petition = petitionService.findById(pid);
+        if (petition == null) {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        }
+        Petition vassal = petitionService.findById(vid);
+        if (vassal == null) {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        }
+
+        connectionService.link(petition, vassal);
+        return "done";
+    }
+
+    @RequestMapping(value = "/{pid}/unlink/{vid}", method = RequestMethod.POST)
+    @ResponseBody
+    public String unlinkPetitions(@PathVariable("pid") Long pid, @PathVariable("vid") Long vid) {
+        Petition petition = petitionService.findById(pid);
+        if (petition == null) {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        }
+        Petition vassal = petitionService.findById(vid);
+        if (vassal == null) {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        }
+
+        connectionService.unlink(petition, vassal);
         return "done";
     }
 

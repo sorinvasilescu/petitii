@@ -7,6 +7,7 @@
 <!--/*@thymesVar id="user_list" type="java.util.List<ro.petitii.model.User>"*/-->
 <!--/*@thymesVar id="commentsApiUrl" type="java.lang.String"*/-->
 <!--/*@thymesVar id="attachmentApiUrl" type="java.lang.String"*/-->
+<!--/*@thymesVar id="linkedPetitionsApiUrl" type="java.lang.String"*/-->
 <!-- Custom Params -->
 <!--/*@thymesVar id="entity" type="ro.petitii.model.PetitionCustomParam"*/-->
 <!--/*@thymesVar id="information" type="ro.petitii.model.PetitionCustomParam"*/-->
@@ -218,7 +219,7 @@
                                     <a href="#tab_content2" role="tab" id="file-tab" data-toggle="tab" aria-expanded="false">Atașamente</a>
                                 </li>
                                 <li role="presentation" class="">
-                                    <a href="#tab_content3" role="tab" id="conex-tab" data-toggle="tab" aria-expanded="false">Pet. conexe</a>
+                                    <a href="#tab_content3" role="tab" id="conex-tab" data-toggle="tab" aria-expanded="false">Petiții conexe</a>
                                 </li>
                                 <li role="presentation" class="">
                                     <a href="#tab_content4" role="tab" id="obs-tab" data-toggle="tab" aria-expanded="false">Observații</a>
@@ -262,53 +263,21 @@
                                         </table>
                                     </div>
                                     <div th:if="${attachmentApiUrl} == null">
-                                        <h2>Salvați petiția pentru a putea adăuga ataşamente ...</h2>
+                                        <h2 align="center">Salvați petiția pentru a putea adăuga atașamente ...</h2>
                                     </div>
                                 </div>
                                 <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="profile-tab">
-                                    <button type="button" class="btn btn-default btn-sm pull-right"><i class="fa fa-link"></i> Conexeaza petitie</button>
-                                    <table class="table">
-                                        <thead>
-                                            <tr>
-                                                <th>#</th>
-                                                <th>Petent</th>
-                                                <th>Rezumat</th>
-                                                <th>Data primire</th>
-                                                <th>Status</th>
-                                                <th>Ultima modificare</th>
-                                                <th></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <th scope="row">1</th>
-                                                <td>Mark</td>
-                                                <td>...rezumat</td>
-                                                <td>12.12.2016 23:59</td>
-                                                <td>Clasata</td>
-                                                <td>12.12.2016 23:59</td>
-                                                <td><i class="fa fa-unlink"></i></td>
-                                            </tr>
-                                            <tr>
-                                                <th scope="row">2</th>
-                                                <td>Mark</td>
-                                                <td>...rezumat</td>
-                                                <td>12.12.2016 23:59</td>
-                                                <td>Clasata</td>
-                                                <td>12.12.2016 23:59</td>
-                                                <td><i class="fa fa-unlink"></i></td>
-                                            </tr>
-                                            <tr>
-                                                <th scope="row">3</th>
-                                                <td>Mark</td>
-                                                <td>...rezumat</td>
-                                                <td>12.12.2016 23:59</td>
-                                                <td>Clasata</td>
-                                                <td>12.12.2016 23:59</td>
-                                                <td><i class="fa fa-unlink"></i></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                    <div th:if="${linkedPetitionsApiUrl} != null">
+                                        <button id="unlink-petition" type="button" class="btn btn-default btn-sm pull-right"><i class="fa fa-link"></i> Șterge conexiune</button>
+                                        <button id="link-petition" type="button" class="btn btn-default btn-sm pull-right"><i class="fa fa-link"></i> Creează conexiune</button>
+                                        <table id="connexions"
+                                               class="table table-striped row-border compact stripe dt-responsive nowrap"
+                                               cellspacing="0" width="100%">
+                                        </table>
+                                    </div>
+                                    <div th:if="${linkedPetitionsApiUrl} == null">
+                                        <h2 align="center">Salvați petiția pentru a putea crea conexiuni ...</h2>
+                                    </div>
                                 </div>
                                 <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="profile-tab">
                                     <div th:if="${commentsApiUrl} != null">
@@ -326,7 +295,7 @@
                                         </table>
                                     </div>
                                     <div th:if="${commentsApiUrl} == null">
-                                        <h2>Salvați petiția pentru a putea adăuga comentarii ...</h2>
+                                        <h2 align="center">Salvați petiția pentru a putea adăuga comentarii ...</h2>
                                     </div>
                                 </div>
                             </div>
@@ -360,12 +329,16 @@
 
     <!-- Variables from backend -->
     <script th:inline="javascript" type="text/javascript">
-    /*<![CDATA[*/
-    var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
-    var commentsApiUrl = /*[[${commentsApiUrl}]]*/ '/api/petitions/{id}/comments';
-    var pid = /*[[${petition.id}]]*/ '#';
-    var inlucru = /*[[#{IN_PROGRESS}]]*/ "In lucru";
-    /*]]>*/
+        /*<![CDATA[*/
+        var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
+        var commentsApiUrl = /*[[${commentsApiUrl}]]*/ '/api/petitions/{id}/comments';
+        var attachmentsApiUrl = /*[[${attachmentApiUrl}]]*/ '/api/petitions/{id}/attachments/';
+        var linkedPetitionsApiUrl = /*[[${linkedPetitionsApiUrl}]]*/ '/api/petitions/{id}/linked';
+        var linkedByPetitionerApiUrl = /*[[${linkedPetitionerApiUrl}]]*/ '/api/petitions/{id}/by/petitioner';
+        var pEmail = /*[[${petition.petitioner.email}]]*/ '#';
+        var pid = /*[[${petition.id}]]*/ '#';
+        var inLucru = /*[[#{IN_PROGRESS}]]*/ "In lucru";
+        /*]]>*/
     </script>
 
     <!-- Datatables -->
@@ -396,12 +369,12 @@
             }).done(function(data){
                 if (data.success=='true') {
                     addSuccess('#error-messages', data.errorMsg);
-                    $('#status').val(inlucru);
+                    $('#status').val(inLucru);
                 } else {
                     addError('#error-messages', data.errorMsg);
                 }
             }).fail(function(reason){
-                addError('#error-messages', error);
+                addError('#error-messages', reason);
                 });
         });
 
@@ -421,7 +394,7 @@
     </script>
 
     <!-- Comments -->
-    <script th:if="${commentsApiUrl} != null" th:inline="javascript" type="application/javascript">
+    <script th:if="${commentsApiUrl} != null" type="application/javascript">
         $(document).ready(function() {
             var observationsTable = $('#observations').DataTable({
                 select: {
@@ -501,14 +474,8 @@
     </script>
 
     <!-- attachments -->
-    <script th:if="${attachmentApiUrl} != null" th:inline="javascript" type="application/javascript">
+    <script th:if="${attachmentApiUrl} != null" type="application/javascript">
         $(document).ready(function() {
-            /*<![CDATA[*/
-            var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
-            var attachmentsApiUrl = /*[[${attachmentApiUrl}]]*/ '/api/petitions/{id}/attachments/';
-            var pid = /*[[${petition.id}]]*/ '#';
-            /*]]>*/
-
             var attachmentTable = $('#attachments').DataTable({
                 select: {
                     style: 'single'
@@ -615,7 +582,112 @@
             });
         });
     </script>
-    <!-- /Datatables -->
+
+    <script th:if="${linkedPetitionsApiUrl} != null" type="application/javascript">
+        $(document).ready(function() {
+            var linkedTable = $('#connexions').DataTable({
+                select: {
+                    style: 'single'
+                },
+                processing: true,
+                serverSide: true,
+                sDom: 'lrtip ',
+                rowId: "id",
+                order: [[3, 'desc']],
+                ajax: {
+                    url: linkedPetitionsApiUrl,
+                    type: 'POST'
+                },
+                language: {
+                    url: languageUrl,
+                    select: selectTranslation()
+                },
+                fixedColumns: true,
+                columns: [
+                    {
+                        name: 'id',
+                        data: 'id',
+                        title: "#",
+                        sortable: false
+                    },
+                    {
+                        name: 'petitionerEmail',
+                        data: 'petitionerEmail',
+                        title: 'Petent'
+                    },
+                    {
+                        name: '_abstract',
+                        data: '_abstract',
+                        title: 'Rezumat',
+                        sortable: false
+                    },
+                    {
+                        name: 'receivedDate',
+                        data: 'receivedDate',
+                        title: 'Data primire'
+                    },
+                    {
+                        name: 'status',
+                        data: 'status',
+                        title: 'Status'
+                    },
+                    {
+                        name: 'lastUpdateDate',
+                        data: 'lastUpdateDate',
+                        title: 'Ultima modificare',
+                        sortable: false
+                    },
+                    {
+                        data: null,
+                        title: '',
+                        render: function (data, type, full, meta) {
+                            if (data != null) {
+                                return '<a href="/petition/' + data.id + '"><i class="fa fa-info-circle"></i> Vizualizează</a>';
+                            } else {
+                                return '';
+                            }
+                        },
+                        sortable: false
+                    }
+                ]
+            });
+            selectActions(linkedTable);
+
+            $('#link-petition').click(function () {
+                linkPopup("Petițiile primite de la: " + pEmail, linkedByPetitionerApiUrl, languageUrl, function (result) {
+                    $.ajax({
+                        url: "/api/petitions/" + pid + "/link/" + result[0].id,
+                        method: 'POST'
+                    }).done(function (data) {
+                        linkedTable.ajax.reload();
+                    }).fail(function (reason) {
+                        console.log(reason);
+                    });
+                })
+            });
+
+            $('#unlink-petition').click(function () {
+                var selectedRows = linkedTable.rows({selected: true}).data().toArray();
+                if (selectedRows.length != 1) {
+                    this.blur()
+                } else {
+                    customAlert("Sunteți sigur că doriți ștergerea conexiunii?", function (result) {
+                        if (result) {
+                            $.ajax({
+                                url: "/api/petitions/" + pid + "/unlink/" + selectedRows[0].id,
+                                method: 'POST'
+                            }).done(function (data) {
+                                linkedTable.ajax.reload();
+                            }).fail(function (reason) {
+                                console.log(reason);
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+
     <script type="text/javascript">
         $("#description").wysihtml5();
     </script>

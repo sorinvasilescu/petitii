@@ -60,6 +60,10 @@ public class Petitioner {
         this.lastName = lastName;
     }
 
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
+
     public String getOrganization() {
         return organization;
     }

@@ -6,8 +6,7 @@ import javax.persistence.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.Collection;
-import java.util.Date;
+import java.util.*;
 
 @Entity
 @Table(name = "petitions")
@@ -189,6 +188,24 @@ public class Petition {
         if (status != null) {
             return status.toString();
         } else return "NEW";
+    }
+
+    public Date getLastUpdateDate() {
+        if ((statuses != null) && (statuses.size() > 0)) {
+            List<PetitionStatus> statuses = new ArrayList<>(this.statuses);
+            Comparator<PetitionStatus> comparator = (o1, o2) -> {
+                if (o1.getDate().before(o2.getDate())) {
+                    return -1;
+                }
+                else {
+                    return 1;
+                }
+            };
+            statuses.sort(comparator);
+            return statuses.get(0).getDate();
+        } else {
+            return receivedDate;
+        }
     }
 
     @Override
