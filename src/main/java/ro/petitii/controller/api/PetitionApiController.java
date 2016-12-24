@@ -16,7 +16,10 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
-import ro.petitii.model.*;
+import ro.petitii.model.Attachment;
+import ro.petitii.model.Petition;
+import ro.petitii.model.PetitionStatus;
+import ro.petitii.model.User;
 import ro.petitii.model.datatables.AttachmentResponse;
 import ro.petitii.model.datatables.CommentResponse;
 import ro.petitii.model.datatables.PetitionResponse;
@@ -33,6 +36,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static ro.petitii.controller.api.DatatableUtils.pageRequest;
 import static ro.petitii.util.CleanUtil.cleanHtml;
@@ -285,25 +289,28 @@ public class PetitionApiController {
         Map<String, String> result = new HashMap<>();
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = userService.findUserByEmail(auth.getName()).get(0);
-        List<Long> errors = new ArrayList<>();
+        List<String> errors = new LinkedList<>();
 
         for (long id : petitionIds) {
             Petition pet = petitionService.findById(id);
-            if ((pet != null) && (pet.getCurrentStatus().equals(PetitionStatus.Status.RECEIVED))) {
+            if (pet == null) {
+                throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+            }
+            if (pet.getCurrentStatus().equals(PetitionStatus.Status.RECEIVED)) {
                 statusService.create(PetitionStatus.Status.IN_PROGRESS, pet, user);
             } else {
-                errors.add(id);
+                errors.add(pet.getRegNo().getNumber());
             }
         }
 
-        if (errors.size() > 0)
-            if (errors.size() > 0) {
-                result.put("success", "false");
-                result.put("errorMsg", "Statusul nu a fost modificat pentru petițiile: " + errors.toString());
-            } else {
-                result.put("success", "true");
-                result.put("errorMsg", "Statusul petițiilor a fost modificat.");
-            }
+        if (errors.size() > 0) {
+            result.put("success", "false");
+            String errorList = errors.stream().collect(Collectors.joining(", "));
+            result.put("errorMsg", "Statusul nu a fost modificat pentru petițiile: " + errorList);
+        } else {
+            result.put("success", "true");
+            result.put("errorMsg", "Statusul petițiilor a fost modificat.");
+        }
 
         return result;
     }
