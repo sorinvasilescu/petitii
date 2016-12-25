@@ -20,7 +20,7 @@ import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static ro.petitii.util.CleanUtil.cleanHtml;
+import static ro.petitii.util.StringUtil.cleanHtml;
 
 @Service
 public class ImapService {

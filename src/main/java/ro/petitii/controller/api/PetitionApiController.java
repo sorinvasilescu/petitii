@@ -39,7 +39,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static ro.petitii.controller.api.DatatableUtils.pageRequest;
-import static ro.petitii.util.CleanUtil.cleanHtml;
+import static ro.petitii.util.StringUtil.cleanHtml;
 
 @Controller
 @ControllerAdvice
