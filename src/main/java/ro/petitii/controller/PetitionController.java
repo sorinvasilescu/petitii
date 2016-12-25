@@ -122,8 +122,8 @@ public class PetitionController extends ControllerBase {
         return modelAndView;
     }
 
-    @RequestMapping("/redirect")
-    public String redirectPetition() {
+    @RequestMapping("/petition/redirect/{id}")
+    public String redirectPetition(@PathVariable("id") long id) {
         return "petitions_redirect";
     }
 

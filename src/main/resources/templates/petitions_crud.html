@@ -34,7 +34,7 @@
                                     <button id="top-start" type="button" class="btn btn-default btn-md"><i class="fa fa-hourglass-start"></i>&nbsp;<span>Incepe lucrul</span></button>
                                     <button type="button" class="btn btn-default btn-md"><i class="fa fa-file-text"></i> <span>Clasează</span></button>
                                     <button type="button" class="btn btn-default btn-md"><i class="fa fa-check-square-o"></i> <span>Rezolvă</span></button>
-                                    <button type="button" class="btn btn-default btn-md"><i class="fa fa-mail-forward"></i> <span>Redirecționează</span></button>
+                                    <button id="top-redirect" type="button" class="btn btn-default btn-md"><i class="fa fa-mail-forward"></i> <span>Redirecționează</span></button>
                                 </div>
                             </div>
                         </div>
@@ -339,7 +339,7 @@
                                     <button type="button" class="btn btn-default btn-md"><i class="fa fa-mail-forward"></i> <span>Incepe lucrul</span></button>
                                     <button type="button" class="btn btn-default btn-md"><i class="fa fa-file-text"></i> <span>Clasează</span></button>
                                     <button type="button" class="btn btn-default btn-md"><i class="fa fa-check-square-o"></i> <span>Rezolvă</span></button>
-                                    <button type="button" class="btn btn-default btn-md"><i class="fa fa-mail-forward"></i> <span>Redirecționează</span></button>
+                                    <button id="bottom-redirect" type="button" class="btn btn-default btn-md"><i class="fa fa-mail-forward"></i> <span>Redirecționează</span></button>
                                 </div>
                             </div>
                         </div>
@@ -403,6 +403,10 @@
             }).fail(function(reason){
                 addError('#error-messages', error);
                 });
+        });
+
+        $('#top-redirect,#bottom-redirect').click(function(){
+            window.location.href = '/petitions/redirect/' +  pid;
         });
 
         /*

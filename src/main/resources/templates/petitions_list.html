@@ -164,6 +164,16 @@
             }
         });
 
+        $('#redirect').click(function(){
+            var selectedRows = petitionTable.rows({selected: true}).data().toArray();
+            if (selectedRows.length != 1) {
+                addWarning("#error-messages", "Pentru redirectare selectați o singură petiție");
+                this.blur()
+            } else {
+                window.location.href = '/petition/redirect/' + selectedRows[0].id;
+            }
+        });
+
         $("#start").click(function () {
             var selectedRows = [];
             $.each(petitionTable.rows({selected: true}).data().toArray(),function (i, row) {
