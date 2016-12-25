@@ -99,11 +99,11 @@ public class PetitionController extends ControllerBase {
             modelAndView.setViewName("petitions_crud");
             addCustomParams(modelAndView);
             modelAndView.addObject("petition", petition);
-            modelAndView.addObject("toast", createToast("Petitia nu a fost salvata", ToastType.danger));
+            modelAndView.addObject("toast", createToast("Petiția nu a fost salvata", ToastType.danger));
         } else {
             petition = petitionService.save(petition);
             modelAndView.setViewName("redirect:/petition/" + petition.getId());
-            attr.addFlashAttribute("toast", createToast("Petitia a fost salvata cu succes", ToastType.success));
+            attr.addFlashAttribute("toast", createToast("Petiția a fost salvata cu succes", ToastType.success));
         }
 
         return modelAndView;

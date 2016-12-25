@@ -172,14 +172,20 @@
                                         <div class="item form-group">
                                             <label for="county" class="control-label col-md-3 col-sm-3 col-xs-12">Județ</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <input id="county" type="text" name="county" placeholder="Județul" class="form-control col-md-10" th:field="*{petitioner.county}" />
+                                                <select class="form-control" name="county" id="county" tabindex="-1" th:field="*{petitioner.county}">
+                                                    <option value="">Alege județul</option>
+                                                    <span th:substituteby="fragments/counties"></span>
+                                                </select>
                                             </div>
                                             <div class="alert" th:if="${#fields.hasErrors('petitioner.county')}">Câmpul nu poate fi gol</div>
                                         </div>
                                         <div class="item form-group">
                                             <label for="city" class="control-label col-md-3 col-sm-3 col-xs-12">Localitate</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <input id="city" type="text" name="city" placeholder="Localitatea" class="form-control col-md-10" th:field="*{petitioner.city}" />
+                                                <select class="form-control" name="city" id="city" tabindex="-1" th:field="*{petitioner.city}">
+                                                    <option value="">Alege orașul</option>
+                                                    <span th:substituteby="fragments/cities"></span>
+                                                </select>
                                             </div>
                                             <div class="alert" th:if="${#fields.hasErrors('petitioner.city')}">Câmpul nu poate fi gol</div>
                                         </div>
@@ -339,6 +345,9 @@
         var pEmail = /*[[${petition.petitioner.email}]]*/ '#';
         var pid = /*[[${petition.id}]]*/ '#';
         var inLucru = /*[[#{IN_PROGRESS}]]*/ "In lucru";
+        var petitioner_country = /*[[${petition.petitioner.country}]]*/ null;
+        var petitioner_county = /*[[${petition.petitioner.county}]]*/ null;
+        var petitioner_city = /*[[${petition.petitioner.city}]]*/ null;
         /*]]>*/
     </script>
 
@@ -351,10 +360,32 @@
         var year = today.getUTCFullYear();
         $('#time').html('Data: ' + day + ' / ' + month + ' / ' + year);
 
-        $("#country").select2({
+        var countryComponent = $("#country");
+        countryComponent.select2({
             placeholder: "Alege țara",
             allowClear: true
         });
+        countryComponent.val(petitioner_country);
+        countryComponent.trigger('change');
+
+        var countyComponent = $("#county");
+        countyComponent.select2({
+            placeholder: "Alege județul",
+            allowClear: true,
+            tags: true
+        });
+        countyComponent.val(petitioner_county);
+        countyComponent.trigger('change');
+
+
+        var cityComponent = $("#city");
+        cityComponent.select2({
+            placeholder: "Alege orașul",
+            allowClear: true,
+            tags: true
+        });
+        cityComponent.val(petitioner_city);
+        cityComponent.trigger('change');
 
         $('#bottom-submit,#top-submit').click(function () {
             $('#petition-form').submit();
@@ -378,19 +409,6 @@
                 addError('#error-messages', reason);
                 });
         });
-
-        /*
-        $("#title").select2({
-            placeholder: "Adresare",
-            allowClear: true
-        });
-
-
-        $("#responsible").select2({
-            placeholder: "Alege responsabilul",
-            allowClear: true
-        });
-        */
     });
     </script>
 
