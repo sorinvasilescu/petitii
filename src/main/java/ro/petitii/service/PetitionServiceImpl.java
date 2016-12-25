@@ -23,6 +23,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static ro.petitii.util.StringUtil.prepareForView;
+
 @Service
 public class PetitionServiceImpl implements PetitionService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ImapService.class);
@@ -220,9 +222,9 @@ public class PetitionServiceImpl implements PetitionService {
     private PetitionResponse convert(Petition petition) {
         PetitionResponse element = new PetitionResponse();
         element.setId(petition.getId());
-        element.set_abstract(petition.getSubject());
+        element.set_abstract(prepareForView(petition.getSubject(), 100));
         element.setPetitionerEmail(petition.getPetitioner().getEmail());
-        element.setPetitionerName(petition.getPetitioner().getFullName());
+        element.setPetitionerName(prepareForView(petition.getPetitioner().getFullName(), 30));
         element.setUser(petition.getResponsible().getFullName());
         element.setReceivedDate(df.format(petition.getReceivedDate()));
         element.setLastUpdateDate(df.format(petition.getLastUpdateDate()));

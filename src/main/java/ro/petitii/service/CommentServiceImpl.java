@@ -16,6 +16,8 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import static ro.petitii.util.StringUtil.prepareForView;
+
 @Service
 public class CommentServiceImpl implements CommentService {
     private static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
@@ -52,9 +54,9 @@ public class CommentServiceImpl implements CommentService {
         for (Comment e : comments.getContent()) {
             CommentResponse re = new CommentResponse();
             re.setId(e.getId());
-            re.setComment(e.getComment());
+            re.setComment(prepareForView(e.getComment(), 100));
             re.setPetitionId(e.getPetition().getId());
-            re.setUser(e.getUser().getFullName());
+            re.setUser(prepareForView(e.getUser().getFullName(), 30));
             re.setDate(df.format(e.getDate()));
             data.add(re);
         }

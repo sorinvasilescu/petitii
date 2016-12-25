@@ -15,15 +15,30 @@ function customAlert(message, callback) {
 }
 
 function customInput(title, callback) {
-    bootbox.prompt({
+    var dialog = bootbox.dialog({
         title: title,
-        backdrop: true,
-        inputType: 'textarea',
-        callback: function (result) {
-            if (result != null && result.trim().length > 0) {
-                callback(result.trim())
+        size: 'large',
+        message: '<textarea class="resizable_textarea form-control" name="description" id="message" rows="30" style="width:100%"></textarea>',
+        buttons: {
+            add: {
+                label: 'Adaugă',
+                className: 'btn-success',
+                callback: function () {
+                    var result = $('#message').val();
+                    if (result != null && result.trim().length > 0) {
+                        callback(result.trim())
+                    }
+                }
+            },
+            cancel: {
+                label: 'Anulează',
+                className: 'btn-default'
             }
         }
+    });
+
+    dialog.init(function () {
+        $("#message").wysihtml5();
     });
 }
 

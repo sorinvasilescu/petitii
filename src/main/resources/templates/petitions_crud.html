@@ -498,7 +498,7 @@
                 columns: [
                     {
                         name: 'id',
-                        title: "Id",
+                        title: "#",
                         data: 'id',
                         sortable: false
                     },
@@ -594,7 +594,8 @@
                 serverSide: true,
                 sDom: 'lrtip ',
                 rowId: "id",
-                order: [[3, 'desc']],
+                order: [[0, 'desc']],
+                autoWidth: false,
                 ajax: {
                     url: linkedPetitionsApiUrl,
                     type: 'POST'
@@ -608,12 +609,16 @@
                     {
                         name: 'id',
                         data: 'id',
-                        title: "#",
-                        sortable: false
+                        title: "#"
                     },
                     {
-                        name: 'petitionerEmail',
-                        data: 'petitionerEmail',
+                        name: 'regNo',
+                        data: 'regNo',
+                        title: 'Nr. Înregistrare'
+                    },
+                    {
+                        name: 'petitionerName',
+                        data: 'petitionerName',
                         title: 'Petent'
                     },
                     {
