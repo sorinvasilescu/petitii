@@ -6,7 +6,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import ro.petitii.model.Email;
-import ro.petitii.service.email.ImapService;
 import ro.petitii.service.email.SmtpService;
 
 import javax.mail.MessagingException;
