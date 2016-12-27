@@ -1,6 +1,6 @@
 package ro.petitii.service;
 
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.web.multipart.MultipartFile;
 import ro.petitii.model.Attachment;
@@ -32,5 +32,5 @@ public interface AttachmentService {
     Attachment findById(Long id);
 
     // get attachment table content for a petition
-    DataTablesOutput<AttachmentResponse> getTableContent(Petition petition, int startIndex, int size, Sort.Direction sortDirection, String sortColumn);
+    DataTablesOutput<AttachmentResponse> getTableContent(Petition petition, PageRequest pageRequest);
 }

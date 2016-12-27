@@ -23,21 +23,20 @@ import java.util.Date;
 
 @Controller
 public class PetitionController extends ControllerBase {
+    @Autowired
+    private UserService userService;
 
     @Autowired
-    UserService userService;
+    private PetitionService petitionService;
 
     @Autowired
-    PetitionService petitionService;
+    private EmailService emailService;
 
     @Autowired
-    EmailService emailService;
+    private DefaultsConfig defaultsConfig;
 
     @Autowired
-    DefaultsConfig defaultsConfig;
-
-    @Autowired
-    PetitionCustomParamService petitionCustomParamService;
+    private PetitionCustomParamService petitionCustomParamService;
 
     @RequestMapping(path = "/petition", method = RequestMethod.GET)
     public ModelAndView addPetition() {
@@ -66,6 +65,8 @@ public class PetitionController extends ControllerBase {
         modelAndView.addObject("petition", petition);
         modelAndView.addObject("commentsApiUrl", "/api/petitions/" + petition.getId() + "/comments");
         modelAndView.addObject("attachmentApiUrl", "/api/petitions/" + petition.getId() + "/attachments");
+        modelAndView.addObject("linkedPetitionsApiUrl", "/api/petitions/" + petition.getId() + "/linked");
+        modelAndView.addObject("linkedPetitionerApiUrl", "/api/petitions/" + petition.getId() + "/by/petitioner");
 
         addCustomParams(modelAndView);
 
@@ -98,11 +99,11 @@ public class PetitionController extends ControllerBase {
             modelAndView.setViewName("petitions_crud");
             addCustomParams(modelAndView);
             modelAndView.addObject("petition", petition);
-            modelAndView.addObject("toast", createToast("Petitia nu a fost salvata", ToastType.danger));
+            modelAndView.addObject("toast", createToast("Petiția nu a fost salvata", ToastType.danger));
         } else {
             petition = petitionService.save(petition);
             modelAndView.setViewName("redirect:/petition/" + petition.getId());
-            attr.addFlashAttribute("toast", createToast("Petitia a fost salvata cu succes", ToastType.success));
+            attr.addFlashAttribute("toast", createToast("Petiția a fost salvata cu succes", ToastType.success));
         }
 
         return modelAndView;

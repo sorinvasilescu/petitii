@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,16 +24,19 @@ import javax.mail.internet.MimeBodyPart;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 @Service
 public class AttachmentServiceImpl implements AttachmentService {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(AttachmentServiceImpl.class);
     private static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
@@ -154,23 +156,20 @@ public class AttachmentServiceImpl implements AttachmentService {
     public void deleteFromDisk(Attachment att) {
         if (att == null) return;
         // check if there are no references to the attachment
-        if ( (att.getPetition() == null) && (att.getEmail() == null) ) {
+        if ((att.getPetition() == null) && (att.getEmail() == null)) {
             // delete file
             File file = new File(att.getFilename());
-            file.delete();
+            if (!file.delete()) {
+                LOGGER.error("Could not delete file: " + file.getAbsolutePath());
+            }
             // delete from db
             attachmentRepository.delete(att);
         }
     }
 
     @Override
-    public DataTablesOutput<AttachmentResponse> getTableContent(Petition petition, int startIndex, int size, Sort.Direction sortDirection, String sortColumn) {
-        if (Objects.equals(sortColumn, "origin")) {
-            sortColumn = "email";
-        }
-
-        PageRequest p = new PageRequest(startIndex / size, size, sortDirection, sortColumn);
-        Page<Attachment> attachments = attachmentRepository.findByPetitionId(petition.getId(), p);
+    public DataTablesOutput<AttachmentResponse> getTableContent(Petition petition, PageRequest pageRequest) {
+        Page<Attachment> attachments = attachmentRepository.findByPetitionId(petition.getId(), pageRequest);
 
         List<AttachmentResponse> data = new LinkedList<>();
         for (Attachment e : attachments.getContent()) {

@@ -13,10 +13,10 @@ import java.util.Date;
 @Service
 public class RegistrationNumberServiceImpl implements RegistrationNumberService {
     @Autowired
-    RegNoConfig config;
+    private RegNoConfig config;
 
     @PersistenceContext
-    EntityManager em;
+    private EntityManager em;
 
     @Transactional
     public RegistrationNo generate() {
@@ -25,5 +25,10 @@ public class RegistrationNumberServiceImpl implements RegistrationNumberService 
         em.persist(registrationNo);
         registrationNo.setNumber(String.format(config.getPattern(),registrationNo.getId()));
         return registrationNo;
+    }
+
+    @Override
+    public RegistrationNo findById(long id) {
+        return em.find(RegistrationNo.class, id);
     }
 }

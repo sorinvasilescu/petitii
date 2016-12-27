@@ -1,38 +1,29 @@
 package ro.petitii.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.ModelAndView;
-import ro.petitii.config.EmailAttachmentConfig;
 import ro.petitii.config.ImapConfig;
 import ro.petitii.model.Email;
 import ro.petitii.service.EmailService;
+
 import java.util.Locale;
 
 @Controller
-public class  EmailController extends ControllerBase {
+public class EmailController extends ControllerBase {
+    @Autowired
+    private ImapConfig config;
 
     @Autowired
-    ImapConfig config;
+    private EmailService emailService;
 
     @Autowired
-    EmailAttachmentConfig attConfig;
-
-    @Autowired
-    EmailService emailService;
-
-    @Autowired
-    MessageSource messageSource;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(EmailController.class);
+    private MessageSource messageSource;
 
     @RequestMapping("/inbox")
     public ModelAndView inbox() {
@@ -41,8 +32,6 @@ public class  EmailController extends ControllerBase {
         modelAndView.addObject("title", "Email-uri primite");
         modelAndView.addObject("email", config.getUsername());
         modelAndView.addObject("apiUrl", "/api/emails");
-        //modelAndView.addObject("toast",this.createToast("Lorem ipsum sit amet dolor",ToastType.info));
-
         return modelAndView;
     }
 
@@ -68,8 +57,9 @@ public class  EmailController extends ControllerBase {
         modelAndView.addObject("title", "Email-uri primite");
         modelAndView.addObject("email", config.getUsername());
         modelAndView.addObject("data", email);
-        if (email.getPetition()!=null) {
-            modelAndView.addObject("status", messageSource.getMessage(email.getPetition().statusString(), null , new Locale("ro")));
+        if (email.getPetition() != null) {
+            String status = messageSource.getMessage(email.getPetition().statusString(), null, new Locale("ro"));
+            modelAndView.addObject("status", status);
         }
         return modelAndView;
     }

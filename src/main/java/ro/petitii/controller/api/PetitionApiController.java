@@ -4,7 +4,6 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.http.HttpStatus;
@@ -17,7 +16,10 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
-import ro.petitii.model.*;
+import ro.petitii.model.Attachment;
+import ro.petitii.model.Petition;
+import ro.petitii.model.PetitionStatus;
+import ro.petitii.model.User;
 import ro.petitii.model.datatables.AttachmentResponse;
 import ro.petitii.model.datatables.CommentResponse;
 import ro.petitii.model.datatables.PetitionResponse;
@@ -34,8 +36,10 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
-import static ro.petitii.util.CleanUtil.cleanHtml;
+import static ro.petitii.controller.api.DatatableUtils.pageRequest;
+import static ro.petitii.util.StringUtil.cleanHtml;
 
 @Controller
 @ControllerAdvice
@@ -59,28 +63,21 @@ public class PetitionApiController {
     @Autowired
     private PetitionStatusService statusService;
 
+    @Autowired
+    private ConnectionService connectionService;
+
     // will answer to compounded URL /api/petitions/user
     @RequestMapping(value = "/user", method = RequestMethod.POST)
     @ResponseBody
     public DataTablesOutput<PetitionResponse> getUserPetitions(@Valid DataTablesInput input, String status) {
         int sequenceNo = input.getDraw();
-        String sortColumn = input.getColumns().get(input.getOrder().get(0).getColumn()).getName();
-        Sort.Direction sortDirection = null;
-        if (input.getOrder().get(0).getDir().equals("asc")) {
-            sortDirection = Sort.Direction.ASC;
-        } else if (input.getOrder().get(0).getDir().equals("desc")) {
-            sortDirection = Sort.Direction.DESC;
-        }
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = userService.findUserByEmail(auth.getName()).get(0);
 
         PetitionStatus.Status pStatus = parseStatus(status);
 
-        Integer start = input.getStart();
-        Integer length = input.getLength();
-        DataTablesOutput<PetitionResponse> response = petitionService
-                .getTableContent(user, pStatus, start, length, sortDirection, sortColumn);
+        DataTablesOutput<PetitionResponse> response = petitionService.getTableContent(user, pStatus, pageRequest(input, PetitionResponse.sortMapping));
         response.setDraw(sequenceNo);
 
         return response;
@@ -90,20 +87,36 @@ public class PetitionApiController {
     @ResponseBody
     public DataTablesOutput<PetitionResponse> getAllPetitions(@Valid DataTablesInput input, String status) {
         int sequenceNo = input.getDraw();
-
-        String sortColumn = input.getColumns().get(input.getOrder().get(0).getColumn()).getName();
-        Sort.Direction sortDirection = null;
-        if (input.getOrder().get(0).getDir().equals("asc")) {
-            sortDirection = Sort.Direction.ASC;
-        } else if (input.getOrder().get(0).getDir().equals("desc")) {
-            sortDirection = Sort.Direction.DESC;
-        }
-
         PetitionStatus.Status pStatus = parseStatus(status);
-        Integer start = input.getStart();
-        Integer length = input.getLength();
-        DataTablesOutput<PetitionResponse> response = petitionService
-                .getTableContent(null, pStatus, start, length, sortDirection, sortColumn);
+        DataTablesOutput<PetitionResponse> response = petitionService.getTableContent(null, pStatus, pageRequest(input, PetitionResponse.sortMapping));
+        response.setDraw(sequenceNo);
+        return response;
+    }
+
+ @RequestMapping(value = "{id}/by/petitioner", method = RequestMethod.POST)
+    @ResponseBody
+    public DataTablesOutput<PetitionResponse> getPetitionsByPetitioner(@Valid DataTablesInput input,
+                                                                       @PathVariable("id") long id) {
+        int sequenceNo = input.getDraw();
+        Petition petition = petitionService.findById(id);
+        if (petition == null) {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        }
+        DataTablesOutput<PetitionResponse> response = petitionService.getTableContent(petition, petition.getPetitioner(), pageRequest(input, PetitionResponse.sortMapping));
+        response.setDraw(sequenceNo);
+        return response;
+    }
+
+    @RequestMapping(value = "{id}/linked", method = RequestMethod.POST)
+    @ResponseBody
+    public DataTablesOutput<PetitionResponse> getLinkedPetitions(@Valid DataTablesInput input,
+                                                              @PathVariable("id") long id) {
+        int sequenceNo = input.getDraw();
+        Petition petition = petitionService.findById(id);
+        if (petition == null) {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        }
+        DataTablesOutput<PetitionResponse> response = petitionService.getTableLinkedPetitions(petition, pageRequest(input, PetitionResponse.sortMapping));
         response.setDraw(sequenceNo);
         return response;
     }
@@ -113,24 +126,12 @@ public class PetitionApiController {
     public DataTablesOutput<AttachmentResponse> getAllAttachments(@PathVariable("id") Long id,
                                                                   @Valid DataTablesInput input) {
         int sequenceNo = input.getDraw();
-
-        String sortColumn = input.getColumns().get(input.getOrder().get(0).getColumn()).getName();
-        Sort.Direction sortDirection = null;
-        if (input.getOrder().get(0).getDir().equals("asc")) {
-            sortDirection = Sort.Direction.ASC;
-        } else if (input.getOrder().get(0).getDir().equals("desc")) {
-            sortDirection = Sort.Direction.DESC;
-        }
-
         Petition petition = petitionService.findById(id);
         if (petition == null) {
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
         }
 
-        Integer start = input.getStart();
-        Integer length = input.getLength();
-        DataTablesOutput<AttachmentResponse> response = attachmentService
-                .getTableContent(petition, start, length, sortDirection, sortColumn);
+        DataTablesOutput<AttachmentResponse> response = attachmentService.getTableContent(petition, pageRequest(input, AttachmentResponse.sortMapping));
         response.setDraw(sequenceNo);
         return response;
     }
@@ -146,8 +147,8 @@ public class PetitionApiController {
     @ResponseStatus(value = HttpStatus.PRECONDITION_FAILED)
     @ResponseBody
     protected ResponseEntity<String> handleMaxUploadSizeExceededException(HttpServletRequest request,
-                                                                  HttpServletResponse response,
-                                                                  Throwable e) throws IOException {
+                                                                          HttpServletResponse response,
+                                                                          Throwable e) throws IOException {
         LOGGER.warn(e.getMessage());
         return ResponseEntity.unprocessableEntity().body("Fișierul depășește mărimea admisă de server");
     }
@@ -156,8 +157,8 @@ public class PetitionApiController {
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     protected ResponseEntity<String> handleGenericMultipartException(final HttpServletRequest request,
-                                                           final HttpServletResponse response,
-                                                           final Throwable e) throws IOException {
+                                                                     final HttpServletResponse response,
+                                                                     final Throwable e) throws IOException {
         Throwable rootCause = e;
         Throwable cause = e.getCause();
         while (cause != null && !cause.equals(rootCause)) {
@@ -215,24 +216,11 @@ public class PetitionApiController {
     @ResponseBody
     public DataTablesOutput<CommentResponse> getAllComments(@PathVariable("id") Long id, @Valid DataTablesInput input) {
         int sequenceNo = input.getDraw();
-
-        String sortColumn = input.getColumns().get(input.getOrder().get(0).getColumn()).getName();
-        Sort.Direction sortDirection = null;
-        if (input.getOrder().get(0).getDir().equals("asc")) {
-            sortDirection = Sort.Direction.ASC;
-        } else if (input.getOrder().get(0).getDir().equals("desc")) {
-            sortDirection = Sort.Direction.DESC;
-        }
-
         Petition petition = petitionService.findById(id);
         if (petition == null) {
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
         }
-
-        Integer start = input.getStart();
-        Integer length = input.getLength();
-        DataTablesOutput<CommentResponse> response = commentService
-                .getTableContent(petition, start, length, sortDirection, sortColumn);
+        DataTablesOutput<CommentResponse> response = commentService.getTableContent(petition, pageRequest(input));
         response.setDraw(sequenceNo);
         return response;
     }
@@ -252,14 +240,7 @@ public class PetitionApiController {
         }
         User user = users.get(0);
 
-        Comment comment = new Comment();
-        comment.setComment(cleanHtml(commentBody));
-        comment.setUser(user);
-        comment.setDate(new Date());
-        comment.setPetition(petition);
-
-        commentService.save(comment);
-
+        commentService.createAndSave(user, petition, cleanHtml(commentBody));
         return "done";
     }
 
@@ -270,31 +251,65 @@ public class PetitionApiController {
         return "done";
     }
 
+    @RequestMapping(value = "/{pid}/link/{vid}", method = RequestMethod.POST)
+    @ResponseBody
+    public String linkPetitions(@PathVariable("pid") Long pid, @PathVariable("vid") Long vid) {
+        Petition petition = petitionService.findById(pid);
+        if (petition == null) {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        }
+        Petition vassal = petitionService.findById(vid);
+        if (vassal == null) {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        }
+
+        connectionService.link(petition, vassal);
+        return "done";
+    }
+
+    @RequestMapping(value = "/{pid}/unlink/{vid}", method = RequestMethod.POST)
+    @ResponseBody
+    public String unlinkPetitions(@PathVariable("pid") Long pid, @PathVariable("vid") Long vid) {
+        Petition petition = petitionService.findById(pid);
+        if (petition == null) {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        }
+        Petition vassal = petitionService.findById(vid);
+        if (vassal == null) {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        }
+
+        connectionService.unlink(petition, vassal);
+        return "done";
+    }
+
     @RequestMapping(value = "/start-work", method = RequestMethod.POST)
     @ResponseBody
-    public  Map<String, String> startWork(@RequestParam("petitions[]") long[] petitionIds) {
+    public Map<String, String> startWork(@RequestParam("petitions[]") long[] petitionIds) {
         Map<String, String> result = new HashMap<>();
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = userService.findUserByEmail(auth.getName()).get(0);
-        List<Long> errors = new ArrayList<>();
+        List<String> errors = new LinkedList<>();
 
         for (long id : petitionIds) {
             Petition pet = petitionService.findById(id);
-            if ((pet!=null)&&(pet.getCurrentStatus().equals(PetitionStatus.Status.RECEIVED))) {
-                statusService.create(PetitionStatus.Status.IN_PROGRESS,pet,user);
+            if (pet == null) {
+                throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+            }
+            if (pet.getCurrentStatus().equals(PetitionStatus.Status.RECEIVED)) {
+                statusService.create(PetitionStatus.Status.IN_PROGRESS, pet, user);
             } else {
-                errors.add(id);
+                errors.add(pet.getRegNo().getNumber());
             }
         }
 
-        if (errors.size()>0)
-            if (errors.size()>0) {
-                result.put("success","false");
-                result.put("errorMsg", "Statusul nu a fost modificat pentru petitiile: " + errors.toString());
-            }
-        else {
-            result.put("success","true");
-            result.put("errorMsg","Statusul petitiilor a fost modificat.");
+        if (errors.size() > 0) {
+            result.put("success", "false");
+            String errorList = errors.stream().collect(Collectors.joining(", "));
+            result.put("errorMsg", "Statusul nu a fost modificat pentru petițiile: " + errorList);
+        } else {
+            result.put("success", "true");
+            result.put("errorMsg", "Statusul petițiilor a fost modificat.");
         }
 
         return result;

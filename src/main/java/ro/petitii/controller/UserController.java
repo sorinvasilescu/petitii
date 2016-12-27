@@ -22,10 +22,10 @@ import java.util.UUID;
 @PreAuthorize("hasAuthority('ADMIN')")
 public class UserController extends ControllerBase {
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @Autowired
-    PasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ImapService.class);
 

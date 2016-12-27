@@ -9,9 +9,8 @@ import java.util.Collection;
 
 @Service
 public class PetitionerServiceImpl implements PetitionerService {
-
     @Autowired
-    PetitionerRepository petitionerRepository;
+    private PetitionerRepository petitionerRepository;
 
     @Override
     public Petitioner save(Petitioner petitioner) {

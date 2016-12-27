@@ -20,15 +20,15 @@ import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static ro.petitii.util.CleanUtil.cleanHtml;
+import static ro.petitii.util.StringUtil.cleanHtml;
 
 @Service
 public class ImapService {
     @Autowired
-    ImapConfig imapConfig;
+    private ImapConfig imapConfig;
 
     @Autowired
-    EmailService emailService;
+    private EmailService emailService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ImapService.class);
 

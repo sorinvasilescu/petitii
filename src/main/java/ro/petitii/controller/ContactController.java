@@ -51,11 +51,11 @@ public class ContactController extends ControllerBase {
 		
 		if (bindingResult.hasErrors()) {
         	modelAndView = editContact(contact);
-            modelAndView.addObject("toast", createToast("Institutia nu a fost salvata", ToastType.danger));
+            modelAndView.addObject("toast", createToast("Instituția nu a fost salvată", ToastType.danger));
         } else {
             Contact savedContact = contactService.save(contact);
             modelAndView = new ModelAndView("redirect:/contact/" + savedContact.getId());
-            attr.addFlashAttribute("toast", createToast("Institutia a fost salvata cu succes", ToastType.success));
+            attr.addFlashAttribute("toast", createToast("Instituția a fost salvată cu succes", ToastType.success));
         }
         return modelAndView;
     }

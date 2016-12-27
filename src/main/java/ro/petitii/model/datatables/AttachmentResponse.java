@@ -1,6 +1,14 @@
 package ro.petitii.model.datatables;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class AttachmentResponse {
+    public static final Map<String, String> sortMapping = new HashMap<>();
+    static {
+        sortMapping.put("origin", "email");
+    }
+
     private Long id;
     private Long petitionId;
     private String origin;
