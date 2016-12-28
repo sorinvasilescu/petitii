@@ -2,6 +2,8 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="fragments/main_head :: head"></head>
 
+<!--/*@thymesVar id="title" type="java.lang.String"*/-->
+
 <body class="nav-md">
 <div class="container body">
     <div class="main_container">
@@ -93,9 +95,21 @@
             }
         });
 
+        $('#reset-password').click(function () {
+            var selectedRows = userTable.rows({selected: true}).data().toArray();
+            if (selectedRows.length != 1) {
+                addWarning("#error-messages", "Pentru resetare selectați cel puțin un user");
+                this.blur()
+            } else {
+                customAlert("Sunteți sigur că doriți resetarea parolei utilizatorului?", function () {
+                    window.location.href = '/user/' + selectedRows[0].id + '/reset';
+                });
+            }
+        });
+
         userTable = $('#userTable').DataTable({
             select: {
-                style: 'one'
+                style: 'single'
             },
             processing: true,
             serverSide: true,
@@ -114,7 +128,8 @@
                 {
                     name: 'id',
                     data: 'id',
-                    title: '#'
+                    title: '#',
+                    width: '10px'
                 },
                 {
                     name: 'email',
@@ -135,16 +150,6 @@
                     name: 'role',
                     data: 'role',
                     title: 'Rol'
-                },
-                {
-                    name: 'id',
-                    data: 'id',
-                    title: 'User',
-                    render: function (data, type, full, meta) {
-                        if (data != null) return '<a href="/user/' + data + + '/edit"><i class="fa fa-edit"></i> Editează user</a>';
-                        else return '';
-                    },
-                    sortable: false
                 }
             ]
         });

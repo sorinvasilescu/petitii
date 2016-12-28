@@ -57,6 +57,16 @@ public class UserController extends ControllerBase {
         return new ModelAndView("redirect:/users");
     }
 
+    @RequestMapping(path = "/user/{id}/reset", method = RequestMethod.GET)
+    public ModelAndView resetPasswordUser(@PathVariable("id") Long id) {
+        User user = userService.findById(id);
+        user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+        userService.save(user);
+        //todo; send e-mail with instructions to reset password
+        return new ModelAndView("redirect:/users");
+    }
+
+
     @RequestMapping(path = "/user", method = RequestMethod.GET)
     public ModelAndView addUser() {
         User user = new User();
