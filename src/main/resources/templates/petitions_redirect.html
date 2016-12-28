@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-
 <head th:replace="fragments/main_head :: head"></head>
-
 <body class="nav-md">
+    <!--/*@thymesVar id="contacts" type="List<ro.petitii.model.Contact>"*/-->
+    <!--/*@thymesVar id="contact" type="ro.petitii.model.Contact"*/-->
+    <!--/*@thymesVar id="petition" type="ro.petitii.model.Petition"*/-->
+    <!--/*@thymesVar id="att" type="ro.petitii.model.Attachment"*/-->
     <div class="container body">
         <div class="main_container">
             <div class="col-md-3 left_col" th:substituteby="fragments/left::menu"></div>
@@ -17,7 +19,7 @@
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
-                    <form class="form-horizontal form-label-left">
+                    <form class="form-horizontal form-label-left" method="post">
                         <div class="row">
                             <div class="col-md-10 col-sm-10 col-xs-12">
                                 <div class="buttons pull-right">
@@ -26,36 +28,36 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="control-label col-md-2 col-sm-2 col-xs-12">Responsabil: </label>
+                            <label class="control-label col-md-2 col-sm-2 col-xs-12">Subiect: </label>
                             <div class="col-md-8 col-sm-8 col-xs-12">
-                                <select class="form-control" name="responsible" id="responsible">
-                                    <option></option>
-                                    <option>Responsabil 1</option>
-                                    <option>Responsabil 2</option>
-                                </select>
+                                <input type="text" class="form-control" name="subject" id="subject"/>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="control-label col-md-2 col-sm-2 col-xs-12">Redirecționează către:</label>
                             <div class="col-md-8 col-sm-8 col-xs-12">
-                                <select class="form-control" id="institutii" multiple="multiple">
-                                    <option></option>
-                                    <option>Institutia 1</option>
-                                    <option>Institutia 2</option>
-                                    <option>Institutia 3</option>
-                                    <option>Institutia 4</option>
-                                    <option>Institutia 5</option>
-                                    <option>Institutia 6</option>
+                                <select class="form-control" id="institutii" multiple="multiple" name="recipients">
+                                    <option th:each="contact : ${contacts}" th:value="${contact.getId()}" th:text="${contact.getName() + ' (' + contact.getEmail() + ')'}"></option>
                                 </select>
                             </div>
                         </div>
                         <div class="ln_solid"></div>
                         <div class="form-group">
-                            <label class="control-label col-md-2 col-sm-2 col-xs-12">Mesaj: </label>
+                            <span class="control-label col-md-2 col-sm-2 col-xs-12">Atasamente: </span>
                             <div class="col-md-8 col-sm-8 col-xs-12">
-                                <textarea class="resizable_textarea form-control" name="description" id="description" rows="28" style="width:100%"></textarea>
+                                <div th:each="att : ${petition.getAttachments()}">
+                                    <input th:id="${'att'+att.getId()}" th:value="${att.getId()}" name="attachments[]" type="checkbox"/>
+                                    <label th:for="${'att'+att.getId()}" th:text="${att.getOriginalFilename()}"></label>
+                                </div>
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2 col-sm-2 col-xs-12">Mesaj: </label>
+                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                <textarea class="resizable_textarea form-control" name="description" id="description" rows="28" style="width:100%" th:text="${petition.getDescription()}"></textarea>
+                            </div>
+                        </div>
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                     </form>
                 </div>
                 <div class="clearfix"></div>
@@ -80,13 +82,9 @@
     /*]]>*/
 
     $(document).ready(function() {
-        $("#responsible").select2({
-            placeholder: "Alege responsabilul",
-            allowClear: true
-        });
         $("#institutii").select2({
             maximumSelectionLength: 4,
-            placeholder: "Maxim 4 instituții",
+            placeholder: "Alege destinatari",
             allowClear: true
         });
     });

@@ -3,23 +3,16 @@ package ro.petitii.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ro.petitii.config.DefaultsConfig;
-import ro.petitii.model.Email;
-import ro.petitii.model.Petition;
-import ro.petitii.model.PetitionCustomParam;
-import ro.petitii.model.Petitioner;
-import ro.petitii.service.EmailService;
-import ro.petitii.service.PetitionCustomParamService;
-import ro.petitii.service.PetitionService;
-import ro.petitii.service.UserService;
+import ro.petitii.model.*;
+import ro.petitii.service.*;
 
 import javax.validation.Valid;
 import java.util.Date;
+import java.util.List;
 
 @Controller
 public class PetitionController extends ControllerBase {
@@ -37,6 +30,9 @@ public class PetitionController extends ControllerBase {
 
     @Autowired
     private PetitionCustomParamService petitionCustomParamService;
+
+    @Autowired
+    private ContactService contactService;
 
     @RequestMapping(path = "/petition", method = RequestMethod.GET)
     public ModelAndView addPetition() {
@@ -123,9 +119,29 @@ public class PetitionController extends ControllerBase {
         return modelAndView;
     }
 
-    @RequestMapping("/petition/redirect/{id}")
-    public String redirectPetition(@PathVariable("id") long id) {
-        return "petitions_redirect";
+    @RequestMapping(value = "/petition/redirect/{id}", method = RequestMethod.GET)
+    public ModelAndView redirectPetition(@PathVariable("id") long id) {
+        ModelAndView modelAndView = new ModelAndView("petitions_redirect");
+        Petition petition = petitionService.findById(id);
+        modelAndView.addObject("petition",petition);
+        List<Contact> contactList = (List<Contact>)(contactService.getAllContacts());
+        modelAndView.addObject("contacts",contactList);
+        return modelAndView;
+    }
+
+    @RequestMapping(value = "/petition/redirect/{id}", method = RequestMethod.POST)
+    @ResponseBody
+    public String redirectPetition(@PathVariable("id") long id,
+                                         @RequestParam("subject") String subject,
+                                         @RequestParam("recipients") long[] recipients,
+                                         @RequestParam("attachments[]") long[] attachments,
+                                         @RequestParam("description") String description) {
+        String result = "";
+        result += subject + '\n';
+        result += recipients.toString() + '\n';
+        result += attachments.toString() + '\n';
+        result += description;
+        return result;
     }
 
     private void addCustomParams(ModelAndView modelAndView) {
