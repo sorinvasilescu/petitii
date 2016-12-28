@@ -45,7 +45,7 @@ public class SmtpService {
             }
         message.setContent(content);
         transport.sendMessage(message,message.getAllRecipients());
-        LOGGER.info("Mail sent succesfuly");
+        LOGGER.info("Mail sent successfully");
     }
 
     private void connect() throws MessagingException {
