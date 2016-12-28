@@ -7,7 +7,11 @@ import org.springframework.stereotype.Service;
 import ro.petitii.config.SmtpConfig;
 import ro.petitii.model.Email;
 import ro.petitii.model.Attachment;
+import ro.petitii.util.StringUtil;
 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
@@ -30,19 +34,33 @@ public class SmtpService {
         LOGGER.info("Starting mail send");
         if ((transport == null)||(!transport.isConnected())) connect();
         Message message = new MimeMessage(session);
+        MimeMultipart content = new MimeMultipart("mixed");
         message.setFrom(new InternetAddress(config.getUsername()));
         message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email.getRecipients()));
         if (email.getCc() != null) message.setRecipients(Message.RecipientType.CC, InternetAddress.parse(email.getCc()));
         if (email.getBcc() != null) message.setRecipients(Message.RecipientType.BCC, InternetAddress.parse(email.getBcc()));
         message.setSubject(email.getSubject());
-        Multipart content = new MimeMultipart();
+        Multipart body = new MimeMultipart("alternative");
+        // plain text body
         BodyPart part = new MimeBodyPart();
-        part.setText(email.getBody());
-        content.addBodyPart(part);
-        if (email.getAttachments() != null)
-            for (Attachment att : email.getAttachments()) {
-                content.addBodyPart(att.getBodyPart());
-            }
+        part.setContent(StringUtil.toPlainText(email.getBody()),"text/plain; charset=utf-8");
+        body.addBodyPart(part);
+        // html text body
+         part = new MimeBodyPart();
+        part.setContent(email.getBody(),"text/html; charset=utf-8");
+        body.addBodyPart(part);
+        // add both to message
+        MimeBodyPart bodyPart = new MimeBodyPart();
+        bodyPart.setContent(body);
+        content.addBodyPart(bodyPart);
+        // attachments
+        for (Attachment att : email.getAttachments()) {
+            part = new MimeBodyPart();
+            part.setFileName(att.getOriginalFilename());
+            DataSource source = new FileDataSource(att.getFilename());
+            part.setDataHandler(new DataHandler(source));
+            content.addBodyPart(part);
+        }
         message.setContent(content);
         transport.sendMessage(message,message.getAllRecipients());
         LOGGER.info("Mail sent successfully");

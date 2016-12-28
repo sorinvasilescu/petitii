@@ -1,6 +1,8 @@
 package ro.petitii.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -9,8 +11,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ro.petitii.config.DefaultsConfig;
 import ro.petitii.model.*;
 import ro.petitii.service.*;
+import ro.petitii.service.email.SmtpService;
 
+import javax.mail.MessagingException;
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -33,6 +38,15 @@ public class PetitionController extends ControllerBase {
 
     @Autowired
     private ContactService contactService;
+
+    @Autowired
+    private PetitionStatusService statusService;
+
+    @Autowired
+    private AttachmentService attachmentService;
+
+    @Autowired
+    private SmtpService smtpService;
 
     @RequestMapping(path = "/petition", method = RequestMethod.GET)
     public ModelAndView addPetition() {
@@ -136,11 +150,36 @@ public class PetitionController extends ControllerBase {
                                          @RequestParam("recipients") long[] recipients,
                                          @RequestParam("attachments[]") long[] attachments,
                                          @RequestParam("description") String description) {
-        String result = "";
-        result += subject + '\n';
-        result += recipients.toString() + '\n';
-        result += attachments.toString() + '\n';
-        result += description;
+        String result = "Success";
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.findUserByEmail(auth.getName()).get(0);
+        Petition petition = petitionService.findById(id);
+        String recipientString = "";
+        for (long rid : recipients) {
+            Contact contact = contactService.getById(rid);
+            recipientString += contact.getName() + " <" + contact.getEmail() + ">, ";
+        }
+        List<Attachment> attachmentList = new ArrayList<>();
+        for (long aid : attachments) {
+            attachmentList.add(attachmentService.findById(aid));
+        }
+
+        statusService.create(PetitionStatus.Status.REDIRECTED,petition,user);
+        Email email = new Email();
+        email.setBody(description);
+        email.setRecipients(recipientString);
+        email.setAttachments(attachmentList);
+        email.setPetition(petition);
+        email.setType(Email.EmailType.Outbox);
+        email = emailService.saveAlone(email);
+
+        try {
+            smtpService.send(email);
+        } catch (MessagingException e) {
+            result = e.getMessage();
+        }
+
         return result;
     }
 
