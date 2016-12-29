@@ -48,14 +48,6 @@
 	<!-- Datatables -->
 	<script th:inline="none" type="text/javascript">
     /*<![CDATA[*/
-    function strLimit(data, limit) {
-        if ((data!=null) && (data.length > limit)){
-            data = data.substr(0, limit);
-            data += '...';
-        }
-        return data;
-    }
-
     var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
     /*]]>*/
     
@@ -75,7 +67,8 @@
                     type: 'POST'
                 },
                 language: {
-                    url: languageUrl
+                    url: languageUrl,
+                    select: selectTranslation()
                 },
                 columns: [
                     {
@@ -88,7 +81,7 @@
                     {
                         name: 'name',
                         data: 'name',
-                        title: 'Institutie'
+                        title: 'Instituție'
                     },
                     {
                         name: 'email',
@@ -99,7 +92,7 @@
                         name: 'phone',
                         data: 'phone',
                         title: 'Telefon'
-                    },
+                    }
                 ]
             });
         	

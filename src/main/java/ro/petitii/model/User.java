@@ -11,9 +11,8 @@ import java.util.Collection;
 @Entity
 @Table(name = "users")
 public class User {
-
     public enum UserRole {
-            ADMIN,USER
+        ADMIN, USER, SUSPENDED
     }
 
     @Id
@@ -39,7 +38,7 @@ public class User {
     @JsonView(DataTablesOutput.View.class)
     private String lastName;
 
-    @NotEmpty
+//    @NotEmpty
     @Enumerated(EnumType.STRING)
     @JsonView(DataTablesOutput.View.class)
     private UserRole role;
