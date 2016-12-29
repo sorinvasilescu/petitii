@@ -246,6 +246,18 @@ CREATE TABLE IF NOT EXISTS `petitions`.`contacts` (
   ENGINE = InnoDB;
 
 
+  -- -----------------------------------------------------
+  -- Table `petitions`.`email_templates`
+  -- -----------------------------------------------------
+  CREATE TABLE `email_templates` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(255) NULL,
+    `content` longtext,
+    PRIMARY KEY (`id`)
+  ) ENGINE=InnoDB;
+
+
+
 CREATE TABLE IF NOT EXISTS `petitions`.`persistent_logins` (
   username VARCHAR(64) NOT NULL,
   series VARCHAR(64) PRIMARY KEY,
