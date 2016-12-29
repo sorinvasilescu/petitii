@@ -3,7 +3,6 @@ package ro.petitii.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
-import org.springframework.validation.ValidationUtils;
 import ro.petitii.model.Petition;
 import ro.petitii.model.PetitionCustomParam;
 import ro.petitii.repository.PetitionCustomParamRepository;

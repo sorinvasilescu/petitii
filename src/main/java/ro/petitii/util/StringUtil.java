@@ -9,6 +9,10 @@ public class StringUtil {
         return Jsoup.clean(preserveNewLines(content), Whitelist.relaxed());
     }
 
+    public static String toPlainText(String content) {
+        return Jsoup.clean(content, Whitelist.none());
+    }
+
     public static String preserveNewLines(String content) {
         return content.replaceAll("\n", "<br />");
     }

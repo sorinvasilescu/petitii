@@ -6,7 +6,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import ro.petitii.model.Email;
-import ro.petitii.service.email.ImapService;
 import ro.petitii.service.email.SmtpService;
 
 import javax.mail.MessagingException;
@@ -43,6 +42,7 @@ public class MainController implements ErrorController {
         email.setRecipients("sorin.vasilescu@gmail.com");
         email.setSubject("Test");
         email.setBody("Lorem ipsum");
+        email.setSender("petitii.gov@gmail.com");
         try {
             smtpService.send(email);
         } catch (MessagingException e) {

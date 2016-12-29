@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="fragments/main_head :: head"></head>
-
 <body class="nav-md">
 <div class="container body">
     <div class="main_container">
@@ -16,7 +15,7 @@
             <div id="error-messages"></div>
             <div class="">
                 <h2>Petițiile mele</h2>
-                <div class="col-md-6 col-sm-6 col-xs-12">
+                <div class="col-md-4 col-sm-4 col-xs-12">
                     <div class="radio">
                      <label>
                        <input type="radio" class="flat" name="iCheck" id="started"/> Petiții în lucru
@@ -28,7 +27,7 @@
                      </label>
                    </div>
                 </div>
-                <div class="col-md-6 col-sm-6 col-xs-12">
+                <div class="col-md-8 col-sm-8 col-xs-12">
                 	  <div class="buttons pull-right">
                           <button id="add" type="button" class="btn btn-default btn-md"><i class="fa fa-plus-square-o"></i>&nbsp;<span>Adaugă</span></button>
                           <button id="modify" type="button" class="btn btn-default btn-md"><i class="fa fa-pencil-square-o"></i>&nbsp;<span>Modifică</span></button>
@@ -161,6 +160,16 @@
                 this.blur()
             } else {
                 window.location.href = '/petition/' + selectedRows[0].id;
+            }
+        });
+
+        $('#redirect').click(function(){
+            var selectedRows = petitionTable.rows({selected: true}).data().toArray();
+            if (selectedRows.length != 1) {
+                addWarning("#error-messages", "Pentru redirectare selectați o singură petiție");
+                this.blur()
+            } else {
+                window.location.href = '/petition/redirect/' + selectedRows[0].id;
             }
         });
 

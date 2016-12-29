@@ -32,19 +32,22 @@ public class EmailServiceImpl implements EmailService {
     @Override
     @Transactional
     public Email save(Email e) {
-        em.persist(e);
-        em.flush();
+        if (e.getId()==null) {
+            em.persist(e);
+            em.flush();
+        }
         for (Attachment attachment : e.getAttachments()) {
-            attachment.setEmail(e);
-            attachmentService.saveFromEmail(attachment);
+            List<Email> emails = attachment.getEmails();
+            if (emails == null) emails = new ArrayList<>();
+            if (!emails.contains(e)) {
+                emails.add(e);
+                attachment.setEmails(emails);
+            }
+            if (attachment.getBodyPart()!=null) attachmentService.saveFromEmail(attachment);
+            else attachmentService.save(attachment);
         }
         e = emailRepository.save(e);
         return e;
-    }
-
-    @Override
-    public Email saveAlone(Email e) {
-        return emailRepository.save(e);
     }
 
     @Override

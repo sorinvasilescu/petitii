@@ -4,7 +4,7 @@
 }
 
 .top-margin {
-    margin-top: 3.5vh;
+    margin-top: -40px;
 }
 
 .addForm {
@@ -22,6 +22,7 @@
 
 .page-title-petitions {
     margin-bottom: -5px;
+    clear:both;
 }
 
 .align-right {
@@ -29,7 +30,7 @@
 }
 
 div.right_col {
-    padding-top: 70px !important;
+    margin-top: 57px;
 }
 
 .alert {

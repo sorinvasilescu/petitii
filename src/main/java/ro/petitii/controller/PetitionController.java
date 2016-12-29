@@ -1,25 +1,24 @@
 package ro.petitii.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ro.petitii.config.DefaultsConfig;
-import ro.petitii.model.Email;
-import ro.petitii.model.Petition;
-import ro.petitii.model.PetitionCustomParam;
-import ro.petitii.model.Petitioner;
-import ro.petitii.service.EmailService;
-import ro.petitii.service.PetitionCustomParamService;
-import ro.petitii.service.PetitionService;
-import ro.petitii.service.UserService;
+import ro.petitii.config.SmtpConfig;
+import ro.petitii.model.*;
+import ro.petitii.service.*;
+import ro.petitii.service.email.SmtpService;
 
+import javax.mail.MessagingException;
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Controller
 public class PetitionController extends ControllerBase {
@@ -37,6 +36,21 @@ public class PetitionController extends ControllerBase {
 
     @Autowired
     private PetitionCustomParamService petitionCustomParamService;
+
+    @Autowired
+    private ContactService contactService;
+
+    @Autowired
+    private PetitionStatusService statusService;
+
+    @Autowired
+    private AttachmentService attachmentService;
+
+    @Autowired
+    private SmtpService smtpService;
+
+    @Autowired
+    private SmtpConfig smtpConfig;
 
     @RequestMapping(path = "/petition", method = RequestMethod.GET)
     public ModelAndView addPetition() {
@@ -123,9 +137,62 @@ public class PetitionController extends ControllerBase {
         return modelAndView;
     }
 
-    @RequestMapping("/redirect")
-    public String redirectPetition() {
-        return "petitions_redirect";
+    @RequestMapping(value = "/petition/redirect/{id}", method = RequestMethod.GET)
+    public ModelAndView redirectPetition(@PathVariable("id") long id) {
+        ModelAndView modelAndView = new ModelAndView("petitions_redirect");
+        Petition petition = petitionService.findById(id);
+        modelAndView.addObject("petition",petition);
+        List<Contact> contactList = (List<Contact>)(contactService.getAllContacts());
+        modelAndView.addObject("contacts",contactList);
+        return modelAndView;
+    }
+
+    @RequestMapping(value = "/petition/redirect/{id}", method = RequestMethod.POST)
+    @ResponseBody
+    public ModelAndView redirectPetition(@PathVariable("id") long id,
+                                   @RequestParam("subject") String subject,
+                                   @RequestParam("recipients") long[] recipients,
+                                   @RequestParam(value = "attachments[]",required = false) long[] attachments,
+                                   @RequestParam("description") String description,
+                                   final RedirectAttributes attr) {
+
+        ModelAndView modelAndView = new ModelAndView();
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.findUserByEmail(auth.getName()).get(0);
+        Petition petition = petitionService.findById(id);
+        modelAndView.setViewName("redirect:/petition/" + petition.getId());
+        String recipientString = "";
+        for (long rid : recipients) {
+            Contact contact = contactService.getById(rid);
+            recipientString += contact.getName() + " <" + contact.getEmail() + ">, ";
+        }
+        List<Attachment> attachmentList = new ArrayList<>();
+        if (attachments!=null)
+            for (long aid : attachments) {
+                attachmentList.add(attachmentService.findById(aid));
+            }
+
+        statusService.create(PetitionStatus.Status.REDIRECTED,petition,user);
+        Email email = new Email();
+        email.setBody(description);
+        email.setDate(new Date());
+        email.setSubject(subject);
+        email.setSender(smtpConfig.getUsername());
+        email.setRecipients(recipientString);
+        email.setAttachments(attachmentList);
+        email.setPetition(petition);
+        email.setType(Email.EmailType.Outbox);
+        email = emailService.save(email);
+
+        try {
+            smtpService.send(email);
+            attr.addFlashAttribute("toast", createToast("Petiția a fost redirectionata cu succes", ToastType.success));
+        } catch (MessagingException e) {
+            attr.addFlashAttribute("toast", createToast("Petiția nu a fost redirectionata: " + e.getMessage(), ToastType.danger));
+        }
+
+        return modelAndView;
     }
 
     private void addCustomParams(ModelAndView modelAndView) {
