@@ -42,6 +42,7 @@ public class MainController implements ErrorController {
         email.setRecipients("sorin.vasilescu@gmail.com");
         email.setSubject("Test");
         email.setBody("Lorem ipsum");
+        email.setSender("petitii.gov@gmail.com");
         try {
             smtpService.send(email);
         } catch (MessagingException e) {

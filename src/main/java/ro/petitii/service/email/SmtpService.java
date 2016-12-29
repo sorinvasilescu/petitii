@@ -1,5 +1,6 @@
 package ro.petitii.service.email;
 
+import groovy.transform.Synchronized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,15 +28,14 @@ public class SmtpService {
     private Session session = null;
     private Transport transport = null;
     private Properties props = null;
-    private static final Logger LOGGER = LoggerFactory.getLogger(ImapService.class);
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(SmtpService.class);
 
     public void send(Email email) throws MessagingException {
         LOGGER.info("Starting mail send");
-        if ((transport == null)||(!transport.isConnected())) connect();
+        if (!transport.isConnected()) this.connect();
         Message message = new MimeMessage(session);
         MimeMultipart content = new MimeMultipart("mixed");
-        message.setFrom(new InternetAddress(config.getUsername()));
+        message.setFrom(new InternetAddress(email.getSender()));
         message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email.getRecipients()));
         if (email.getCc() != null) message.setRecipients(Message.RecipientType.CC, InternetAddress.parse(email.getCc()));
         if (email.getBcc() != null) message.setRecipients(Message.RecipientType.BCC, InternetAddress.parse(email.getBcc()));
@@ -54,25 +54,33 @@ public class SmtpService {
         bodyPart.setContent(body);
         content.addBodyPart(bodyPart);
         // attachments
-        for (Attachment att : email.getAttachments()) {
-            part = new MimeBodyPart();
-            part.setFileName(att.getOriginalFilename());
-            DataSource source = new FileDataSource(att.getFilename());
-            part.setDataHandler(new DataHandler(source));
-            content.addBodyPart(part);
-        }
+        if (email.getAttachments()!=null)
+            for (Attachment att : email.getAttachments()) {
+                part = new MimeBodyPart();
+                part.setFileName(att.getOriginalFilename());
+                DataSource source = new FileDataSource(att.getFilename());
+                part.setDataHandler(new DataHandler(source));
+                content.addBodyPart(part);
+            }
         message.setContent(content);
+        LOGGER.info("Mail constructed");
+        message.saveChanges();
+        LOGGER.info("Mail changes saved");
         transport.sendMessage(message,message.getAllRecipients());
         LOGGER.info("Mail sent successfully");
     }
 
-    private void connect() throws MessagingException {
+    @Synchronized
+    public void connect() throws MessagingException {
+        LOGGER.info("Connecting to SMTP server");
         if (props == null) {
             props = new Properties();
             props.put("mail.smtp.auth", "true");
             props.put("mail.smtp.starttls.enable", config.getSsl());
-            props.put("mail.smtp.host", config.getServer());
-            props.put("mail.smtp.port", config.getPort());
+            props.put("mail.smtp.starttls.required", config.getSsl());
+            props.put("mail.smtp.sendpartial", true);
+            props.put("mail.smtp.host",config.getServer());
+            props.put("mail.smtp.port",config.getPort());
         }
         if (session == null) {
             session = Session.getInstance(props, new Authenticator() {
@@ -82,9 +90,10 @@ public class SmtpService {
                 }
             });
         }
-        if ((transport == null)||(!transport.isConnected())) {
+        if (transport == null) {
             transport = session.getTransport("smtp");
-            transport.connect();
         }
+        transport.connect();
+        LOGGER.info("Connected to SMTP server");
     }
 }

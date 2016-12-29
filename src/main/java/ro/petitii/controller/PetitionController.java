@@ -4,11 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.SerializationUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ro.petitii.config.DefaultsConfig;
+import ro.petitii.config.SmtpConfig;
 import ro.petitii.model.*;
 import ro.petitii.service.*;
 import ro.petitii.service.email.SmtpService;
@@ -47,6 +49,9 @@ public class PetitionController extends ControllerBase {
 
     @Autowired
     private SmtpService smtpService;
+
+    @Autowired
+    private SmtpConfig smtpConfig;
 
     @RequestMapping(path = "/petition", method = RequestMethod.GET)
     public ModelAndView addPetition() {
@@ -168,10 +173,14 @@ public class PetitionController extends ControllerBase {
         statusService.create(PetitionStatus.Status.REDIRECTED,petition,user);
         Email email = new Email();
         email.setBody(description);
+        email.setDate(new Date());
+        email.setSubject(subject);
+        email.setSender(smtpConfig.getUsername());
         email.setRecipients(recipientString);
         email.setAttachments(attachmentList);
         email.setPetition(petition);
         email.setType(Email.EmailType.Outbox);
+        email.setSize(SerializationUtils.serialize(email).length);
         email = emailService.save(email);
 
         try {
