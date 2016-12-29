@@ -93,3 +93,9 @@ div.elipsis-subiect {
     cursor: inherit;
     display: block;
 }
+
+.center-on-topbar {
+    position: relative;
+    display: block;
+    padding: 20px 5px 5px;
+}

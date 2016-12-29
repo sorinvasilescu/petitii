@@ -4,7 +4,7 @@ spring:
   thymeleaf:
     cache: false
   datasource:
-    url: jdbc:mysql://localhost/petitions?useUnicode=yes&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost/petitions?useUnicode=yes&characterEncoding=UTF-8&useSSL=false
     username: petitions
     password: petitions
     driver-class-name: com.mysql.jdbc.Driver
@@ -12,7 +12,11 @@ spring:
   http.multipart:
     max-file-size: 4MB
     max-request-size: 4MB
-  #jpa:
+#  jpa:
+#    properties.javax.persistence.schema-generation:
+#      create-source: metadata
+#      scripts.action: create
+#      scripts.create-target: create.sql
     #show-sql: true
 
 #logging.level.org.springframework.web: DEBUG

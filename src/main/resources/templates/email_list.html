@@ -9,10 +9,10 @@
 <body class="nav-md">
 <div class="container body">
     <div class="main_container">
-        <div class="col-md-3 left_col" th:substituteby="fragments/left::menu"></div>
+        <div class="col-md-3 left_col" th:replace="fragments/left::menu"></div>
 
         <!-- top navigation -->
-        <div class="top_nav" th:substituteby="fragments/top::menu"></div>
+        <div class="top_nav" th:replace="fragments/top::menu"></div>
         <!-- /top navigation -->
 
         <!-- page content -->
@@ -75,14 +75,14 @@
 <div th:replace="fragments/main_head::includes"></div>
 
 <!-- Variables from backend -->
-<script th:inline="javascript">
+<script th:inline="none">
     /*<![CDATA[*/
     var apiUrl = /*[[${apiUrl}]]*/ '/api/emails';
     /*]]>*/
 </script>
 
 <!-- Datatables -->
-<script th:inline="javascript" type="text/javascript">
+<script type="text/javascript"  th:inline="none">
     /*<![CDATA[*/
     var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
     /*]]>*/
@@ -180,7 +180,7 @@
 <!-- /Datatables -->
 
 <!-- Other actions -->
-<script th:if="${page=='inbox'}" type="text/javascript" th:inline="javascript">
+<script th:if="${page=='inbox'}" type="text/javascript" th:inline="none">
     $(document).ready(function () {
         $('#get-mail').click(refreshMail);
 
@@ -224,7 +224,7 @@
         });
     }
 </script>
-<script th:if="${page=='spam'}" type="text/javascript" th:inline="javascript">
+<script th:if="${page=='spam'}" type="text/javascript" th:inline="none">
     $(document).ready(function () {
         $("#mark-email").click(function (e) {
             var selectedRows = emailTable.rows({selected: true}).data().toArray();
@@ -237,6 +237,6 @@
         });
     });
 </script>
-<div th:substituteby="fragments/main_head::toast"></div>
+<div th:replace="fragments/main_head::toast"></div>
 </body>
 </html>
