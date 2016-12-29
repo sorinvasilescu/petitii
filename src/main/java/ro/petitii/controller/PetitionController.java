@@ -1,11 +1,14 @@
 package ro.petitii.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ro.petitii.config.DefaultsConfig;
@@ -126,6 +129,22 @@ public class PetitionController extends ControllerBase {
     @RequestMapping("/redirect")
     public String redirectPetition() {
         return "petitions_redirect";
+    }
+
+    @RequestMapping(value = "/petition/{pid}/resolve", method = RequestMethod.GET)
+    public ModelAndView resolve(@PathVariable("pid") Long pid) {
+        Petition petition = petitionService.findById(pid);
+        if (petition == null) {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        }
+
+        ModelAndView modelAndView = new ModelAndView("petitions_resolve");
+        modelAndView.addObject("pid", pid);
+        modelAndView.addObject("pEmail", petition.getPetitioner().getEmail());
+        modelAndView.addObject("attachmentApiUrl", "/api/petitions/" + pid + "/attachments");
+        modelAndView.addObject("linkedPetitionsApiUrl", "/api/petitions/" + pid + "/linked");
+        modelAndView.addObject("linkedPetitionerApiUrl", "/api/petitions/" + pid + "/by/petitioner");
+        return modelAndView;
     }
 
     private void addCustomParams(ModelAndView modelAndView) {

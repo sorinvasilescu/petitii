@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="fragments/main_head :: head"></head>
+
+<body class="nav-md">
+<div class="container body">
+    <div class="main_container">
+        <div class="col-md-3 left_col" th:substituteby="fragments/left::menu"></div>
+        <!-- top navigation -->
+        <div class="top_nav" th:substituteby="fragments/top::menu"></div>
+        <!-- /top navigation -->
+        <!-- page content -->
+        <div class="right_col" role="main">
+            <div class="">
+                <h2>Redirecționează petiție</h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <form class="form-horizontal form-label-left">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <input id="selected-attachments" type="hidden" name="selected-attachments" value=""/>
+                    <div class="row">
+                        <div class="col-md-10 col-sm-10 col-xs-12">
+                            <div class="buttons pull-right">
+                                <button id="top-back" type="button" class="btn btn-default btn-md"><i
+                                        class="fa fa-reply"></i> <span>Înapoi</span></button>
+                                <button id="top-submit" type="submit" class="btn btn-success btn-md">
+                                    <i class="fa fa-share"></i> <span id="submit-text">Execută</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-2 col-sm-2 col-xs-12">Soluție: </label>
+                        <div class="col-md-8 col-sm-8 col-xs-12">
+                            <select class="form-control" name="resolution" id="resolution">
+                                <option value=""></option>
+                                <option value="resolved">Rezolvată</option>
+                                <option value="noContent">Clasată - Fără conținut</option>
+                                <option value="invalidLanguage">Clasată - Limbaj licențios</option>
+                                <option value="duplicate">Clasată - Duplicat</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-2 col-sm-2 col-xs-12"></label>
+                        <div class="col-md-8 col-sm-8 col-xs-12">
+                            <div class="checkbox-inline">
+                                <label><input id="send-email" type="checkbox" class="flat" name="iCheck"/>&nbsp;&nbsp;&nbsp;Trimite
+                                    e-mail petentului</label>
+                                <span id="action2attachments" style="cursor: hand" onclick="$('html, body').animate({scrollTop: $('#group-attachments').offset().top}, 'slow');"> | Selectati atașamentele</span>
+                                <span id="action2connections" style="cursor: hand" onclick="$('html, body').animate({scrollTop: $('#group-connections').offset().top}, 'slow');"> | Petiții conexate</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ln_solid"></div>
+                    <div class="form-group">
+                        <label class="control-label col-md-2 col-sm-2 col-xs-12">Mesaj: </label>
+                        <div class="col-md-8 col-sm-8 col-xs-12">
+                            <textarea class="resizable_textarea form-control" name="description" id="description"
+                                      rows="30" style="width:100%"></textarea>
+                        </div>
+                    </div>
+
+                    <div id="group-attachments" class="form-group">
+                        <div class="ln_solid"></div>
+                        <h2>Atașamente email</h2>
+                        <button type="button" class="btn btn-default btn-md pull-right"
+                                id="removeAttachment">
+                            <i class="fa fa-trash-o"></i> Șterge atașament
+                        </button>
+                        <button type="button" class="btn btn-default btn-md pull-right"
+                                id="addAttachment">
+                            <i class="fa fa-plus-circle"></i> Adaugă atașament
+                        </button>
+                        <table id="attachments"
+                               class="table table-striped row-border compact stripe dt-responsive nowrap"
+                               cellspacing="0" width="100%">
+                        </table>
+                    </div>
+
+                    <div id="group-connections" class="form-group">
+                        <div class="ln_solid"></div>
+                        <h2>Petiții conexate</h2>
+                        <button id="unlink-petition" type="button" class="btn btn-default btn-md pull-right"><i
+                                class="fa fa-link"></i> Șterge conexiune
+                        </button>
+                        <button id="link-petition" type="button" class="btn btn-default btn-md pull-right"><i
+                                class="fa fa-link"></i> Creează conexiune
+                        </button>
+                        <table id="connexions"
+                               class="table table-striped row-border compact stripe dt-responsive nowrap"
+                               cellspacing="0" width="100%">
+                        </table>
+                    </div>
+                    <div class="ln_solid"></div>
+                    <button id="back2top" type="button" class="btn btn-default btn-md pull-right"
+                            onclick="this.blur(); $('html, body').animate({ scrollTop: 0 }, 'slow');"><i
+                            class="fa fa-level-up"></i> Sus
+                    </button>
+                </form>
+            </div>
+        </div>
+        <!-- /page content -->
+        <!-- footer content -->
+        <footer>
+            <div class="pull-right">
+                Gentelella - Bootstrap Admin Template by <a href="https://colorlib.com">Colorlib</a>
+            </div>
+            <div class="clearfix"></div>
+        </footer>
+        <!-- /footer content -->
+    </div>
+</div>
+<div th:replace="fragments/main_head::includes"></div>
+
+<script th:inline="javascript" type="application/javascript">
+    /*<![CDATA[*/
+    var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
+    var attachmentsApiUrl = /*[[${attachmentApiUrl}]]*/ '/api/petitions/{id}/attachments/';
+    var linkedPetitionsApiUrl = /*[[${linkedPetitionsApiUrl}]]*/ '/api/petitions/{id}/linked';
+    var linkedByPetitionerApiUrl = /*[[${linkedPetitionerApiUrl}]]*/ '/api/petitions/{id}/by/petitioner';
+    var pid = /*[[${pid}]]*/ "#";
+    var pEmail = /*[[${pEmail}]]*/ '#';
+    /*]]>*/
+</script>
+
+<script type="application/javascript">
+    $(document).ready(function () {
+        var resolutionComponent = $("#resolution");
+        var connectionsGroup = $('#group-connections');
+        var action2Connections = $('#action2connections');
+        resolutionComponent.select2({
+            placeholder: "Alege soluția",
+            allowClear: true
+        });
+        resolutionComponent.on('select2:select', function (e) {
+            var selectedId = e.params.data.id;
+            if (selectedId == "" || selectedId == undefined) {
+                changeSelection(null);
+            } else if (selectedId == "resolved") {
+                changeSelection("resolved");
+            } else {
+                changeSelection("closed")
+            }
+        });
+
+        resolutionComponent.on('select2:unselect', function (e) {
+            changeSelection(null);
+        });
+
+        function changeSelection(selection) {
+            var actionComponent = $('#top-submit');
+            var actionText = $('#submit-text');
+            var sendEmail = $('#send-email');
+
+            switch (selection) {
+                case "resolved":
+                    actionComponent.toggle(true);
+                    actionText.text("Rezolvă");
+                    sendEmail.iCheck('check');
+                    connectionsGroup.toggle(false);
+                    action2Connections.toggle(false);
+                    break;
+                case "closed":
+                    actionComponent.toggle(true);
+                    actionText.text("Clasează");
+                    sendEmail.iCheck('uncheck');
+                    connectionsGroup.toggle(true);
+                    action2Connections.toggle(true);
+                    break;
+                default:
+                case null:
+                    actionComponent.toggle(false);
+                    actionText.text("");
+                    sendEmail.iCheck('uncheck');
+                    connectionsGroup.toggle(false);
+                    action2Connections.toggle(false);
+                    break;
+            }
+        }
+
+        changeSelection(null);
+
+        $('#top-back').click(function () {
+            window.location.href = '/petition/' + pid;
+        });
+
+        var attachmentsGroup = $('#group-attachments');
+        var action2Attachments = $('#action2attachments');
+        $('input[name=iCheck]').on('ifToggled', function (event) {
+            attachmentsGroup.toggle(event.target.checked);
+            action2Attachments.toggle(event.target.checked);
+        });
+        var sendEmailCheck = $('#send-email').checked;
+        attachmentsGroup.toggle(sendEmailCheck);
+        action2Attachments.toggle(sendEmailCheck);
+    });
+</script>
+<script type="text/javascript">
+    $("#description").wysihtml5();
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var attachmentTable = $('#attachments').DataTable({
+            select: {
+                style: 'multiple'
+            },
+            sDom: 'lrtip ',
+            rowId: "id",
+            order: [[3, 'desc']],
+            language: {
+                url: languageUrl,
+                select: selectTranslation()
+            },
+            data: [],
+            fixedColumns: true,
+            columns: [
+                {
+                    name: 'id',
+                    title: "#",
+                    data: 'id'
+                },
+                {
+                    name: 'filename',
+                    data: 'filename',
+                    title: 'Nume fișier'
+                },
+                {
+                    name: 'date',
+                    data: 'date',
+                    title: 'Data'
+                },
+                {
+                    name: 'origin',
+                    data: 'origin',
+                    title: 'Adăugat de'
+                },
+                {
+                    data: null,
+                    title: '',
+                    render: function (data, type, full, meta) {
+                        if (data != null) {
+                            return '<a href="/api/attachments/download/' + data.id + '"><i class="fa fa-paperclip"></i> Vizualizează</a>';
+                        } else {
+                            return '';
+                        }
+                    },
+                    sortable: false
+                }
+            ]
+        });
+        selectActions(attachmentTable);
+
+        $('#addAttachment').click(function () {
+            attachmentPopup("Selectează atașamentele", attachmentsApiUrl, languageUrl, function (result) {
+                attachmentTable.rows.add(result).draw();
+                refreshAttachments();
+            });
+        });
+
+        $('#removeAttachment').click(function () {
+            var selectedRows = attachmentTable.rows({selected: true});
+            customAlert("Sunteți sigur că doriți ștergerea atașamentului?", function (result) {
+                if (result) {
+                    selectedRows.remove().draw();
+                    refreshAttachments();
+                }
+            });
+        });
+
+        function refreshAttachments() {
+            var span = $('#selected-attachments');
+            span.val('');
+            $.each(attachmentTable.rows().data().toArray(), function (i, element) {
+                span.val(span.val() + (i != 0 ? ',' : '') + element.id);
+            });
+        }
+    });
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var linkedTable = $('#connexions').DataTable({
+            select: {
+                style: 'single'
+            },
+            processing: true,
+            serverSide: true,
+            sDom: 'lrtip ',
+            rowId: "id",
+            order: [[0, 'desc']],
+            autoWidth: false,
+            ajax: {
+                url: linkedPetitionsApiUrl,
+                type: 'POST'
+            },
+            language: {
+                url: languageUrl,
+                select: selectTranslation()
+            },
+            fixedColumns: true,
+            columns: [
+                {
+                    name: 'id',
+                    data: 'id',
+                    title: "#"
+                },
+                {
+                    name: 'regNo',
+                    data: 'regNo',
+                    title: 'Nr. Înregistrare'
+                },
+                {
+                    name: 'petitionerName',
+                    data: 'petitionerName',
+                    title: 'Petent'
+                },
+                {
+                    name: '_abstract',
+                    data: '_abstract',
+                    title: 'Rezumat',
+                    sortable: false
+                },
+                {
+                    name: 'receivedDate',
+                    data: 'receivedDate',
+                    title: 'Data primire'
+                },
+                {
+                    name: 'status',
+                    data: 'status',
+                    title: 'Status'
+                },
+                {
+                    name: 'lastUpdateDate',
+                    data: 'lastUpdateDate',
+                    title: 'Ultima modificare',
+                    sortable: false
+                },
+                {
+                    data: null,
+                    title: '',
+                    render: function (data, type, full, meta) {
+                        if (data != null) {
+                            return '<a href="/petition/' + data.id + '"><i class="fa fa-info-circle"></i> Vizualizează</a>';
+                        } else {
+                            return '';
+                        }
+                    },
+                    sortable: false
+                }
+            ]
+        });
+        selectActions(linkedTable);
+
+        $('#link-petition').click(function () {
+            linkPopup("Petițiile primite de la: " + pEmail, linkedByPetitionerApiUrl, languageUrl, function (result) {
+                $.ajax({
+                    url: "/api/petitions/" + pid + "/link/" + result[0].id,
+                    method: 'POST'
+                }).done(function (data) {
+                    linkedTable.ajax.reload();
+                }).fail(function (reason) {
+                    console.log(reason);
+                });
+            })
+        });
+
+        $('#unlink-petition').click(function () {
+            var selectedRows = linkedTable.rows({selected: true}).data().toArray();
+            if (selectedRows.length != 1) {
+                this.blur()
+            } else {
+                customAlert("Sunteți sigur că doriți ștergerea conexiunii?", function (result) {
+                    if (result) {
+                        $.ajax({
+                            url: "/api/petitions/" + pid + "/unlink/" + selectedRows[0].id,
+                            method: 'POST'
+                        }).done(function (data) {
+                            linkedTable.ajax.reload();
+                        }).fail(function (reason) {
+                            console.log(reason);
+                        });
+                    }
+                });
+            }
+        });
+    });
+</script>
+
+<div th:substituteby="fragments/main_head::toast"></div>
+</body>
+
+</html>
