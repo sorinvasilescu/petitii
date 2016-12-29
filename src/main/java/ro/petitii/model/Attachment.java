@@ -3,6 +3,7 @@ package ro.petitii.model;
 import javax.mail.BodyPart;
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "attachments")
@@ -25,9 +26,13 @@ public class Attachment {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "email_id")
-    private Email email;
+    @ManyToMany
+    @JoinTable(
+            name = "emails_attachments",
+            joinColumns = { @JoinColumn(name = "attachment_id") },
+            inverseJoinColumns = { @JoinColumn(name = "email_id") },
+            uniqueConstraints = { @UniqueConstraint(columnNames = {"attachment_id","email_id"}) })
+    private List<Email> emails;
 
     @ManyToOne
     @JoinColumn(name = "petition_id")
@@ -86,12 +91,12 @@ public class Attachment {
         this.user = user;
     }
 
-    public Email getEmail() {
-        return email;
+    public List<Email> getEmails() {
+        return emails;
     }
 
-    public void setEmail(Email email) {
-        this.email = email;
+    public void setEmails(List<Email> email) {
+        this.emails = email;
     }
 
     public Petition getPetition() {

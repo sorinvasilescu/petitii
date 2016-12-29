@@ -62,13 +62,14 @@ public class ImapService {
             fp.add(FetchProfile.Item.CONTENT_INFO);
             long latestuid = -1;
             if (emailService.count() < 1) {
-
-                SearchTerm newerThan = new ReceivedDateTerm(ComparisonTerm.GT, getStartDate());
+                Date startDate = getStartDate();
+                LOGGER.info("Starting from date: " + startDate);
+                SearchTerm newerThan = new ReceivedDateTerm(ComparisonTerm.GT, startDate);
                 // fetch messages
                 messages = folder.search(newerThan);
             } else {
                 latestuid = emailService.lastUid();
-                LOGGER.info("Last uid: " + latestuid);
+                LOGGER.info("Starting from last uid: " + latestuid);
                 messages = uidFolder.getMessagesByUID(latestuid, UIDFolder.LASTUID);
             }
             folder.fetch(messages, fp);
@@ -138,8 +139,7 @@ public class ImapService {
         LOGGER.info("\t Size: " + msg.getSize());
     }
 
-    private String parseBody(Object content, Collection<Attachment> attachments)
-            throws IOException, MessagingException {
+    private String parseBody(Object content, Collection<Attachment> attachments) throws IOException, MessagingException {
         String body = null;
         try {
             if (content != null) {
@@ -178,8 +178,7 @@ public class ImapService {
     }
 
     private boolean isAttachment(BodyPart bodyPart) throws MessagingException, IOException {
-        return bodyPart.getContentType().equals(BodyPart.ATTACHMENT)
-                || bodyPart.getContent() instanceof BASE64DecoderStream;
+        return bodyPart.getContentType().equals(BodyPart.ATTACHMENT) || bodyPart.getContent() instanceof BASE64DecoderStream;
     }
 
     private Properties getServerProperties() {

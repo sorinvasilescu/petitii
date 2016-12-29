@@ -108,7 +108,7 @@ public class PetitionServiceImpl implements PetitionService {
         for (Email email : emails) {
             if (email.getPetition() != petition) {
                 email.setPetition(petition);
-                emailService.saveAlone(email);
+                emailService.save(email);
             }
 
             if (email.getAttachments() != null && !email.getAttachments().isEmpty()) {

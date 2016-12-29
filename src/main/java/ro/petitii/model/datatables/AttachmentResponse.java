@@ -6,7 +6,7 @@ import java.util.Map;
 public class AttachmentResponse {
     public static final Map<String, String> sortMapping = new HashMap<>();
     static {
-        sortMapping.put("origin", "email");
+        sortMapping.put("origin", "emails");
     }
 
     private Long id;

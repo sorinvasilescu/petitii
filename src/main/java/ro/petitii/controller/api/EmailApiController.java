@@ -80,7 +80,7 @@ public class EmailApiController {
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
         }
         email.setType(emailType);
-        emailService.saveAlone(email);
+        emailService.save(email);
         return "OK";
     }
 

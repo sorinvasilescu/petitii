@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ro.petitii.config.EmailAttachmentConfig;
 import ro.petitii.model.Attachment;
+import ro.petitii.model.Email;
 import ro.petitii.model.Petition;
 import ro.petitii.model.User;
 import ro.petitii.model.datatables.AttachmentResponse;
@@ -58,7 +59,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     @Override
     @Transactional
     public Attachment saveFromEmail(Attachment a) {
-        LOGGER.info("Email id: " + a.getEmail().getId());
+        LOGGER.info("Email id: " + a.getEmails().iterator().next().getId());
         prepFolder();
         BodyPart attBody = a.getBodyPart();
         try {
@@ -144,19 +145,38 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
 
     @Override
-    public void deleteFromEmail(long attachmentId) {
+    public void deleteFromEmail(long attachmentId, long emailId) {
         Attachment att = attachmentRepository.findOne(attachmentId);
         if (att == null) return;
-        att.setEmail(null);
-        attachmentRepository.save(att);
-        this.deleteFromDisk(att);
+        List<Email> emails = att.getEmails();
+        // if attachment has only one email
+        if (emails.size() < 2) {
+            // if attachment has no petition
+            if (att.getPetition()==null) {
+                // remove attachment entirely
+                this.deleteFromDisk(att);
+            } else {
+                // remove email from attachment, but keep attachment
+                att.setEmails(null);
+                attachmentRepository.save(att);
+            }
+        } else {
+            for (Email e : emails) {
+                // remove current email from attachment
+                if (e.getId()==emailId) {
+                    e.getAttachments().remove(att);
+                    emails.remove(e);
+                    attachmentRepository.save(att);
+                }
+            }
+        }
     }
 
     @Override
     public void deleteFromDisk(Attachment att) {
         if (att == null) return;
         // check if there are no references to the attachment
-        if ((att.getPetition() == null) && (att.getEmail() == null)) {
+        if ((att.getPetition() == null) && (att.getEmails().size() < 1)) {
             // delete file
             File file = new File(att.getFilename());
             if (!file.delete()) {
@@ -169,7 +189,7 @@ public class AttachmentServiceImpl implements AttachmentService {
 
     @Override
     public DataTablesOutput<AttachmentResponse> getTableContent(Petition petition, PageRequest pageRequest) {
-        Page<Attachment> attachments = attachmentRepository.findByPetitionId(petition.getId(), pageRequest);
+        Page<Attachment> attachments = attachmentRepository.findByPetition_Id(petition.getId(), pageRequest);
 
         List<AttachmentResponse> data = new LinkedList<>();
         for (Attachment e : attachments.getContent()) {
@@ -177,7 +197,7 @@ public class AttachmentServiceImpl implements AttachmentService {
             re.setId(e.getId());
             re.setPetitionId(e.getPetition().getId());
             re.setFilename(e.getOriginalFilename());
-            if (e.getEmail() == null) {
+            if (e.getEmails().size() < 1) {
                 re.setOrigin(e.getUser().getFullName());
             } else {
                 re.setOrigin("E-mail");

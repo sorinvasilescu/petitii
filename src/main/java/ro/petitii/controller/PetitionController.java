@@ -172,7 +172,7 @@ public class PetitionController extends ControllerBase {
         email.setAttachments(attachmentList);
         email.setPetition(petition);
         email.setType(Email.EmailType.Outbox);
-        email = emailService.saveAlone(email);
+        email = emailService.save(email);
 
         try {
             smtpService.send(email);
