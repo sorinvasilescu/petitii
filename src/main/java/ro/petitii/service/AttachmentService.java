@@ -26,7 +26,7 @@ public interface AttachmentService {
     void deleteFromPetition(long attachmentId);
 
     // delete attachment from email
-    void deleteFromEmail(long attachmentId);
+    void deleteFromEmail(long attachmentId, long emailId);
 
     // get attachment by id
     Attachment findById(Long id);

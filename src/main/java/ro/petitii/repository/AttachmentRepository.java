@@ -8,7 +8,6 @@ import ro.petitii.model.Attachment;
 
 @Repository
 public interface AttachmentRepository extends PagingAndSortingRepository<Attachment, Long> {
-    Page<Attachment> findByPetitionId(long petitionId, Pageable p);
-
+    Page<Attachment> findByPetition_Id(long petitionId, Pageable p);
     long countByPetitionId(long petitionId);
 }
