@@ -46,7 +46,7 @@
     <div th:replace="fragments/main_head::includes"></div>
 
 	<!-- Datatables -->
-	<script th:inline="javascript" type="text/javascript">
+	<script th:inline="none" type="text/javascript">
     /*<![CDATA[*/
     function strLimit(data, limit) {
         if ((data!=null) && (data.length > limit)){
