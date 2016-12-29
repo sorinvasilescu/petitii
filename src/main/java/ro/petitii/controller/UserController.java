@@ -31,7 +31,7 @@ public class UserController extends ControllerBase {
 
     @RequestMapping("/users")
     public ModelAndView users() {
-        ModelAndView modelAndView = new ModelAndView("users_page");
+        ModelAndView modelAndView = new ModelAndView("users_list");
         modelAndView.addObject("page", "inbox");
         modelAndView.addObject("title", "Useri");
         modelAndView.addObject("apiUrl", "/api/users");
