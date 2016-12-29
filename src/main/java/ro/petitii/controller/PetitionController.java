@@ -152,7 +152,7 @@ public class PetitionController extends ControllerBase {
     public ModelAndView redirectPetition(@PathVariable("id") long id,
                                    @RequestParam("subject") String subject,
                                    @RequestParam("recipients") long[] recipients,
-                                   @RequestParam("attachments[]") long[] attachments,
+                                   @RequestParam(value = "attachments[]",required = false) long[] attachments,
                                    @RequestParam("description") String description,
                                    final RedirectAttributes attr) {
 
@@ -168,9 +168,10 @@ public class PetitionController extends ControllerBase {
             recipientString += contact.getName() + " <" + contact.getEmail() + ">, ";
         }
         List<Attachment> attachmentList = new ArrayList<>();
-        for (long aid : attachments) {
-            attachmentList.add(attachmentService.findById(aid));
-        }
+        if (attachments!=null)
+            for (long aid : attachments) {
+                attachmentList.add(attachmentService.findById(aid));
+            }
 
         statusService.create(PetitionStatus.Status.REDIRECTED,petition,user);
         Email email = new Email();
