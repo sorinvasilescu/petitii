@@ -4,10 +4,10 @@
 <body class="nav-md">
 <div class="container body">
     <div class="main_container">
-        <div class="col-md-3 left_col" th:substituteby="fragments/left::menu"></div>
+        <div class="col-md-3 left_col" th:replace="fragments/left::menu"></div>
 
         <!-- top navigation -->
-        <div class="top_nav" th:substituteby="fragments/top::menu"></div>
+        <div class="top_nav" th:replace="fragments/top::menu"></div>
         <!-- /top navigation -->
 
         <!-- page content -->
@@ -208,6 +208,6 @@
     /*]]>*/
 </script>
 
-<div th:substituteby="fragments/main_head::toast"></div>
+<div th:replace="fragments/main_head::toast"></div>
 </body>
 </html>
