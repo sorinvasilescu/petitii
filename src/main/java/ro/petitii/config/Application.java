@@ -8,7 +8,6 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.data.jpa.datatables.repository.DataTablesRepositoryFactoryBean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -22,8 +21,7 @@ import java.util.Locale;
 
 @SpringBootApplication(scanBasePackages="ro.petitii")
 @EnableJpaRepositories(basePackages = {"ro.petitii"},repositoryFactoryBeanClass = DataTablesRepositoryFactoryBean.class)
-@EntityScan(basePackages = {"ro.petitii"})
-@ComponentScan("ro.petitii")
+@EntityScan(basePackages = {"ro.petitii.model"})
 public class Application extends WebMvcConfigurerAdapter {
     
     public static void main(String[] args) {

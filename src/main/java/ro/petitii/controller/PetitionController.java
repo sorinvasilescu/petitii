@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.SerializationUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -150,16 +149,19 @@ public class PetitionController extends ControllerBase {
 
     @RequestMapping(value = "/petition/redirect/{id}", method = RequestMethod.POST)
     @ResponseBody
-    public String redirectPetition(@PathVariable("id") long id,
-                                         @RequestParam("subject") String subject,
-                                         @RequestParam("recipients") long[] recipients,
-                                         @RequestParam("attachments[]") long[] attachments,
-                                         @RequestParam("description") String description) {
-        String result = "Success";
+    public ModelAndView redirectPetition(@PathVariable("id") long id,
+                                   @RequestParam("subject") String subject,
+                                   @RequestParam("recipients") long[] recipients,
+                                   @RequestParam("attachments[]") long[] attachments,
+                                   @RequestParam("description") String description,
+                                   final RedirectAttributes attr) {
+
+        ModelAndView modelAndView = new ModelAndView();
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = userService.findUserByEmail(auth.getName()).get(0);
         Petition petition = petitionService.findById(id);
+        modelAndView.setViewName("redirect:/petition/" + petition.getId());
         String recipientString = "";
         for (long rid : recipients) {
             Contact contact = contactService.getById(rid);
@@ -180,16 +182,16 @@ public class PetitionController extends ControllerBase {
         email.setAttachments(attachmentList);
         email.setPetition(petition);
         email.setType(Email.EmailType.Outbox);
-        email.setSize(SerializationUtils.serialize(email).length);
         email = emailService.save(email);
 
         try {
             smtpService.send(email);
+            attr.addFlashAttribute("toast", createToast("Petiția a fost redirectionata cu succes", ToastType.success));
         } catch (MessagingException e) {
-            result = e.getMessage();
+            attr.addFlashAttribute("toast", createToast("Petiția nu a fost redirectionata: " + e.getMessage(), ToastType.danger));
         }
 
-        return result;
+        return modelAndView;
     }
 
     private void addCustomParams(ModelAndView modelAndView) {
