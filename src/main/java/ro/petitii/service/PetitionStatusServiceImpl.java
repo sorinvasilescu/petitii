@@ -11,19 +11,21 @@ import java.util.Date;
 
 @Service
 public class PetitionStatusServiceImpl implements PetitionStatusService {
+    @Autowired
+    private PetitionStatusRepository petitionStatusRepository;
 
     @Autowired
-    PetitionStatusRepository psRepository;
+    private PetitionService petitionService;
 
     // private method, not for external use
     private PetitionStatus save(PetitionStatus petitionStatus) {
-        return psRepository.save(petitionStatus);
+        return petitionStatusRepository.save(petitionStatus);
     }
 
     @Override
     public PetitionStatus create(PetitionStatus.Status status, Petition petition, User user) {
         petition.setCurrentStatus(status);
-
+        petitionService.save(petition); // how was this not needed until now?
         PetitionStatus petitionStatus = new PetitionStatus();
         petitionStatus.setDate(new Date());
         petitionStatus.setPetition(petition);

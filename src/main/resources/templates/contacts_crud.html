@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="fragments/main_head :: head"></head>
+
+<!--/*@thymesVar id="contact" type="ro.petitii.model.Contact"*/-->
+
+<body class="nav-md">
+    <div class="container body">
+        <div class="main_container">
+            <div class="col-md-3 left_col" th:replace="fragments/left::menu"></div>
+            <!-- top navigation -->
+            <div class="top_nav" th:replace="fragments/top::menu"></div>
+            <!-- /top navigation -->
+            <!-- page content -->
+            <div class="right_col" role="main">
+                <div class="">
+                    <h2>Editeaza contact</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                	<form class="form-horizontal form-label-left input_mask" id="petition-form" th:object="${contact}" th:action="@{/contact}" method="post">
+                    <!-- hidden properties  -->
+                    <input type="hidden" name="id" th:field="*{id}"/>
+                      <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12">Institutie <span class="required">*</span></label>
+                        <div class="col-md-9 col-sm-9 col-xs-12">
+                          <input type="text" name="name" th:field="*{name}" class="form-control" required="required" placeholder="Institutie"/>
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12">Email <span class="required">*</span></label>
+                        <div class="col-md-9 col-sm-9 col-xs-12">
+                          <input type="email" name="email" th:field="*{email}" class="form-control" required="required" placeholder="Adresa email"/>
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12">Telefon <span class="required">*</span></label>
+                        <div class="col-md-9 col-sm-9 col-xs-12">
+                          <input type="tel" name="phone" th:field="*{phone}" class="form-control" required="required" placeholder="021.450.40.31"/>
+                        </div>
+                      </div>
+                      
+                      <div class="ln_solid"></div>
+                      
+                      <div class="form-group">
+                        <div class="col-md-9 col-sm-9 col-xs-12 col-md-offset-3">
+                          <a href="/contacts"><button type="button" class="btn btn-default"><i class="fa fa-arrow-left"></i> <span>Inapoi</span></button></a>
+                          <button type="submit" class="btn btn-success"><i class="fa fa-paste"></i> <span>Salveaza</span></button>
+                        </div>
+                      </div>
+                      
+                    </form>
+                    
+                </div>
+            </div>
+            <!-- /page content -->
+            <!-- footer content -->
+            <footer>
+                <div class="pull-right">
+                    Gentelella - Bootstrap Admin Template by <a href="https://colorlib.com">Colorlib</a>
+                </div>
+                <div class="clearfix"></div>
+            </footer>
+            <!-- /footer content -->
+        </div>
+    </div>
+    <div th:replace="fragments/main_head::includes"></div>
+    <!-- Datatables -->
+    <script>
+    $(document).ready(function() {
+        $('#datatable-responsive').DataTable();
+    });
+    </script>
+    <!-- /Datatables -->
+
+    <div th:replace="fragments/main_head::toast"></div>
+</body>
+
+</html>

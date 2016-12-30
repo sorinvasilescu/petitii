@@ -12,9 +12,8 @@ import ro.petitii.repository.ContactRepository;
 
 @Service
 public class ContactServiceImpl implements ContactService {
-
 	@Autowired
-	ContactRepository contactRepository;
+	private ContactRepository contactRepository;
 	 
 	@Override
 	public Iterable<Contact> getAllContacts() {
@@ -37,8 +36,18 @@ public class ContactServiceImpl implements ContactService {
 	}
 
 	@Override
+	public Contact getById(Long id) {
+		return contactRepository.findOne(id);
+	}
+	
+	@Override
 	public DataTablesOutput<Contact> findAll(DataTablesInput input) {
 		return contactRepository.findAll(input);
+	}
+
+	@Override
+	public Contact save(Contact contact) {
+		return contactRepository.save(contact);
 	}
 
 }

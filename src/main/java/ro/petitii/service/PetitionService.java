@@ -1,13 +1,9 @@
 package ro.petitii.service;
 
-import org.springframework.data.domain.Sort;
-import ro.petitii.model.Email;
-import ro.petitii.model.Petition;
-import ro.petitii.model.PetitionStatus;
-import ro.petitii.model.User;
-import ro.petitii.model.rest.RestPetitionResponse;
-
-import java.util.List;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
+import ro.petitii.model.*;
+import ro.petitii.model.datatables.PetitionResponse;
 
 public interface PetitionService {
     Petition save(Petition petition);
@@ -16,21 +12,9 @@ public interface PetitionService {
 
     Petition findById(Long id);
 
-    Long count();
+    DataTablesOutput<PetitionResponse> getTableContent(User user, PetitionStatus.Status status, PageRequest p);
 
-    Long countByResponsible(User responsible);
+    DataTablesOutput<PetitionResponse> getTableContent(Petition petition, Petitioner petitioner, PageRequest p);
 
-    List<Petition> findByResponsible(User user, int startIndex, int size,
-                                     Sort.Direction sortDirection, String sortColumn);
-
-    List<Petition> findByResponsibleAndStatus(User user, PetitionStatus.Status status, int startIndex, int size,
-                                              Sort.Direction sortDirection, String sortColumn);
-
-    List<Petition> findByStatus(PetitionStatus.Status status, int startIndex, int size,
-                                Sort.Direction sortDirection, String sortColumn);
-
-    List<Petition> findAll(int startIndex, int size, Sort.Direction sortDirection, String sortColumn);
-
-    RestPetitionResponse getTableContent(User user, PetitionStatus.Status status,
-                                         int startIndex, int size, Sort.Direction sortDirection, String sortColumn);
+    DataTablesOutput<PetitionResponse> getTableLinkedPetitions(Petition petition, PageRequest p);
 }

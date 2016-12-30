@@ -13,61 +13,81 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import ro.petitii.model.User;
 import ro.petitii.service.UserService;
-import ro.petitii.service.email.ImapService;
 
 import javax.validation.Valid;
 import java.util.UUID;
 
 @Controller
 @PreAuthorize("hasAuthority('ADMIN')")
-public class UserController extends ControllerBase{
+public class UserController extends ControllerBase {
+    @Autowired
+    private UserService userService;
 
     @Autowired
-    UserService userService;
+    private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    PasswordEncoder passwordEncoder;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ImapService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
     @RequestMapping("/users")
     public ModelAndView users() {
-        ModelAndView modelAndView = new ModelAndView("users_page");
-        modelAndView.addObject("page","inbox");
-        modelAndView.addObject("title","Useri");
-        modelAndView.addObject("restUrl","/rest/users");
+        ModelAndView modelAndView = new ModelAndView("users_list");
+        modelAndView.addObject("page", "inbox");
+        modelAndView.addObject("title", "Useri");
+        modelAndView.addObject("apiUrl", "/api/users");
         return modelAndView;
     }
 
-    @RequestMapping(path = "/user/{id}", method = RequestMethod.GET)
-    public ModelAndView addUser(@PathVariable("id") Long id) {
-        ModelAndView modelAndView = new ModelAndView("add_user");
+    @RequestMapping(path = "/user/{id}/edit", method = RequestMethod.GET)
+    public ModelAndView editUser(@PathVariable("id") Long id) {
+        ModelAndView modelAndView = new ModelAndView("users_crud");
 
         User user = userService.findById(id);
-        modelAndView.addObject("user",user);
+        modelAndView.addObject("user", user);
 
         return modelAndView;
     }
+
+    @RequestMapping(path = "/user/{id}/suspend", method = RequestMethod.GET)
+    public ModelAndView removeUser(@PathVariable("id") Long id) {
+        User user = userService.findById(id);
+        user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+        user.setRole(User.UserRole.SUSPENDED);
+        userService.save(user);
+
+        return new ModelAndView("redirect:/users");
+    }
+
+    @RequestMapping(path = "/user/{id}/reset", method = RequestMethod.GET)
+    public ModelAndView resetPasswordUser(@PathVariable("id") Long id) {
+        User user = userService.findById(id);
+        user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+        userService.save(user);
+        //todo; send e-mail with instructions to reset password
+        return new ModelAndView("redirect:/users");
+    }
+
 
     @RequestMapping(path = "/user", method = RequestMethod.GET)
     public ModelAndView addUser() {
         User user = new User();
         user.setRole(User.UserRole.USER);
 
-        ModelAndView modelAndView = new ModelAndView("add_user");
+        ModelAndView modelAndView = new ModelAndView("users_crud");
         modelAndView.addObject("user", user);
         return modelAndView;
     }
 
     private void setNewPassword(User user) {
-        if(user.getChangePassword() && !StringUtils.isEmpty(user.getPassword())
-                && !StringUtils.isEmpty(user.getPasswordCopy()) &&
-                user.getPassword().equals(user.getPasswordCopy())) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-        } else if (user.getChangePassword()) throw
-                new RuntimeException("Password not provided");
-        if(!user.getChangePassword()) {
-            if(user.getId()==null) {
+        if (user.getChangePassword()) {
+            if (!StringUtils.isEmpty(user.getPassword())
+                    && !StringUtils.isEmpty(user.getPasswordCopy()) &&
+                    user.getPassword().equals(user.getPasswordCopy())) {
+                user.setPassword(passwordEncoder.encode(user.getPassword()));
+            } else {
+                throw new RuntimeException("Password not provided");
+            }
+        } else {
+            if (user.getId() == null) {
                 //set some random temporary password
                 user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
             } else {
@@ -85,7 +105,7 @@ public class UserController extends ControllerBase{
         LOGGER.info(user.toString());
         userService.save(user);
 
-     return new ModelAndView("redirect:/users");
+        return new ModelAndView("redirect:/users");
     }
-    
+
 }

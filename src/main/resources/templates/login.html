@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
     <head>
-        <title>Petitii</title>
+        <title>Petiții</title>
         <link href="../static/vendors/bootstrap/dist/css/bootstrap.min.css" th:href="@{/vendors/bootstrap/dist/css/bootstrap.min.css}" rel="stylesheet"/>
         <link href="../static/vendors/font-awesome/css/font-awesome.min.css" th:href="@{/vendors/font-awesome/css/font-awesome.min.css}" rel="stylesheet"/>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -66,6 +66,6 @@
             </div>
         </div>
     </div>
-    <div th:substituteby="fragments/main_head::toast"></div>
+    <div th:replace="fragments/main_head::toast"></div>
     </body>
 </html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/main_head :: head"></head>
+<body class="nav-md">
+    <!--/*@thymesVar id="contacts" type="List<ro.petitii.model.Contact>"*/-->
+    <!--/*@thymesVar id="contact" type="ro.petitii.model.Contact"*/-->
+    <!--/*@thymesVar id="petition" type="ro.petitii.model.Petition"*/-->
+    <!--/*@thymesVar id="att" type="ro.petitii.model.Attachment"*/-->
+    <div class="container body">
+        <div class="main_container">
+            <div class="col-md-3 left_col" th:replace="fragments/left::menu"></div>
+            <!-- top navigation -->
+            <div class="top_nav" th:replace="fragments/top::menu"></div>
+            <!-- /top navigation -->
+            <!-- page content -->
+            <div class="right_col" role="main">
+                <div class="">
+                    <h2>Redirecționează petiție</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <form class="form-horizontal form-label-left" method="post">
+                        <div class="row">
+                            <div class="col-md-10 col-sm-10 col-xs-12">
+                                <div class="buttons pull-right">
+                                    <button id="top-submit" type="submit" class="btn btn-success btn-md"><i class="fa fa-share"></i> <span>Redirecționează</span></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2 col-sm-2 col-xs-12">Subiect: </label>
+                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                <input type="text" class="form-control" name="subject" id="subject"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2 col-sm-2 col-xs-12">Redirecționează către:</label>
+                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                <select class="form-control" id="institutii" multiple="multiple" name="recipients">
+                                    <option th:each="contact : ${contacts}" th:value="${contact.getId()}" th:text="${contact.getName() + ' (' + contact.getEmail() + ')'}"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="ln_solid"></div>
+                        <div class="form-group">
+                            <span class="control-label col-md-2 col-sm-2 col-xs-12">Atasamente: </span>
+                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                <div th:each="att : ${petition.getAttachments()}">
+                                    <input th:id="${'att'+att.getId()}" th:value="${att.getId()}" name="attachments[]" type="checkbox"/>
+                                    <label th:for="${'att'+att.getId()}" th:text="${att.getOriginalFilename()}"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2 col-sm-2 col-xs-12">Mesaj: </label>
+                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                <textarea class="resizable_textarea form-control" name="description" id="description" rows="28" style="width:100%" th:text="${petition.getDescription()}"></textarea>
+                            </div>
+                        </div>
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    </form>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <!-- /page content -->
+            <!-- footer content -->
+            <footer>
+                <div class="pull-right">
+                    Gentelella - Bootstrap Admin Template by <a href="https://colorlib.com">Colorlib</a>
+                </div>
+                <div class="clearfix"></div>
+            </footer>
+            <!-- /footer content -->
+        </div>
+    </div>
+    <div th:replace="fragments/main_head::includes"></div>
+
+    <!-- Datatables -->
+    <script th:inline="javascript" type="application/javascript">
+    /*<![CDATA[*/
+    var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
+    /*]]>*/
+
+    $(document).ready(function() {
+        $("#institutii").select2({
+            maximumSelectionLength: 4,
+            placeholder: "Alege destinatari",
+            allowClear: true
+        });
+    });
+    </script>
+    <!-- /Datatables -->
+    <script type="text/javascript">
+        $("#description").wysihtml5();
+    </script>
+    <div th:replace="fragments/main_head::toast"></div>
+</body>
+
+</html>

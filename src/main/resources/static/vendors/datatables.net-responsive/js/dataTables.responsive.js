@@ -293,7 +293,7 @@ $.extend( Responsive.prototype, {
 
 		// Class logic - determine which columns are in this breakpoint based
 		// on the classes. If no class control (i.e. `auto`) then `-` is used
-		// to indicate this to the rest of the function
+		// to indicate this to the dt of the function
 		var display = $.map( columns, function ( col ) {
 			return col.auto && col.minWidth === null ?
 				false :
@@ -1115,7 +1115,7 @@ Responsive.defaults = {
 
 	/**
 	 * Details control. If given as a string value, the `type` property of the
-	 * default object is set to that value, and the defaults used for the rest
+	 * default object is set to that value, and the defaults used for the dt
 	 * of the object - this is for ease of implementation.
 	 *
 	 * The object consists of the following properties:

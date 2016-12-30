@@ -4,11 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.stereotype.Service;
 import ro.petitii.model.Email;
 import ro.petitii.model.Attachment;
-import ro.petitii.model.rest.RestEmailResponse;
-import ro.petitii.model.rest.RestEmailResponseElement;
+import ro.petitii.model.datatables.EmailResponse;
 import ro.petitii.repository.EmailRepository;
 
 import javax.persistence.EntityManager;
@@ -20,7 +20,6 @@ import java.util.List;
 
 @Service
 public class EmailServiceImpl implements EmailService {
-
     @Autowired
     private EmailRepository emailRepository;
 
@@ -28,24 +27,27 @@ public class EmailServiceImpl implements EmailService {
     private AttachmentService attachmentService;
 
     @PersistenceContext
-    EntityManager em;
+    private EntityManager em;
 
     @Override
     @Transactional
     public Email save(Email e) {
-        em.persist(e);
-        em.flush();
+        if (e.getId()==null) {
+            em.persist(e);
+            em.flush();
+        }
         for (Attachment attachment : e.getAttachments()) {
-            attachment.setEmail(e);
-            attachmentService.saveAndDownload(attachment);
+            List<Email> emails = attachment.getEmails();
+            if (emails == null) emails = new ArrayList<>();
+            if (!emails.contains(e)) {
+                emails.add(e);
+                attachment.setEmails(emails);
+            }
+            if (attachment.getBodyPart()!=null) attachmentService.saveFromEmail(attachment);
+            else attachmentService.save(attachment);
         }
         e = emailRepository.save(e);
         return e;
-    }
-
-    @Override
-    public Email saveAlone(Email e) {
-        return emailRepository.save(e);
     }
 
     @Override
@@ -72,26 +74,24 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public List<Email> findAll(int startIndex, int size, Sort.Direction sortDirection, String sortcolumn) {
-        PageRequest p = new PageRequest(startIndex / size, size, sortDirection, sortcolumn);
+    public List<Email> findAll(PageRequest p) {
         Page<Email> emails = emailRepository.findAll(p);
         return emails.getContent();
     }
 
     @Override
-    public List<Email> findAllByType(Email.EmailType type, int startIndex, int size, Sort.Direction sortDirection, String sortcolumn) {
-        PageRequest p = new PageRequest(startIndex / size, size, sortDirection, sortcolumn);
+    public List<Email> findAllByType(Email.EmailType type, PageRequest p) {
         Page<Email> emails = emailRepository.findByType(type, p);
         return emails.getContent();
     }
 
     @Override
-    public RestEmailResponse getTableContent(Email.EmailType type, int startIndex, int size, Sort.Direction sortDirection, String sortColumn) {
-        List<Email> result = this.findAllByType(type, startIndex, size, sortDirection, sortColumn);
-        List<RestEmailResponseElement> data = new ArrayList<>();
+    public DataTablesOutput<EmailResponse> getTableContent(Email.EmailType type, PageRequest p) {
+        List<Email> result = this.findAllByType(type, p);
+        List<EmailResponse> data = new ArrayList<>();
         SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         for (Email e : result) {
-            RestEmailResponseElement re = new RestEmailResponseElement();
+            EmailResponse re = new EmailResponse();
             re.setId(e.getId());
             re.setSender(e.getSender());
             re.setSubject(e.getSubject());
@@ -99,7 +99,7 @@ public class EmailServiceImpl implements EmailService {
             if (e.getPetition() != null) re.setPetition_id(e.getPetition().getId());
             data.add(re);
         }
-        RestEmailResponse response = new RestEmailResponse();
+        DataTablesOutput<EmailResponse> response = new DataTablesOutput<>();
         response.setData(data);
         Long count = this.count(type);
         response.setRecordsFiltered(count);

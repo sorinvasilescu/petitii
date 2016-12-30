@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/main_head :: head"></head>
+
+<!--/*@thymesVar id="title" type="java.lang.String"*/-->
+
+<body class="nav-md">
+<div class="container body">
+    <div class="main_container">
+        <div class="col-md-3 left_col" th:replace="fragments/left::menu"></div>
+
+        <!-- top navigation -->
+        <div class="top_nav" th:replace="fragments/top::menu"></div>
+        <!-- /top navigation -->
+
+        <!-- page content -->
+        <div class="right_col" role="main">
+            <!-- alert -->
+            <div id="alert" class="alert alert-dismissible hidden" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <span id="alert-content"></span>
+            </div>
+            <!-- end alert -->
+            <div class="page-title-petitions">
+                <h2>
+                    <span th:text="${title}">Useri</span>
+                </h2>
+
+                <div class="clearfix"></div>
+            </div>
+
+            <div class="align-right">
+                <button type="submit" id="add-user" class="btn btn-default"><span class="fa fa-plus-square"></span> Adaugă User</button>
+                <button type="submit" id="modify-user" class="btn btn-default"><span class="fa fa-edit"></span> Modifică User</button>
+                <button type="submit" id="delete-user" class="btn btn-default"><span class="fa fa-minus-square"></span> Suspendă User</button>
+                <button type="submit" id="reset-password" class="btn btn-default"><span class="fa fa-recycle"></span> Resetează Parola</button>
+            </div>
+
+            <div class="x_content">
+                <table id="userTable" class="table table-striped table-bordered dt-responsive nowrap jambo_table bulk_action"
+                       cellspacing="0" width="100%">
+                </table>
+            </div>
+        </div>
+        <!-- /page content -->
+
+        <!-- footer content -->
+        <footer>
+            <div class="pull-right">
+                Gentelella - Bootstrap Admin Template by <a href="https://colorlib.com">Colorlib</a>
+            </div>
+            <div class="clearfix"></div>
+        </footer>
+        <!-- /footer content -->
+    </div>
+</div>
+
+<div th:replace="fragments/main_head::includes"></div>
+
+<!-- Variables from backend -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var apiUrl = /*[[${apiUrl}]]*/ '/api/users';
+    var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
+    /*]]>*/
+</script>
+
+<!-- Datatables -->
+<script type="text/javascript" th:inline="none">
+    var userTable;
+    $(document).ready(function () {
+        $('#add-user').click(function () {
+            window.location.href = '/user';
+        });
+
+        $('#modify-user').click(function () {
+            var selectedRows = userTable.rows({selected: true}).data().toArray();
+            if (selectedRows.length != 1) {
+                addWarning("#error-messages", "Pentru modificări selectați cel puțin un user");
+                this.blur()
+            } else {
+                window.location.href = '/user/' + selectedRows[0].id + '/edit';
+            }
+        });
+
+        $('#delete-user').click(function () {
+            var selectedRows = userTable.rows({selected: true}).data().toArray();
+            if (selectedRows.length != 1) {
+                addWarning("#error-messages", "Pentru suspendare selectați cel puțin un user");
+                this.blur()
+            } else {
+                customAlert("Sunteți sigur că doriți suspendarea utilizatorului?", function () {
+                    window.location.href = '/user/' + selectedRows[0].id + '/suspend';
+                });
+            }
+        });
+
+        $('#reset-password').click(function () {
+            var selectedRows = userTable.rows({selected: true}).data().toArray();
+            if (selectedRows.length != 1) {
+                addWarning("#error-messages", "Pentru resetare selectați cel puțin un user");
+                this.blur()
+            } else {
+                customAlert("Sunteți sigur că doriți resetarea parolei utilizatorului?", function () {
+                    window.location.href = '/user/' + selectedRows[0].id + '/reset';
+                });
+            }
+        });
+
+        userTable = $('#userTable').DataTable({
+            select: {
+                style: 'single'
+            },
+            processing: true,
+            serverSide: true,
+            sDom: 'lrtip ',
+            rowId: "id",
+            order: [[0, 'asc']],
+            ajax: {
+                url: apiUrl,
+                type: 'POST'
+            },
+            language: {
+                url: languageUrl,
+                select: selectTranslation()
+            },
+            columns: [
+                {
+                    name: 'id',
+                    data: 'id',
+                    title: '#',
+                    width: '10px'
+                },
+                {
+                    name: 'email',
+                    data: 'email',
+                    title: 'Email'
+                },
+                {
+                    name: 'firstName',
+                    data: 'firstName',
+                    title: 'Prenume'
+                },
+                {
+                    name: 'lastName',
+                    data: 'lastName',
+                    title: 'Nume'
+                },
+                {
+                    name: 'role',
+                    data: 'role',
+                    title: 'Rol'
+                }
+            ]
+        });
+    });
+</script>
+<!-- /Datatables -->
+
+<div th:replace="fragments/main_head::toast"></div>
+
+</body>
+</html>

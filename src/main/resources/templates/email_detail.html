@@ -6,9 +6,9 @@
 <body class="nav-md">
     <div class="container body">
         <div class="main_container">
-            <div class="col-md-3 left_col" th:substituteby="fragments/left::menu"></div>
+            <div class="col-md-3 left_col" th:replace="fragments/left::menu"></div>
             <!-- top navigation -->
-            <div class="top_nav" th:substituteby="fragments/top::menu"></div>
+            <div class="top_nav" th:replace="fragments/top::menu"></div>
             <!-- /top navigation -->
             <!-- page content -->
             <div class="right_col" role="main">
@@ -31,7 +31,7 @@
                             <div class="col-md-8">
                                 <span>Acțiuni email selectat: </span>
                                 <div class="btn-group">
-                                    <button class="btn btn-sm btn-default" type="button"><a href="#"><i class="fa fa-plus-square"></i> <span>Creeaz&#x103; peti&#x21b;ie</span></a></button>
+                                    <button class="btn btn-sm btn-default" type="button"><a href="#" th:href="@{'/petition/fromEmail/'+${data.getId()}}"><i class="fa fa-plus-square"></i> <span>Creeaz&#x103; peti&#x21b;ie</span></a></button>
                                     <button th:if="${data.type.name() == 'Inbox'}" class="btn btn-sm btn-default" type="button" data-placement="top" data-toggle="tooltip" data-original-title="Marcheaz&#x103; ca spam" id="mark-spam-top"><i class="fa fa-trash-o"></i></button>
                                     <button th:if="${data.type.name() == 'Spam'}" class="btn btn-sm btn-default" type="button" data-placement="top" data-toggle="tooltip" data-original-title="Marcheaz&#x103; ca email" id="mark-email-top"><i class="fa fa-envelope"></i></button>
                                 </div>
@@ -66,13 +66,13 @@
                                     <span th:if="${data.attachments.size() > 1}" th:remove="tag"> - </span>
                                 </span>
                                 <a th:if="${data.attachments.size() > 1}"
-                                   th:href="@{/action/download/email/__(${data.id})__}" href="#">
+                                   th:href="@{/api/email/__(${data.id})__/attachments/zip}" href="#">
                                     Salvează toate atașamentele
                                 </a>
                             </p>
                             <ul>
                                 <li th:each="attachment : ${data.attachments}">
-                                    <a th:href="@{/action/download/__(${attachment.id})__}" href="#">
+                                    <a th:href="@{/api/attachments/download/__(${attachment.id})__}" href="#">
                                         <i class="fa fa-paperclip"></i>
                                         <span th:text="${attachment.originalFilename}" th:remove="tag">filename.jpg</span>
                                     </a>
@@ -82,7 +82,7 @@
                         <div>
                             <span>Acțiuni email selectat: </span>
                             <div class="btn-group">
-                                <button class="btn btn-sm btn-default" type="button" id="mark-spam"><a href="#"><i class="fa fa-plus-square"></i> <span>Creează petiție</span></a></button>
+                                <button class="btn btn-sm btn-default" type="button" id="mark-spam"><a href="/petition/fromEmail/"><i class="fa fa-plus-square"></i> <span>Creează petiție</span></a></button>
                                 <button th:if="${data.type.name() == 'Inbox'}" class="btn btn-sm btn-default" type="button" data-placement="top" data-toggle="tooltip" data-original-title="Marchează ca spam" id="mark-spam-bottom"><i class="fa fa-trash-o"></i></button>
                                 <button th:if="${data.type.name() == 'Spam'}" class="btn btn-sm btn-default" type="button" data-placement="top" data-toggle="tooltip" data-original-title="Marchează ca email" id="mark-email-bottom"><i class="fa fa-envelope"></i></button>
                             </div>
@@ -106,7 +106,7 @@
     <!-- Variables from backend -->
     <script th:inline="javascript">
     /*<![CDATA[*/
-    var restUrl = /*[[${restUrl}]]*/ '/rest/emails';
+    var apiUrl = /*[[${apiUrl}]]*/ '/api/emails';
     /*]]>*/
     </script>
 
@@ -134,6 +134,6 @@
             return msgId;
         }
     </script>
-    <div th:substituteby="fragments/main_head::toast"></div>
+    <div th:replace="fragments/main_head::toast"></div>
 </body>
 </html>

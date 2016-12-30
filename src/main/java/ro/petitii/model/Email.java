@@ -25,7 +25,7 @@ public class Email {
     @Enumerated(EnumType.STRING)
     private EmailType type;
 
-    @OneToMany(mappedBy = "email")
+    @ManyToMany(mappedBy = "emails")
     private Collection<Attachment> attachments;
 
     @ManyToOne

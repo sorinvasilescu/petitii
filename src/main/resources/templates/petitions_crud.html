@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="fragments/main_head :: head"></head>
+
+<!--/*@thymesVar id="petition" type="ro.petitii.model.Petition"*/-->
+<!--/*@thymesVar id="user_list" type="java.util.List<ro.petitii.model.User>"*/-->
+<!--/*@thymesVar id="commentsApiUrl" type="java.lang.String"*/-->
+<!--/*@thymesVar id="attachmentApiUrl" type="java.lang.String"*/-->
+<!--/*@thymesVar id="linkedPetitionsApiUrl" type="java.lang.String"*/-->
+<!-- Custom Params -->
+<!--/*@thymesVar id="entity" type="ro.petitii.model.PetitionCustomParam"*/-->
+<!--/*@thymesVar id="information" type="ro.petitii.model.PetitionCustomParam"*/-->
+<!--/*@thymesVar id="problem" type="ro.petitii.model.PetitionCustomParam"*/-->
+<!--/*@thymesVar id="domain" type="ro.petitii.model.PetitionCustomParam"*/-->
+<!--/*@thymesVar id="title" type="ro.petitii.model.PetitionCustomParam"*/-->
+
+<body class="nav-md">
+    <div class="container body">
+        <div class="main_container">
+
+            <div class="col-md-3 left_col" th:replace="fragments/left::menu"></div>
+            <div class="top_nav" th:replace="fragments/top::menu"></div>
+            <div class="right_col" role="main">
+                <div id="error-messages"></div>
+                <form id="petition-form" class="form-horizontal form-label-left input_mask" th:object="${petition}" th:action="@{/petition}" method="post">
+                    <input type="hidden" name="id" th:field="*{id}"/>
+                    <input type="hidden" name="regNo" th:field="*{regNo.id}"/>
+                    <input type="hidden" name="emails" th:field="*{emails}"/>
+                    <input type="hidden" name="currentStatus" th:field="*{currentStatus}"/>
+                    <div>
+                        <div class="row">
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <div class="buttons pull-right">
+                                    <button id="top-submit" type="button" class="btn btn-success btn-md"><i class="fa fa-paste"></i> <span>Salvează</span></button>
+                                    <button id="top-start" type="button" class="btn btn-default btn-md"><i class="fa fa-hourglass-start"></i>&nbsp;<span>Incepe lucrul</span></button>
+                                    <button type="button" class="btn btn-default btn-md"><i class="fa fa-file-text"></i> <span>Clasează</span></button>
+                                    <button type="button" class="btn btn-default btn-md"><i class="fa fa-check-square-o"></i> <span>Rezolvă</span></button>
+                                    <button id="top-redirect" type="button" class="btn btn-default btn-md"><i class="fa fa-mail-forward"></i> <span>Redirecționează</span></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="x_panel">
+                                <div class="x_title">
+                                    <h2>Adauga/editeaza petitie </h2>
+                                    <div class="clearfix"></div>
+                                </div>
+                                <div class="col-md-6 col-xs-12">
+                                    <div class="x_content">
+                                        <div class="item form-group" th:classappend="${#fields.hasErrors('responsible')} ? bad">
+                                            <label class="control-label col-md-3 col-sm-3 col-xs-12">Responsabil</label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <select class="form-control" name="responsible" id="responsible" th:field="*{responsible}">
+                                                    <option value="" selected="selected">Selectează responsabilul</option>
+                                                    <option th:each="user : ${user_list}" th:value="${user.getId()}" th:text="${user.getFullName()}">Responsabil</option>
+                                                </select>
+                                            </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('responsible')}">Câmpul nu poate fi gol</div>
+                                        </div>
+                                        <div class="item form-group">
+                                            <label class="control-label col-md-3 col-sm-3 col-xs-12">Nr. înregistrare
+                                            </label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <input type="text" name="nr_inreg" class="form-control col-md-10" th:field="*{regNo.number}" disabled="disabled" />
+                                            </div>
+                                        </div>
+                                        <div class="item form-group">
+                                            <label class="control-label col-md-3 col-sm-3 col-xs-12">Data</label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <input type="text" name="date" class="form-control col-md-10" th:field="*{receivedDate}" />
+                                            </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('receivedDate')}">Câmpul nu poate fi gol</div>
+                                        </div>
+                                        <div class="item form-group">
+                                            <label class="control-label col-md-3 col-sm-3 col-xs-12">Status</label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <input id="status" type="text" name="status" disabled="disabled" class="form-control col-md-10" value="Petitie noua" th:value="#{${petition.statusString()}}" />
+                                            </div>
+                                        </div>
+                                        <div class="item form-group" th:classappend="${#fields.hasErrors('relation')} ? bad">
+                                            <label for="relation" class="control-label col-md-3 col-sm-3 col-xs-12" th:text="${information.getFriendlyName()}">Tip relatie</label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <select class="form-control" name="relation" id="relation" th:field="*{relation}">
+                                                    <option th:if="!${information.hasDefault()}" value="">Selectează opțiunea</option>
+                                                    <option th:each="et : ${information.getParamValues()}" th:value="${et.value}" th:text="${et.label}">label</option>
+                                                </select>
+                                            </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('relation')}">Câmpul nu poate fi gol</div>
+                                        </div>
+                                        <div class="item form-group">
+                                            <label for="origin" class="control-label col-md-3 col-sm-3 col-xs-12">Proveniență</label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <input class="form-control" name="relation" id="origin" th:field="*{origin}"/>
+                                            </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('origin')}">Câmpul nu poate fi gol</div>
+                                        </div>
+                                        <div class="item form-group" th:classappend="${#fields.hasErrors('petitioner.entity_type')} ? bad">
+                                            <label for="entity-type" class="control-label col-md-3 col-sm-3 col-xs-12" th:text="${entity.getFriendlyName()}">Tip entitate</label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <select class="form-control" name="type" id="entity-type" th:field="*{petitioner.entity_type}">
+                                                    <option th:if="!${entity.hasDefault()}" value="">Selectează opțiunea</option>
+                                                    <option th:each="et : ${entity.getParamValues()}" th:value="${et.value}" th:text="${et.label}">label</option>
+                                                </select>
+                                            </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('petitioner.entity_type')}">Câmpul nu poate fi gol</div>
+                                        </div>
+                                        <div class="item form-group">
+                                            <label for="organization" class="control-label col-md-3 col-sm-3 col-xs-12">Organizație</label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <input id="organization" type="text" name="organization" class="form-control col-md-10" placeholder="Denumire organizație"  th:field="*{petitioner.organization}"/>
+                                            </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('petitioner.organization')}">Câmpul nu poate fi gol</div>
+                                        </div>
+                                        <div class="item form-group" th:classappend="${#fields.hasErrors('problemType')} ? bad">
+                                            <label for="problem-type" class="control-label col-md-3 col-sm-3 col-xs-12" th:text="${problem.getFriendlyName()}">Tip problematica</label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <select class="form-control" name="type" id="problem-type" th:field="*{problemType}">
+                                                    <option th:if="!${problem.hasDefault()}" value="">Selectează opțiunea</option>
+                                                    <option th:each="et : ${problem.getParamValues()}" th:value="${et.value}" th:text="${et.label}">label</option>
+                                                </select>
+                                            </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('problemType')}">Câmpul nu poate fi gol</div>
+                                        </div>
+                                        <div class="item form-group" th:classappend="${#fields.hasErrors('field')} ? bad">
+                                            <label for="domeniu" class="control-label col-md-3 col-sm-3 col-xs-12" th:text="${domain.getFriendlyName()}">Domeniu</label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <select class="form-control" name="domeniu" id="domeniu" th:field="*{field}">
+                                                    <option th:if="!${domain.hasDefault()}" value="">Selectează opțiunea</option>
+                                                    <option th:each="et : ${domain.getParamValues()}" th:value="${et.value}" th:text="${et.label}">label</option>
+                                                </select>
+                                            </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('field')}">Câmpul nu poate fi gol</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-xs-12">
+                                    <div class="x_content">
+                                        <div class="item form-group" th:classappend="${#fields.hasErrors('petitioner.title')} ? bad">
+                                            <label for="title" class="control-label col-md-3 col-sm-3 col-xs-12" th:text="${title.getFriendlyName()}">Adresare</label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <select class="form-control" name="title" id="title" th:field="*{petitioner.title}">
+                                                    <option th:if="!${title.hasDefault()}" value="">Selectează opțiunea</option>
+                                                    <option th:each="et : ${title.getParamValues()}" th:value="${et.value}" th:text="${et.label}">label</option>
+                                                </select>
+                                            </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('petitioner.title')}">Câmpul nu poate fi gol</div>
+                                        </div>
+                                        <div class="item form-group" th:classappend="${#fields.hasErrors('petitioner.firstName')} ? bad">
+                                            <label for="petitioner-firstname" class="control-label col-md-3 col-sm-3 col-xs-12">Nume</label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <input id="petitioner-firstname" type="text" name="first_name" placeholder="Numele de familie" class="form-control col-md-10" required="required" th:field="*{petitioner.firstName}" />
+                                            </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('petitioner.firstName')}">Câmpul nu poate fi gol</div>
+                                        </div>
+                                        <div class="item form-group" th:classappend="${#fields.hasErrors('petitioner.lastName')} ? bad">
+                                            <label for="petitioner-lastname" class="control-label col-md-3 col-sm-3 col-xs-12">Prenume</label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <input id="petitioner-lastname" type="text" name="last_name" placeholder="Prenumele" class="form-control col-md-10" required="required" th:field="*{petitioner.lastName}" />
+                                            </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('petitioner.lastName')}">Câmpul nu poate fi gol</div>
+                                        </div>
+                                        <div class="item form-group" th:classappend="${#fields.hasErrors('petitioner.country')} ? bad">
+                                            <label for="country" class="control-label col-md-3 col-sm-3 col-xs-12">Țara</label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <select class="form-control" name="country" id="country" tabindex="-1" th:field="*{petitioner.country}">
+                                                    <span th:replace="fragments/countries"></span>
+                                                </select>
+                                            </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('petitioner.country')}">Câmpul nu poate fi gol</div>
+                                        </div>
+                                        <div class="item form-group">
+                                            <label for="county" class="control-label col-md-3 col-sm-3 col-xs-12">Județ</label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <select class="form-control" name="county" id="county" tabindex="-1" th:field="*{petitioner.county}">
+                                                    <option value="">Alege județul</option>
+                                                    <span th:replace="fragments/counties"></span>
+                                                </select>
+                                            </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('petitioner.county')}">Câmpul nu poate fi gol</div>
+                                        </div>
+                                        <div class="item form-group">
+                                            <label for="city" class="control-label col-md-3 col-sm-3 col-xs-12">Localitate</label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <select class="form-control" name="city" id="city" tabindex="-1" th:field="*{petitioner.city}">
+                                                    <option value="">Alege orașul</option>
+                                                    <span th:replace="fragments/cities"></span>
+                                                </select>
+                                            </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('petitioner.city')}">Câmpul nu poate fi gol</div>
+                                        </div>
+                                        <div class="item form-group">
+                                            <label for="address" class="control-label col-md-3 col-sm-3 col-xs-12">Adresa</label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <textarea class="form-control" rows="2" name="address" id="address" placeholder="Adresa" th:field="*{petitioner.address}"></textarea>
+                                            </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('petitioner.address')}">Câmpul nu poate fi gol</div>
+                                        </div>
+                                        <div class="item form-group  has-feedback">
+                                            <label for="phone" class="control-label col-md-3 col-sm-3 col-xs-12">Telefon</label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <input type="text" class="form-control has-feedback-left" id="phone" name="phone" placeholder="Nr. de telefon" th:field="*{petitioner.phone}" />
+                                                <span class="fa fa-phone form-control-feedback left" aria-hidden="true"></span>
+                                            </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('petitioner.phone')}">Câmpul nu poate fi gol</div>
+                                        </div>
+                                        <div class="item form-group has-feedback" th:classappend="${#fields.hasErrors('petitioner.email')} ? bad">
+                                            <label for="email" class="control-label col-md-3 col-sm-3 col-xs-12">Email</label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <input type="text" class="form-control has-feedback-left" id="email" name="email" placeholder="Adresa de email" required="required" th:field="*{petitioner.email}" />
+                                                <span class="fa fa-envelope form-control-feedback left" aria-hidden="true"></span>
+                                            </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('petitioner.email')}">Câmpul nu poate fi gol</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clear"></div>
+                        <div class="" role="tabpanel" data-example-id="togglable-tabs">
+                            <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
+                                <li role="presentation" class="active">
+                                    <a href="#tab_content1" id="continut-tab" role="tab" data-toggle="tab" aria-expanded="true">Conținut</a>
+                                </li>
+                                <li role="presentation" class="">
+                                    <a href="#tab_content2" role="tab" id="file-tab" data-toggle="tab" aria-expanded="false">Atașamente</a>
+                                </li>
+                                <li role="presentation" class="">
+                                    <a href="#tab_content3" role="tab" id="conex-tab" data-toggle="tab" aria-expanded="false">Petiții conexe</a>
+                                </li>
+                                <li role="presentation" class="">
+                                    <a href="#tab_content4" role="tab" id="obs-tab" data-toggle="tab" aria-expanded="false">Observații</a>
+                                </li>
+                            </ul>
+                            <div id="myTabContent" class="tab-content">
+                                <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="home-tab">
+                                    <div class="item form-group"  th:classappend="${#fields.hasErrors('subject')} ? bad">
+                                        <div>
+                                            <label for="subject" class="control-label col-md-2 col-sm-2 col-xs-12">Rezumat</label>
+                                        </div>
+                                        <div class="col-md-8 col-sm-8 col-xs-12">
+                                            <input id="subject" type="text" name="abstract" placeholder="Descrierea pe scurt" class="form-control col-md-10" th:field="*{subject}" />
+                                        </div>
+                                        <div class="alert" th:if="${#fields.hasErrors('subject')}">Minim 5 caractere</div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-2 col-sm-2 col-xs-12">Descriere</label>
+                                        <div class="col-md-8 col-sm-8 col-xs-12">
+                                            <textarea name="description" id="description" rows="30" style="width:100%" th:field="*{description}"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="profile-tab">
+                                    <div th:if="${attachmentApiUrl} != null">
+                                        <button type="button" class="btn btn-default btn-md pull-right"
+                                                id="downloadAttachments">
+                                            <i class="fa fa-paperclip"></i> Salvează toate atașamentele
+                                        </button>
+                                        <button type="button" class="btn btn-default btn-md pull-right"
+                                                id="removeAttachment">
+                                            <i class="fa fa-trash-o"></i> Șterge atașament
+                                        </button>
+                                        <button type="button" class="btn btn-default btn-md pull-right"
+                                                id="addAttachment">
+                                            <i class="fa fa-plus-circle"></i> Adaugă ataşament
+                                        </button>
+                                        <table id="attachments"
+                                               class="table table-striped row-border compact stripe dt-responsive nowrap"
+                                               cellspacing="0" width="100%">
+                                        </table>
+                                    </div>
+                                    <div th:if="${attachmentApiUrl} == null">
+                                        <h2 align="center">Salvați petiția pentru a putea adăuga atașamente ...</h2>
+                                    </div>
+                                </div>
+                                <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="profile-tab">
+                                    <div th:if="${linkedPetitionsApiUrl} != null">
+                                        <button id="unlink-petition" type="button" class="btn btn-default btn-sm pull-right"><i class="fa fa-link"></i> Șterge conexiune</button>
+                                        <button id="link-petition" type="button" class="btn btn-default btn-sm pull-right"><i class="fa fa-link"></i> Creează conexiune</button>
+                                        <table id="connexions"
+                                               class="table table-striped row-border compact stripe dt-responsive nowrap"
+                                               cellspacing="0" width="100%">
+                                        </table>
+                                    </div>
+                                    <div th:if="${linkedPetitionsApiUrl} == null">
+                                        <h2 align="center">Salvați petiția pentru a putea crea conexiuni ...</h2>
+                                    </div>
+                                </div>
+                                <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="profile-tab">
+                                    <div th:if="${commentsApiUrl} != null">
+                                        <button type="button" class="btn btn-default btn-md pull-right"
+                                                id="removeComment">
+                                            <i class="fa fa-trash-o"></i> Șterge observație
+                                        </button>
+                                        <button type="button" class="btn btn-default btn-md pull-right"
+                                                id="addComment">
+                                            <i class="fa fa-plus-circle"></i> Adaugă observație
+                                        </button>
+                                        <table id="observations"
+                                               class="table table-striped row-border compact stripe dt-responsive nowrap"
+                                               cellspacing="0" width="100%">
+                                        </table>
+                                    </div>
+                                    <div th:if="${commentsApiUrl} == null">
+                                        <h2 align="center">Salvați petiția pentru a putea adăuga comentarii ...</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+						<div class="row">
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <div class="buttons pull-right">
+                                    <button id="bottom-submit" type="button" class="btn btn-success btn-md"><i class="fa fa-paste"></i> <span>Salvează</span></button>
+                                    <button id="bottom-start" type="button" class="btn btn-default btn-md"><i class="fa fa-hourglass-start"></i>&nbsp;<span>Incepe lucrul</span></button>
+                                    <button type="button" class="btn btn-default btn-md"><i class="fa fa-mail-forward"></i> <span>Incepe lucrul</span></button>
+                                    <button type="button" class="btn btn-default btn-md"><i class="fa fa-file-text"></i> <span>Clasează</span></button>
+                                    <button type="button" class="btn btn-default btn-md"><i class="fa fa-check-square-o"></i> <span>Rezolvă</span></button>
+                                    <button id="bottom-redirect" type="button" class="btn btn-default btn-md"><i class="fa fa-mail-forward"></i> <span>Redirecționează</span></button>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    </div>
+                </form>
+                <!-- /page content -->
+            </div>
+            <footer>
+                <div class="pull-right">
+                    Gentelella - Bootstrap Admin Template by <a href="https://colorlib.com">Colorlib</a>
+                </div>
+                <div class="clearfix"></div>
+            </footer>
+        </div>
+    </div>
+    <div th:replace="fragments/main_head::includes"></div>
+
+    <!-- Variables from backend -->
+    <script th:inline="javascript" type="text/javascript">
+        /*<![CDATA[*/
+        var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
+        var commentsApiUrl = /*[[${commentsApiUrl}]]*/ '/api/petitions/{id}/comments';
+        var attachmentsApiUrl = /*[[${attachmentApiUrl}]]*/ '/api/petitions/{id}/attachments/';
+        var linkedPetitionsApiUrl = /*[[${linkedPetitionsApiUrl}]]*/ '/api/petitions/{id}/linked';
+        var linkedByPetitionerApiUrl = /*[[${linkedPetitionerApiUrl}]]*/ '/api/petitions/{id}/by/petitioner';
+        var pEmail = /*[[${petition.petitioner.email}]]*/ '#';
+        var pid = /*[[${petition.id}]]*/ '#';
+        var inLucru = /*[[#{IN_PROGRESS}]]*/ "In lucru";
+        var petitioner_country = /*[[${petition.petitioner.country}]]*/ null;
+        var petitioner_county = /*[[${petition.petitioner.county}]]*/ null;
+        var petitioner_city = /*[[${petition.petitioner.city}]]*/ null;
+        /*]]>*/
+    </script>
+
+    <!-- Datatables -->
+    <script type="text/javascript">
+    $(document).ready(function() {
+        var today = new Date();
+        var day = today.getUTCDay();
+        var month = today.getUTCMonth();
+        var year = today.getUTCFullYear();
+        $('#time').html('Data: ' + day + ' / ' + month + ' / ' + year);
+
+        var countryComponent = $("#country");
+        countryComponent.select2({
+            placeholder: "Alege țara",
+            allowClear: true
+        });
+        countryComponent.val(petitioner_country);
+        countryComponent.trigger('change');
+
+        var countyComponent = $("#county");
+        countyComponent.select2({
+            placeholder: "Alege județul",
+            allowClear: true,
+            tags: true
+        });
+        countyComponent.val(petitioner_county);
+        countyComponent.trigger('change');
+
+
+        var cityComponent = $("#city");
+        cityComponent.select2({
+            placeholder: "Alege orașul",
+            allowClear: true,
+            tags: true
+        });
+        cityComponent.val(petitioner_city);
+        cityComponent.trigger('change');
+
+        $('#bottom-submit,#top-submit').click(function () {
+            $('#petition-form').submit();
+        });
+
+        $('#top-start,#bottom-start').click(function () {
+            var selectedRows = [];
+            selectedRows.push(pid);
+            $.ajax({
+                url: '/api/petitions/start-work',
+                data: {'petitions':selectedRows},
+                method: 'post'
+            }).done(function(data){
+                if (data.success=='true') {
+                    addSuccess('#error-messages', data.errorMsg);
+                    $('#status').val(inLucru);
+                } else {
+                    addError('#error-messages', data.errorMsg);
+                }
+            }).fail(function(reason){
+                addError('#error-messages', reason);
+                });
+        });
+
+        $('#top-redirect,#bottom-redirect').click(function(){
+            window.location.href = '/petitions/redirect/' +  pid;
+        });
+    });
+    </script>
+
+    <!-- Comments -->
+    <script th:if="${commentsApiUrl} != null" type="application/javascript">
+        $(document).ready(function() {
+            var observationsTable = $('#observations').DataTable({
+                select: {
+                    style: 'single'
+                },
+                processing: true,
+                serverSide: true,
+                sDom: 'lrtip ',
+                rowId: "id",
+                order: [[3, 'desc']],
+                ajax: {
+                    url: commentsApiUrl,
+                    type: 'POST'
+                },
+                language: {
+                    url: languageUrl,
+                    select: selectTranslation()
+                },
+                fixedColumns: true,
+                columns: [
+                    {
+                        name: 'id',
+                        data: 'id',
+                        title: '#'
+                    },
+                    {
+                        name: 'comment',
+                        data: 'comment',
+                        title: 'Observație'
+                    },
+                    {
+                        name: 'date',
+                        data: 'date',
+                        title: 'Data'
+                    },
+                    {
+                        name: 'user',
+                        data: 'user',
+                        title: 'Adăugat de'
+                    }
+                ]
+            });
+
+            $('#addComment').click(function () {
+                customInput("Adaugă observație", function (result) {
+                    $.ajax({
+                        url: "/api/petitions/" + pid + "/comment/add",
+                        method: 'POST',
+                        contentType: 'text/plain',
+                        processData: false,
+                        data: result
+                    }).done(function (data) {
+                        observationsTable.ajax.reload();
+                    }).fail(function (reason) {
+                        console.log(reason);
+                    });
+                });
+            });
+
+            $('#removeComment').click(function () {
+                var selectedRows = observationsTable.rows({selected: true}).data().toArray();
+                if (selectedRows.length != 1) {
+                    this.blur()
+                } else {
+                    $.ajax({
+                        url: "/api/petitions/" + pid + "/comment/" + selectedRows[0].id + "/delete",
+                        method: 'POST',
+                        processData: false
+                    }).done(function (data) {
+                        observationsTable.ajax.reload();
+                    }).fail(function (reason) {
+                        console.log(reason);
+                    });
+                }
+            });
+        });
+    </script>
+
+    <!-- attachments -->
+    <script th:if="${attachmentApiUrl} != null" type="application/javascript">
+        $(document).ready(function() {
+            var attachmentTable = $('#attachments').DataTable({
+                select: {
+                    style: 'single'
+                },
+                processing: true,
+                serverSide: true,
+                sDom: 'lrtip ',
+                rowId: "id",
+                order: [[3, 'desc']],
+                ajax: {
+                    url: attachmentsApiUrl,
+                    type: 'POST'
+                },
+                language: {
+                    url: languageUrl,
+                    select: selectTranslation()
+                },
+                fixedColumns: true,
+                columns: [
+                    {
+                        name: 'id',
+                        title: "#",
+                        data: 'id',
+                        sortable: false
+                    },
+                    {
+                        name: 'filename',
+                        data: 'filename',
+                        title: 'Nume fișier'
+                    },
+                    {
+                        name: 'date',
+                        data: 'date',
+                        title: 'Data'
+                    },
+                    {
+                        name: 'origin',
+                        data: 'origin',
+                        title: 'Adăugat de',
+                        sortable: false
+                    },
+                    {
+                        data: null,
+                        title: '',
+                        render: function (data, type, full, meta) {
+                            if (data != null) {
+                                return '<a href="/api/attachments/download/' + data.id + '"><i class="fa fa-paperclip"></i> Salvează</a>';
+                            } else {
+                                return '';
+                            }
+                        },
+                        sortable: false
+                    }
+                ]
+            });
+            selectActions(attachmentTable);
+
+            $('#downloadAttachments').click(function () {
+                window.location.href = '/api/petitions/' +  pid + '/attachments/zip';
+            });
+
+            $('#addAttachment').click(function () {
+                customUpload('Încarcă fișier', function (files) {
+                    var data = new FormData();
+                    $.each(files, function (i, file) {
+                        data.append('files', file);
+                    });
+                    $.ajax({
+                        url: '/api/petitions/' + pid + '/attachment/add',
+                        method: 'post',
+                        data: data,
+                        contentType: false,
+                        processData: false
+                    }).done(function (data) {
+                        attachmentTable.ajax.reload();
+                    }).fail(function (reason) {
+                        if (reason.status == 422) {
+                            addError($('.right_col'), reason.responseText)
+                        }
+                        console.log('Could not upload file: ' + reason.responseText);
+                        console.log(reason)
+                    });
+                });
+            });
+
+            $('#removeAttachment').click(function () {
+                var selectedRows = attachmentTable.rows({selected: true}).data().toArray();
+                if (selectedRows.length != 1) {
+                    this.blur()
+                } else {
+                    customAlert("Sunteți sigur că doriți ștergerea atașamentului?", function (result) {
+                        if (result) {
+                            $.ajax({
+                                url: "/api/petitions/" + pid + "/attachment/" + selectedRows[0].id + "/delete/",
+                                method: 'POST'
+                            }).done(function (data) {
+                                attachmentTable.ajax.reload();
+                            }).fail(function (reason) {
+                                console.log(reason);
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+
+    <script th:if="${linkedPetitionsApiUrl} != null" type="application/javascript">
+        $(document).ready(function() {
+            var linkedTable = $('#connexions').DataTable({
+                select: {
+                    style: 'single'
+                },
+                processing: true,
+                serverSide: true,
+                sDom: 'lrtip ',
+                rowId: "id",
+                order: [[0, 'desc']],
+                autoWidth: false,
+                ajax: {
+                    url: linkedPetitionsApiUrl,
+                    type: 'POST'
+                },
+                language: {
+                    url: languageUrl,
+                    select: selectTranslation()
+                },
+                fixedColumns: true,
+                columns: [
+                    {
+                        name: 'id',
+                        data: 'id',
+                        title: "#"
+                    },
+                    {
+                        name: 'regNo',
+                        data: 'regNo',
+                        title: 'Nr. Înregistrare'
+                    },
+                    {
+                        name: 'petitionerName',
+                        data: 'petitionerName',
+                        title: 'Petent'
+                    },
+                    {
+                        name: '_abstract',
+                        data: '_abstract',
+                        title: 'Rezumat',
+                        sortable: false
+                    },
+                    {
+                        name: 'receivedDate',
+                        data: 'receivedDate',
+                        title: 'Data primire'
+                    },
+                    {
+                        name: 'status',
+                        data: 'status',
+                        title: 'Status'
+                    },
+                    {
+                        name: 'lastUpdateDate',
+                        data: 'lastUpdateDate',
+                        title: 'Ultima modificare',
+                        sortable: false
+                    },
+                    {
+                        data: null,
+                        title: '',
+                        render: function (data, type, full, meta) {
+                            if (data != null) {
+                                return '<a href="/petition/' + data.id + '"><i class="fa fa-info-circle"></i> Vizualizează</a>';
+                            } else {
+                                return '';
+                            }
+                        },
+                        sortable: false
+                    }
+                ]
+            });
+            selectActions(linkedTable);
+
+            $('#link-petition').click(function () {
+                linkPopup("Petițiile primite de la: " + pEmail, linkedByPetitionerApiUrl, languageUrl, function (result) {
+                    $.ajax({
+                        url: "/api/petitions/" + pid + "/link/" + result[0].id,
+                        method: 'POST'
+                    }).done(function (data) {
+                        linkedTable.ajax.reload();
+                    }).fail(function (reason) {
+                        console.log(reason);
+                    });
+                })
+            });
+
+            $('#unlink-petition').click(function () {
+                var selectedRows = linkedTable.rows({selected: true}).data().toArray();
+                if (selectedRows.length != 1) {
+                    this.blur()
+                } else {
+                    customAlert("Sunteți sigur că doriți ștergerea conexiunii?", function (result) {
+                        if (result) {
+                            $.ajax({
+                                url: "/api/petitions/" + pid + "/unlink/" + selectedRows[0].id,
+                                method: 'POST'
+                            }).done(function (data) {
+                                linkedTable.ajax.reload();
+                            }).fail(function (reason) {
+                                console.log(reason);
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+
+    <script type="text/javascript">
+        $("#description").wysihtml5();
+    </script>
+    <div th:replace="fragments/main_head::toast"></div>
+</body>
+
+</html>

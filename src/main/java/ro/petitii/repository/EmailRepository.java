@@ -11,4 +11,7 @@ import ro.petitii.model.Email;
 public interface EmailRepository extends PagingAndSortingRepository<Email,Long> {
     Page<Email> findByType(Email.EmailType type, Pageable p);
     Long countByType(Email.EmailType type);
+
+    @Override
+    <S extends Email> Iterable<S> save(Iterable<S> iterable);
 }

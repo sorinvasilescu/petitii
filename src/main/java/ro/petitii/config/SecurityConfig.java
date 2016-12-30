@@ -2,6 +2,7 @@ package ro.petitii.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,6 +19,7 @@ import javax.sql.DataSource;
 
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
+@ComponentScan("ro.petitii")
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
@@ -33,7 +35,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
             .authorizeRequests()
-                .antMatchers("/css/**","/js/**","/img/**","/webjars/**","/vendors/**","/rest/**")
+                .antMatchers("/css/**","/js/**","/img/**","/webjars/**","/vendors/**")
                     .permitAll()
                 .anyRequest()
                     .authenticated()
@@ -49,8 +51,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .logoutSuccessUrl("/login").permitAll()
             .and()
                 .rememberMe().tokenRepository(persistentTokenRepository())
-                .tokenValiditySeconds(1209600);
-    }
+                .tokenValiditySeconds(1209600)
+            .and()
+                .headers()
+                .frameOptions().sameOrigin()
+            .and()
+                .csrf().ignoringAntMatchers("/api/petitions/**/attachments/add");
+}
 
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
