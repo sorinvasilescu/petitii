@@ -22,8 +22,7 @@ public class ContactController extends ControllerBase {
 
 	@RequestMapping("/contacts")
 	public ModelAndView contacts() {
-		ModelAndView modelAndView = new ModelAndView("contacts_list");
-		return modelAndView;
+		return new ModelAndView("contacts_list");
 	}
 
 	@RequestMapping(path = "/contact", method = RequestMethod.GET)
@@ -33,11 +32,17 @@ public class ContactController extends ControllerBase {
 		return editContact(newContact);
 	}
 
-	@RequestMapping(path = "/contact/{id}", method = RequestMethod.GET)
+	@RequestMapping(path = "/contact/{id}/edit", method = RequestMethod.GET)
     public ModelAndView editContact(@PathVariable("id") Long id) {
     	Contact contact = contactService.getById(id); 
     	return editContact(contact);
     }
+
+	@RequestMapping(path = "/contact/{id}/delete", method = RequestMethod.GET)
+	public ModelAndView deleteContact(@PathVariable("id") Long id) {
+		contactService.delete(id);
+		return new ModelAndView("contacts_list");
+	}
 
 	private ModelAndView editContact(Contact contact) {
 		ModelAndView modelAndView = new ModelAndView("contacts_crud");
