@@ -417,7 +417,7 @@
     </script>
 
     <!-- Comments -->
-    <script th:if="${commentsApiUrl} != null" type="application/javascript">
+    <script th:if="${commentsApiUrl} != null" type="application/javascript" th:inline="none">
         $(document).ready(function() {
             var observationsTable = $('#observations').DataTable({
                 select: {
@@ -497,7 +497,7 @@
     </script>
 
     <!-- attachments -->
-    <script th:if="${attachmentApiUrl} != null" type="application/javascript">
+    <script th:if="${attachmentApiUrl} != null" type="application/javascript" th:inline="none">
         $(document).ready(function() {
             var attachmentTable = $('#attachments').DataTable({
                 select: {
@@ -606,7 +606,7 @@
         });
     </script>
 
-    <script th:if="${linkedPetitionsApiUrl} != null" type="application/javascript">
+    <script th:if="${linkedPetitionsApiUrl} != null" type="application/javascript" th:inline="none">
         $(document).ready(function() {
             var linkedTable = $('#connexions').DataTable({
                 select: {
