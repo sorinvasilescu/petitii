@@ -68,15 +68,6 @@
 </script>
 
 <script type="text/javascript" th:inline="none">
-    function strLimit(data, limit) {
-        if ((data!=null) && (data.length > limit)){
-            data = data.substr(0, limit);
-            data += '...';
-        }
-        return data;
-    }
-
-    var emailTable;
     $(document).ready(function () {
         var statusFilter = "all";
 

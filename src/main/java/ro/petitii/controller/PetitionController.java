@@ -1,11 +1,13 @@
 package ro.petitii.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ro.petitii.config.DefaultsConfig;
@@ -16,8 +18,8 @@ import ro.petitii.service.email.SmtpService;
 
 import javax.mail.MessagingException;
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 @Controller
@@ -141,20 +143,20 @@ public class PetitionController extends ControllerBase {
     public ModelAndView redirectPetition(@PathVariable("id") long id) {
         ModelAndView modelAndView = new ModelAndView("petitions_redirect");
         Petition petition = petitionService.findById(id);
-        modelAndView.addObject("petition",petition);
-        List<Contact> contactList = (List<Contact>)(contactService.getAllContacts());
-        modelAndView.addObject("contacts",contactList);
+        modelAndView.addObject("petition", petition);
+        List<Contact> contactList = (List<Contact>) (contactService.getAllContacts());
+        modelAndView.addObject("contacts", contactList);
         return modelAndView;
     }
 
     @RequestMapping(value = "/petition/redirect/{id}", method = RequestMethod.POST)
     @ResponseBody
     public ModelAndView redirectPetition(@PathVariable("id") long id,
-                                   @RequestParam("subject") String subject,
-                                   @RequestParam("recipients") long[] recipients,
-                                   @RequestParam(value = "attachments[]",required = false) long[] attachments,
-                                   @RequestParam("description") String description,
-                                   final RedirectAttributes attr) {
+                                         @RequestParam("subject") String subject,
+                                         @RequestParam("recipients") long[] recipients,
+                                         @RequestParam(value = "attachments[]", required = false) long[] attachments,
+                                         @RequestParam("description") String description,
+                                         final RedirectAttributes attr) {
 
         ModelAndView modelAndView = new ModelAndView();
 
@@ -167,13 +169,13 @@ public class PetitionController extends ControllerBase {
             Contact contact = contactService.getById(rid);
             recipientString += contact.getName() + " <" + contact.getEmail() + ">, ";
         }
-        List<Attachment> attachmentList = new ArrayList<>();
-        if (attachments!=null)
+        List<Attachment> attachmentList = new LinkedList<>();
+        if (attachments != null)
             for (long aid : attachments) {
                 attachmentList.add(attachmentService.findById(aid));
             }
 
-        statusService.create(PetitionStatus.Status.REDIRECTED,petition,user);
+        statusService.create(PetitionStatus.Status.REDIRECTED, petition, user);
         Email email = new Email();
         email.setBody(description);
         email.setDate(new Date());
@@ -189,9 +191,26 @@ public class PetitionController extends ControllerBase {
             smtpService.send(email);
             attr.addFlashAttribute("toast", createToast("Petiția a fost redirectionata cu succes", ToastType.success));
         } catch (MessagingException e) {
-            attr.addFlashAttribute("toast", createToast("Petiția nu a fost redirectionata: " + e.getMessage(), ToastType.danger));
+            attr.addFlashAttribute("toast", createToast("Petiția nu a fost redirectionata: " + e
+                    .getMessage(), ToastType.danger));
         }
 
+        return modelAndView;
+    }
+
+    @RequestMapping(value = "/petition/{pid}/resolve", method = RequestMethod.GET)
+    public ModelAndView resolve(@PathVariable("pid") Long pid) {
+        Petition petition = petitionService.findById(pid);
+        if (petition == null) {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        }
+
+        ModelAndView modelAndView = new ModelAndView("petitions_resolve");
+        modelAndView.addObject("pid", pid);
+        modelAndView.addObject("pEmail", petition.getPetitioner().getEmail());
+        modelAndView.addObject("attachmentApiUrl", "/api/petitions/" + pid + "/attachments");
+        modelAndView.addObject("linkedPetitionsApiUrl", "/api/petitions/" + pid + "/linked");
+        modelAndView.addObject("linkedPetitionerApiUrl", "/api/petitions/" + pid + "/by/petitioner");
         return modelAndView;
     }
 
