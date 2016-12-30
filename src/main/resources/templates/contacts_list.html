@@ -46,15 +46,17 @@
     <div th:replace="fragments/main_head::includes"></div>
 
 	<!-- Datatables -->
-	<script th:inline="none" type="text/javascript">
-    /*<![CDATA[*/
-    var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
-    /*]]>*/
-    
-    var contactTable;
-    $(document).ready(function () {
-        	contactTable = $('#datatable-responsive').DataTable({
-        		select: {
+    <script th:inline="javascript" type="text/javascript">
+        /*<![CDATA[*/
+        var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
+        /*]]>*/
+    </script>
+
+	<script th:inline="javascript" type="text/javascript">
+        var contactTable;
+        $(document).ready(function () {
+            contactTable = $('#datatable-responsive').DataTable({
+                select: {
                     style: 'one'
                 },
                 processing: true,
@@ -95,15 +97,15 @@
                     }
                 ]
             });
-        	
-        	selectActions(contactTable);
-        	
-        	<!-- action invocation-->
-        	$("#add").click(function () {
-        		window.location.href = '/contact';
-        	});
-        	
-        	$("#modify").click(function () {
+
+            selectActions(contactTable);
+
+            <!-- action invocation-->
+            $("#add").click(function () {
+                window.location.href = '/contact';
+            });
+
+            $("#modify").click(function () {
                 var selectedRows = contactTable.rows({selected: true}).data().toArray();
                 if (selectedRows.length != 1) {
                     addWarning("#error-messages", "Pentru modificări selectați o singură Instituție");
@@ -112,9 +114,7 @@
                     window.location.href = '/contact/' + selectedRows[0].id;
                 }
             });
-        	
         });
-    
     </script>
     <!-- /Datatables -->
     <div th:replace="fragments/main_head::toast"></div>

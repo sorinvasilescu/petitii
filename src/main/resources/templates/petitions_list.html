@@ -68,7 +68,6 @@
 </script>
 
 <script type="text/javascript" th:inline="none">
-    /*<![CDATA[*/
     function strLimit(data, limit) {
         if ((data!=null) && (data.length > limit)){
             data = data.substr(0, limit);
@@ -205,7 +204,6 @@
             petitionTable.ajax.reload();
         });
     });
-    /*]]>*/
 </script>
 
 <div th:replace="fragments/main_head::toast"></div>

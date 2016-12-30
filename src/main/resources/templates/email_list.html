@@ -75,17 +75,15 @@
 <div th:replace="fragments/main_head::includes"></div>
 
 <!-- Variables from backend -->
-<script th:inline="none">
+<script th:inline="javascript">
     /*<![CDATA[*/
     var apiUrl = /*[[${apiUrl}]]*/ '/api/emails';
+    var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
     /*]]>*/
 </script>
 
 <!-- Datatables -->
-<script type="text/javascript"  th:inline="none">
-    /*<![CDATA[*/
-    var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
-    /*]]>*/
+<script type="text/javascript" th:inline="none">
 
     var emailTable;
     $(document).ready(function () {
@@ -180,7 +178,7 @@
 <!-- /Datatables -->
 
 <!-- Other actions -->
-<script th:if="${page=='inbox'}" type="text/javascript" th:inline="none">
+<script th:if="${page=='inbox'}" type="text/javascript" th:inline="javascript">
     $(document).ready(function () {
         $('#get-mail').click(refreshMail);
 
@@ -224,7 +222,7 @@
         });
     }
 </script>
-<script th:if="${page=='spam'}" type="text/javascript" th:inline="none">
+<script th:if="${page=='spam'}" type="text/javascript" th:inline="javascript">
     $(document).ready(function () {
         $("#mark-email").click(function (e) {
             var selectedRows = emailTable.rows({selected: true}).data().toArray();
