@@ -191,8 +191,7 @@ public class PetitionController extends ControllerBase {
             smtpService.send(email);
             attr.addFlashAttribute("toast", createToast("Petiția a fost redirectionata cu succes", ToastType.success));
         } catch (MessagingException e) {
-            attr.addFlashAttribute("toast", createToast("Petiția nu a fost redirectionata: " + e
-                    .getMessage(), ToastType.danger));
+            attr.addFlashAttribute("toast", createToast("Petiția nu a fost redirectionata: " + e.getMessage(), ToastType.danger));
         }
 
         return modelAndView;
