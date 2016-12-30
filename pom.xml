@@ -5,7 +5,7 @@
 
     <groupId>org.springframework</groupId>
     <artifactId>petitii</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.2</version>
 
 
     <parent>
@@ -154,6 +154,7 @@
                     <dependency>
                         <groupId>org.springframework</groupId>
                         <artifactId>springloaded</artifactId>
+                        <version>1.2.6.RELEASE</version>
                     </dependency>
                 </dependencies>
             </plugin>
