@@ -1,0 +1,4 @@
+* text eol=lf
+*.woff2 -text diff
+*.ttf -text diff
+*.png -text diff

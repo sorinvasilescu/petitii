@@ -1,0 +1,1 @@
+UPDATE `petitions`.`petition_custom_params` SET `default_value`='e-mail' WHERE `id`='2';

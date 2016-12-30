@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head th:fragment="head">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <!-- Meta, title, CSS, favicons, etc. -->
+        <meta charset="utf-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Petiții</title>
+        <!-- Bootstrap -->
+        <link href="../../static/vendors/bootstrap/dist/css/bootstrap.min.css" th:href="@{/vendors/bootstrap/dist/css/bootstrap.min.css}" rel="stylesheet"/>
+        <!-- Font Awesome -->
+        <link href="../../static/vendors/font-awesome/css/font-awesome.min.css" th:href="@{/vendors/font-awesome/css/font-awesome.min.css}" rel="stylesheet"/>
+        <!-- Select2 -->
+        <link href="../../static/vendors/select2/dist/css/select2.min.css" th:href="@{/vendors/select2/dist/css/select2.min.css}" rel="stylesheet" />
+        <!-- NProgress -->
+        <link href="../../static/vendors/nprogress/nprogress.css" th:href="@{/vendors/nprogress/nprogress.css}" rel="stylesheet"/>
+        <!-- iCheck -->
+        <link href="../../static/vendors/iCheck/skins/flat/green.css" th:href="@{/vendors/iCheck/skins/flat/green.css}" rel="stylesheet"/>
+        <!-- Datatables -->
+        <link href="../../static/vendors/datatables.net-bs/css/dataTables.bootstrap.min.css" th:href="@{/vendors/datatables.net-bs/css/dataTables.bootstrap.min.css}" rel="stylesheet"/>
+        <link href="../../static/vendors/datatables.net-buttons-bs/css/buttons.bootstrap.min.css" th:href="@{/vendors/datatables.net-buttons-bs/css/buttons.bootstrap.min.css}" rel="stylesheet"/>
+        <link href="../../static/vendors/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" th:href="@{/vendors/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css}" rel="stylesheet"/>
+        <link href="../../static/vendors/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" th:href="@{/vendors/datatables.net-responsive-bs/css/responsive.bootstrap.min.css}" rel="stylesheet"/>
+        <link href="../../static/vendors/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" th:href="@{/vendors/datatables.net-scroller-bs/css/scroller.bootstrap.min.css}" rel="stylesheet"/>
+        <link href="../../static/vendors/datatables.net-select.css/select.dataTables.min.css" th:href="@{/vendors/datatables.net-select.css/select.dataTables.min.css}" rel="stylesheet"/>
+        <link href="../../static/vendors/bootstrap-wysiwyg/bootstrap3-wysihtml5.css" th:href="@{/vendors/bootstrap-wysiwyg/bootstrap3-wysihtml5.css}" rel="stylesheet"/>
+        <!-- Custom Theme Style -->
+        <link href="../../static/css/theme.min.css" th:href="@{/css/theme.min.css}" rel="stylesheet"/>
+        <link href="../../static/css/styles.css" th:href="@{/css/styles.css}" rel="stylesheet"/>
+
+        <meta name="_csrf" th:content="${_csrf.token}"/>
+        <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    </head>
+    <body>
+        <div th:fragment="includes">
+            <!-- jQuery -->
+            <script src="../../static/vendors/jquery/dist/jquery.min.js" th:src="@{/vendors/jquery/dist/jquery.min.js}"></script>
+            <!-- Bootstrap -->
+            <script src="../../static/vendors/bootstrap/dist/js/bootstrap.min.js" th:src="@{/vendors/bootstrap/dist/js/bootstrap.min.js}"></script>
+            <!-- Select2 -->
+            <script src="../../static/vendors/select2/dist/js/select2.full.min.js" th:src="@{/vendors/select2/dist/js/select2.full.min.js}"></script>
+            <!-- FastClick -->
+            <script src="../../static/vendors/fastclick/lib/fastclick.js" th:src="@{/vendors/fastclick/lib/fastclick.js}"></script>
+            <!-- NProgress -->
+            <script src="../../static/vendors/nprogress/nprogress.js" th:src="@{/vendors/nprogress/nprogress.js}"></script>
+            <!-- iCheck -->
+            <script src="../../static/vendors/iCheck/icheck.min.js" th:src="@{/vendors/iCheck/icheck.min.js}"></script>
+
+            <!-- Parsleyjs -->
+            <script src="../../static/vendors/parsleyjs/parsley.min.js" th:src="@{/vendors/parsleyjs/parsley.min.js}"></script>
+            <script src="../../static/vendors/parsleyjs/i18n/ro.js" th:src="@{/vendors/parsleyjs/i18n/ro.js}"></script>
+
+            <!-- Datatables -->
+            <script src="../../static/vendors/datatables.net/js/jquery.dataTables.min.js" th:src="@{/vendors/datatables.net/js/jquery.dataTables.min.js}"></script>
+            <script src="../../static/vendors/datatables.net-bs/js/dataTables.bootstrap.min.js" th:src="@{/vendors/datatables.net-bs/js/dataTables.bootstrap.min.js}"></script>
+            <script src="../../static/vendors/datatables.net-buttons/js/dataTables.buttons.min.js" th:src="@{/vendors/datatables.net-buttons/js/dataTables.buttons.min.js}"></script>
+            <script src="../../static/vendors/datatables.net-buttons-bs/js/buttons.bootstrap.min.js" th:src="@{/vendors/datatables.net-buttons-bs/js/buttons.bootstrap.min.js}"></script>
+            <script src="../../static/vendors/datatables.net-buttons/js/buttons.flash.min.js" th:src="@{/vendors/datatables.net-buttons/js/buttons.flash.min.js}"></script>
+            <script src="../../static/vendors/datatables.net-buttons/js/buttons.html5.min.js" th:src="@{/vendors/datatables.net-buttons/js/buttons.html5.min.js}"></script>
+            <script src="../../static/vendors/datatables.net-buttons/js/buttons.print.min.js" th:src="@{/vendors/datatables.net-buttons/js/buttons.print.min.js}"></script>
+            <script src="../../static/vendors/datatables.net-fixedheader/js/dataTables.fixedHeader.min.js" th:src="@{/vendors/datatables.net-fixedheader/js/dataTables.fixedHeader.min.js}"></script>
+            <script src="../../static/vendors/datatables.net-keytable/js/dataTables.keyTable.min.js" th:src="@{/vendors/datatables.net-keytable/js/dataTables.keyTable.min.js}"></script>
+            <script src="../../static/vendors/datatables.net-responsive/js/dataTables.responsive.min.js" th:src="@{/vendors/datatables.net-responsive/js/dataTables.responsive.min.js}"></script>
+            <script src="../../static/vendors/datatables.net-responsive-bs/js/responsive.bootstrap.js" th:src="@{/vendors/datatables.net-responsive-bs/js/responsive.bootstrap.js}"></script>
+            <script src="../../static/vendors/datatables.net-scroller/js/dataTables.scroller.min.js" th:src="@{/vendors/datatables.net-scroller/js/dataTables.scroller.min.js}"></script>
+            <script src="../../static/vendors/datatables.net-select.js/dataTables.select.min.js" th:src="@{/vendors/datatables.net-select.js/dataTables.select.min.js}"></script>
+            <script src="../../static/vendors/jszip/dist/jszip.min.js" th:src="@{/vendors/jszip/dist/jszip.min.js}"></script>
+            <script src="../../static/vendors/pdfmake/build/pdfmake.min.js" th:src="@{/vendors/pdfmake/build/pdfmake.min.js}"></script>
+            <script src="../../static/vendors/pdfmake/build/vfs_fonts.js" th:src="@{/vendors/pdfmake/build/vfs_fonts.js}"></script>
+            <script src="../../static/js/datatables-custom.js" th:src="@{/js/datatables-custom.js}"></script>
+            <script src="../../static/js/validation-messages.js" th:src="@{/js/validation-messages.js}"></script>
+            <script src="../../static/vendors/bootbox-js/bootbox.min.js" th:src="@{/vendors/bootbox-js/bootbox.min.js}"></script>
+            <script src="../../static/js/custom-alert.js" th:src="@{/js/custom-alert.js}"></script>
+            <script src="../../static/js/custom.js" th:src="@{/js/custom.js}"></script>
+            <script src="../../static/vendors/bootstrap-wysiwyg/bootstrap3-wysihtml5.all.min.js" th:src="@{/vendors/bootstrap-wysiwyg/bootstrap3-wysihtml5.all.min.js}"></script>
+            <!-- Custom Theme Scripts -->
+            <script src="../../static/js/theme.min.js" th:src="@{/js/theme.min.js}"></script>
+            <script src="../../static/js/jquery-spring-friendly.min.js" th:src="@{/js/jquery-spring-friendly.min.js}"></script>
+
+            <script th:inline="javascript" type="application/javascript">
+                $(function () {
+                    var token = $("meta[name='_csrf']").attr("content");
+                    var header = $("meta[name='_csrf_header']").attr("content");
+                    $(document).ajaxSend(function (e, xhr, options) {
+                        xhr.setRequestHeader(header, token);
+                    });
+                });
+            </script>
+        </div>
+
+        <div th:fragment="toast">
+            <!-- Toast -->
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                var toastContent = /*[[${toast}]]*/ null;
+                console.log(toastContent);
+                if (toastContent!=null) {
+                    showToast($('.right_col'),toastContent.message,toastContent.type);
+                }
+                /*]]>*/
+            </script>
+            <!-- /Toast -->
+        </div>
+    </body>
+</html>

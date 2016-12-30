@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/main_head :: head"></head>
+
+<!--/*@thymesVar id="page" type="java.lang.String"*/-->
+<!--/*@thymesVar id="title" type="java.lang.String"*/-->
+<!--/*@thymesVar id="email" type="java.lang.String"*/-->
+
+<body class="nav-md">
+<div class="container body">
+    <div class="main_container">
+        <div class="col-md-3 left_col" th:replace="fragments/left::menu"></div>
+
+        <!-- top navigation -->
+        <div class="top_nav" th:replace="fragments/top::menu"></div>
+        <!-- /top navigation -->
+
+        <!-- page content -->
+        <div class="right_col" role="main">
+
+            <div id="error-messages"></div>
+
+            <div class="page-title-petitions">
+                <h2>
+                    <span th:text="${title}">Email-uri primite</span>
+                    <small style="margin-left: 1.5vh;" th:text="${email}">adresa@mail.com</small>
+                </h2>
+                <!--
+                <ul class="nav navbar-right panel_toolbox">
+                    <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                           aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="#">Settings 1</a>
+                            </li>
+                            <li><a href="#">Settings 2</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><a class="close-link"><i class="fa fa-close"></i></a>
+                    </li>
+                </ul>
+                -->
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <div th:if="${page=='inbox'}" class="align-right">
+                    <button type="submit" id="get-mail" class="btn btn-info btn-md"><span class="glyphicon glyphicon-envelope"></span> Get Email</button>
+                    <button id="add" type="button" class="btn btn-default btn-md" title="Creează o petiție din e-mailul selectat"><i class="fa fa-plus-square-o"></i>&nbsp;<span>Creează petiție</span></button>
+                    <button id="mark-spam" type="button" class="btn btn-default btn-md" title="Marchează ca spam"><i class="fa fa-trash-o"></i>&nbsp;<span>Marchează ca spam</span></button>
+                </div>
+                <div th:if="${page=='spam'}" class="align-right">
+                    <button id="mark-email" type="button" class="btn btn-default btn-md" title="Marchează ca e-mail"><i class="fa fa-envelope"></i>&nbsp;<span>Marchează ca e-mail</span></button>
+                </div>
+                <table id="datatable-responsive" class="table jambo_table bulk_action table-striped table-bordered dt-responsive nowrap"
+                       cellspacing="0" width="100%">
+                </table>
+            </div>
+        </div>
+        <!-- /page content -->
+
+        <!-- footer content -->
+        <footer>
+            <div class="pull-right">
+                Gentelella - Bootstrap Admin Template by <a href="https://colorlib.com">Colorlib</a>
+            </div>
+            <div class="clearfix"></div>
+        </footer>
+        <!-- /footer content -->
+    </div>
+</div>
+
+<div th:replace="fragments/main_head::includes"></div>
+
+<!-- Variables from backend -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var apiUrl = /*[[${apiUrl}]]*/ '/api/emails';
+    var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
+    /*]]>*/
+</script>
+
+<!-- Datatables -->
+<script type="text/javascript" th:inline="none">
+
+    var emailTable;
+    $(document).ready(function () {
+        emailTable = $('#datatable-responsive').DataTable({
+            select: {
+                style: 'single'
+            },
+            processing: true,
+            serverSide: true,
+            sDom: 'lrtip ',
+            rowId: "id",
+            order: [[3, 'desc']],
+            ajax: {
+                url: apiUrl,
+                type: 'POST'
+            },
+            language: {
+                url: languageUrl,
+                select: selectTranslation()
+            },
+            fixedColumns: true,
+            columns: [
+                {
+                    data: null,
+                    render: function (data, type, full, meta) {
+                        return '<input type="checkbox" class="flat" name="email_records"/>';
+                    },
+                    title: '<input type="checkbox" id="check-all" class="flat"/>',
+                    sortable: false,
+                    'className': 'text-center',
+                    'width': '15px'
+                },
+                {
+                    name: 'sender',
+                    data: 'sender',
+                    title: 'Expeditor',
+                    render: function (data) {
+                        return strLimit(data, 70);
+                    },
+                    'className': 'text-center',
+                    'width': '180px'
+                },
+                {
+                    name: 'subject',
+                    data: 'subject',
+                    title: 'Subiect',
+                    render: function (data) {
+                        //return '<div class="elipsis-subiect">'+data+'</div>';
+                    	return strLimit(data, 120);
+                    },
+                    'className': "elipsis-subiect",
+                    'width': '900px'
+                },
+                {
+                    name: 'date',
+                    data: 'date',
+                    title: 'Data',
+                    'className': 'text-center',
+                    'width': '120px',
+                },
+                {
+                    name: 'petition_id',
+                    data: 'petition_id',
+                    title: 'Petitie',
+                    render: function (data, type, full, meta) {
+                        if (data != null) return '<a href="/petition/' + data + '"><i class="fa fa-info-circle"></i> Vezi petitie</a>';
+                        else return '';
+                    },
+                    sortable: false,
+                    'className': 'text-center',
+                    'width': '115px'
+                },
+                {
+                    data: null,
+                    title: 'Email',
+                    render: function (data, type, full, meta) {
+                        if (data != null) {
+                            return '<a href="/email/' + data.id + '"><i class="fa fa-envelope-square"></i> Detalii</a>';
+                        } else {
+                            return '';
+                        }
+                    },
+                    sortable: false,
+                    'className': 'text-center',
+                    'width': '80px'
+                }
+            ]
+        });
+        selectActions(emailTable);
+    });
+</script>
+<!-- /Datatables -->
+
+<!-- Other actions -->
+<script th:if="${page=='inbox'}" type="text/javascript" th:inline="javascript">
+    $(document).ready(function () {
+        $('#get-mail').click(refreshMail);
+
+        $("#add").click(function () {
+            var selectedRows = emailTable.rows({selected: true}).data().toArray();
+            if (selectedRows.length != 1) {
+                addWarning("#error-messages", "Pentru creare selectați un e-mail");
+                this.blur()
+            } else {
+                window.location.href = '/petition/fromEmail/' + selectedRows[0].id;
+            }
+        });
+
+        $("#mark-spam").click(function (e) {
+            var selectedRows = emailTable.rows({selected: true}).data().toArray();
+            if (selectedRows.length != 1) {
+                addWarning("#error-messages", "Selectați cel puțin un e-mail");
+                this.blur()
+            } else {
+                markAsSpam(e, selectedRows[0].id);
+            }
+        });
+    });
+
+    function refreshMail(e) {
+        //console.log('refreshing inbox');
+        $(e.target).attr('data-loading-text', '<i class="fa fa-circle-o-notch fa-spin"></i> Se incarca');
+        $(e.target).button('loading');
+        $.ajax({
+            url: "/api/refresh",
+            method: 'POST'
+        }).done(function (data) {
+            //console.log('success');
+            if (data.success == 'true') {
+                emailTable.ajax.reload();
+            }
+            $(e.target).button('reset');
+        }).fail(function () {
+            //console.log('failed');
+            $(e.target).button('reset');
+        });
+    }
+</script>
+<script th:if="${page=='spam'}" type="text/javascript" th:inline="javascript">
+    $(document).ready(function () {
+        $("#mark-email").click(function (e) {
+            var selectedRows = emailTable.rows({selected: true}).data().toArray();
+            if (selectedRows.length == 0) {
+                addWarning("#error-messages", "Selectați cel puțin un e-mail");
+                this.blur()
+            } else {
+                markAsEmail(e, selectedRows[0].id)
+            }
+        });
+    });
+</script>
+<div th:replace="fragments/main_head::toast"></div>
+</body>
+</html>

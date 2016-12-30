@@ -1,3 +1,7 @@
+.idea/
+target/
+.mvn/
 *.iml
-.idea
-target
+.classpath
+.project
+.settings/

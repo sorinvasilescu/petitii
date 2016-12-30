@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div th:fragment="menu" class="col-md-3 left_col menu_fixed">
+        <div class="left_col scroll-view">
+            <div class="navbar nav_title top-margin" style="border: 0;">
+              <a href="/inbox" class="site_title"><i class="fa fa-comments-o"></i> <span>Petiții</span></a>
+            </div>
+
+            <div class="clearfix"></div>
+
+
+            <br />
+            <!-- sidebar menu -->
+            <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+                <div class="menu_section">
+                    <ul class="nav side-menu" style="margin-top: 5vh;">
+                        <li><a href="/inbox"><i class="fa fa-envelope"></i> Email</a>
+                        </li>
+                        <li><a href="/spam"><i class="fa fa-envelope-o"></i> Spam </a>
+                        </li>
+                        <li><a href="/petitions"><i class="fa fa-sticky-note"></i> Petițiile mele</a>
+                        </li>
+                        <li th:if="${#authentication.getPrincipal().hasRole('ADMIN')}">
+                            <a href="/users"><i class="fa fa-user"></i>Useri</a>
+                        </li>
+                        <li th:if="${#authentication.getPrincipal().hasRole('ADMIN')}">
+                            <a href="/emailTemplates"><i class="fa fa-clone"></i>Email Templates</a>
+                        </li>
+                        <li><a href="/petitions/all"><i class="fa fa-book"></i> Registru</a>
+                        </li>
+                        <li><a href="/contacts"><i class="fa fa-users"></i> Lista de contacte</a></li>
+                        <!--
+                        <li th:if="${#authentication.getPrincipal().hasRole('ADMIN')}">
+                            <a><i class="fa fa-cog"></i> Opțiuni</a>
+                        </li>
+                        -->
+                    </ul>
+                </div>
+                <div class="menu_section">
+                    <ul class="nav side-menu">
+                        <li><a href="/petition" id="addBtn"><i class="fa fa-plus-circle"></i> Adauga o petiție</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <!-- /sidebar menu -->
+
+            <!-- /menu footer buttons -->
+            <div class="sidebar-footer hidden-small">
+                <a data-toggle="tooltip" data-placement="top" title="Settings">
+                    <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
+                </a>
+                <a data-toggle="tooltip" data-placement="top" title="FullScreen">
+                    <span class="glyphicon glyphicon-fullscreen" aria-hidden="true"></span>
+                </a>
+                <a data-toggle="tooltip" data-placement="top" title="Lock">
+                    <span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
+                </a>
+                <a data-toggle="tooltip" data-placement="top" title="Logout">
+                    <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
+                </a>
+            </div>
+            <!-- /menu footer buttons -->
+        </div>
+    </div>
+</body>
+</html>
