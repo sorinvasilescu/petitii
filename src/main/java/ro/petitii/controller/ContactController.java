@@ -32,7 +32,7 @@ public class ContactController extends ControllerBase {
 		return editContact(newContact);
 	}
 
-	@RequestMapping(path = "/contact/{id}/edit", method = RequestMethod.GET)
+	@RequestMapping(path = "/contact/{id}", method = RequestMethod.GET)
     public ModelAndView editContact(@PathVariable("id") Long id) {
     	Contact contact = contactService.getById(id); 
     	return editContact(contact);
