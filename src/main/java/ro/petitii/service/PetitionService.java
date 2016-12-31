@@ -17,4 +17,6 @@ public interface PetitionService {
     DataTablesOutput<PetitionResponse> getTableContent(Petition petition, Petitioner petitioner, PageRequest p);
 
     DataTablesOutput<PetitionResponse> getTableLinkedPetitions(Petition petition, PageRequest p);
+
+    long countLinkedPetitions(Petition petition);
 }

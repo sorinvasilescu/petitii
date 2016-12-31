@@ -210,6 +210,11 @@ public class PetitionServiceImpl implements PetitionService {
         return response;
     }
 
+    @Override
+    public long countLinkedPetitions(Petition petition) {
+        return petitionRepository.countLinkedPetitions(petition.getId());
+    }
+
     private List<PetitionResponse> convert(Page<Petition> petitions) {
         return petitions.getContent().stream().map(this::convert).collect(Collectors.toList());
     }

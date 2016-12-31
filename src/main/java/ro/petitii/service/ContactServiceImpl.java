@@ -50,4 +50,8 @@ public class ContactServiceImpl implements ContactService {
 		return contactRepository.save(contact);
 	}
 
+	@Override
+	public void delete(long id) {
+		contactRepository.delete(id);
+	}
 }

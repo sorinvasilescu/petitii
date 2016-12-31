@@ -33,9 +33,9 @@
                             <div class="col-md-12 col-sm-12 col-xs-12">
                                 <div class="buttons pull-right">
                                     <button id="top-submit" type="button" class="btn btn-success btn-md"><i class="fa fa-paste"></i> <span>Salvează</span></button>
-                                    <button id="top-start" type="button" class="btn btn-default btn-md"><i class="fa fa-hourglass-start"></i>&nbsp;<span>Incepe lucrul</span></button>
-                                    <button type="button" class="btn btn-default btn-md"><i class="fa fa-file-text"></i> <span>Clasează</span></button>
-                                    <button type="button" class="btn btn-default btn-md"><i class="fa fa-check-square-o"></i> <span>Rezolvă</span></button>
+                                    <button id="top-start" type="button" class="btn btn-default btn-md"><i class="fa fa-hourglass-start"></i>&nbsp;<span>Începe lucrul</span></button>
+                                    <button id="top-close" type="button" class="btn btn-default btn-md"><i class="fa fa-file-text"></i> <span>Clasează</span></button>
+                                    <button id="top-resolve" type="button" class="btn btn-default btn-md"><i class="fa fa-check-square-o"></i> <span>Rezolvă</span></button>
                                     <button id="top-redirect" type="button" class="btn btn-default btn-md"><i class="fa fa-mail-forward"></i> <span>Redirecționează</span></button>
                                 </div>
                             </div>
@@ -43,7 +43,7 @@
                         <div class="row">
                             <div class="x_panel">
                                 <div class="x_title">
-                                    <h2>Adauga/editeaza petitie </h2>
+                                    <h2>Adaugă/Editează petiție </h2>
                                     <div class="clearfix"></div>
                                 </div>
                                 <div class="col-md-6 col-xs-12">
@@ -275,8 +275,8 @@
                                 </div>
                                 <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="profile-tab">
                                     <div th:if="${linkedPetitionsApiUrl} != null">
-                                        <button id="unlink-petition" type="button" class="btn btn-default btn-sm pull-right"><i class="fa fa-link"></i> Șterge conexiune</button>
-                                        <button id="link-petition" type="button" class="btn btn-default btn-sm pull-right"><i class="fa fa-link"></i> Creează conexiune</button>
+                                        <button id="unlink-petition" type="button" class="btn btn-default btn-md pull-right"><i class="fa fa-link"></i> Șterge conexiune</button>
+                                        <button id="link-petition" type="button" class="btn btn-default btn-md pull-right"><i class="fa fa-link"></i> Creează conexiune</button>
                                         <table id="connexions"
                                                class="table table-striped row-border compact stripe dt-responsive nowrap"
                                                cellspacing="0" width="100%">
@@ -311,10 +311,9 @@
                             <div class="col-md-12 col-sm-12 col-xs-12">
                                 <div class="buttons pull-right">
                                     <button id="bottom-submit" type="button" class="btn btn-success btn-md"><i class="fa fa-paste"></i> <span>Salvează</span></button>
-                                    <button id="bottom-start" type="button" class="btn btn-default btn-md"><i class="fa fa-hourglass-start"></i>&nbsp;<span>Incepe lucrul</span></button>
-                                    <button type="button" class="btn btn-default btn-md"><i class="fa fa-mail-forward"></i> <span>Incepe lucrul</span></button>
-                                    <button type="button" class="btn btn-default btn-md"><i class="fa fa-file-text"></i> <span>Clasează</span></button>
-                                    <button type="button" class="btn btn-default btn-md"><i class="fa fa-check-square-o"></i> <span>Rezolvă</span></button>
+                                    <button id="bottom-start" type="button" class="btn btn-default btn-md"><i class="fa fa-hourglass-start"></i>&nbsp;<span>Începe lucrul</span></button>
+                                    <button id="bottom-close" type="button" class="btn btn-default btn-md"><i class="fa fa-file-text"></i> <span>Clasează</span></button>
+                                    <button id="bottom-resolve" type="button" class="btn btn-default btn-md"><i class="fa fa-check-square-o"></i> <span>Rezolvă</span></button>
                                     <button id="bottom-redirect" type="button" class="btn btn-default btn-md"><i class="fa fa-mail-forward"></i> <span>Redirecționează</span></button>
                                 </div>
                             </div>
@@ -412,6 +411,14 @@
 
         $('#top-redirect,#bottom-redirect').click(function(){
             window.location.href = '/petitions/redirect/' +  pid;
+        });
+
+        $('#top-resolve,#bottom-resolve').click(function () {
+            window.location.href = '/petition/' + pid + '/resolve/resolved';
+        });
+
+        $('#top-close,#bottom-close').click(function () {
+            window.location.href = '/petition/' + pid + '/resolve/closed';
         });
     });
     </script>

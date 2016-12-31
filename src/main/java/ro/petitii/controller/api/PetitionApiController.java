@@ -77,7 +77,8 @@ public class PetitionApiController {
 
         PetitionStatus.Status pStatus = parseStatus(status);
 
-        DataTablesOutput<PetitionResponse> response = petitionService.getTableContent(user, pStatus, pageRequest(input, PetitionResponse.sortMapping));
+        DataTablesOutput<PetitionResponse> response = petitionService
+                .getTableContent(user, pStatus, pageRequest(input, PetitionResponse.sortMapping));
         response.setDraw(sequenceNo);
 
         return response;
@@ -88,12 +89,13 @@ public class PetitionApiController {
     public DataTablesOutput<PetitionResponse> getAllPetitions(@Valid DataTablesInput input, String status) {
         int sequenceNo = input.getDraw();
         PetitionStatus.Status pStatus = parseStatus(status);
-        DataTablesOutput<PetitionResponse> response = petitionService.getTableContent(null, pStatus, pageRequest(input, PetitionResponse.sortMapping));
+        DataTablesOutput<PetitionResponse> response = petitionService
+                .getTableContent(null, pStatus, pageRequest(input, PetitionResponse.sortMapping));
         response.setDraw(sequenceNo);
         return response;
     }
 
- @RequestMapping(value = "{id}/by/petitioner", method = RequestMethod.POST)
+    @RequestMapping(value = "{id}/by/petitioner", method = RequestMethod.POST)
     @ResponseBody
     public DataTablesOutput<PetitionResponse> getPetitionsByPetitioner(@Valid DataTablesInput input,
                                                                        @PathVariable("id") long id) {
@@ -102,7 +104,8 @@ public class PetitionApiController {
         if (petition == null) {
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
         }
-        DataTablesOutput<PetitionResponse> response = petitionService.getTableContent(petition, petition.getPetitioner(), pageRequest(input, PetitionResponse.sortMapping));
+        DataTablesOutput<PetitionResponse> response = petitionService
+                .getTableContent(petition, petition.getPetitioner(), pageRequest(input, PetitionResponse.sortMapping));
         response.setDraw(sequenceNo);
         return response;
     }
@@ -110,13 +113,14 @@ public class PetitionApiController {
     @RequestMapping(value = "{id}/linked", method = RequestMethod.POST)
     @ResponseBody
     public DataTablesOutput<PetitionResponse> getLinkedPetitions(@Valid DataTablesInput input,
-                                                              @PathVariable("id") long id) {
+                                                                 @PathVariable("id") long id) {
         int sequenceNo = input.getDraw();
         Petition petition = petitionService.findById(id);
         if (petition == null) {
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
         }
-        DataTablesOutput<PetitionResponse> response = petitionService.getTableLinkedPetitions(petition, pageRequest(input, PetitionResponse.sortMapping));
+        DataTablesOutput<PetitionResponse> response = petitionService
+                .getTableLinkedPetitions(petition, pageRequest(input, PetitionResponse.sortMapping));
         response.setDraw(sequenceNo);
         return response;
     }
@@ -131,7 +135,8 @@ public class PetitionApiController {
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
         }
 
-        DataTablesOutput<AttachmentResponse> response = attachmentService.getTableContent(petition, pageRequest(input, AttachmentResponse.sortMapping));
+        DataTablesOutput<AttachmentResponse> response = attachmentService
+                .getTableContent(petition, pageRequest(input, AttachmentResponse.sortMapping));
         response.setDraw(sequenceNo);
         return response;
     }

@@ -15,14 +15,15 @@
                 <div id="error-messages"></div>
             	<div class="">
                     <h2>Lista de contacte institutii</h2>
-                    <div class="col-md-6 col-sm-6 col-xs-12">
-                        <div class="buttons">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <div class="buttons align-right">
                 	  		<!-- 
                 	  		<button type="button" class="btn btn-default btn-sm"><a href="/adauga-contact"><i class="fa fa-file"></i> <span th:text="${adauga}">Contact nou</span></a></button>
                 	  		<button type="button" class="btn btn-default btn-sm"><a href="/edit-contact"><i class="fa fa-edit"></i> <span th:text="${editeaza} ">Editeaza contact</span></a></button>
                 	  		 -->
                 	  		<button id="add" type="button" class="btn btn-default btn-md"><i class="fa fa-plus-square-o"></i>&nbsp;<span>Adaugă</span></button>
                 	  		<button id="modify" type="button" class="btn btn-default btn-md"><i class="fa fa-pencil-square-o"></i>&nbsp;<span>Modifică</span></button>
+                	  		<button id="delete" type="button" class="btn btn-default btn-md"><i class="fa fa-minus-square-o"></i>&nbsp;<span>Șterge</span></button>
                 	  	</div>
                     </div>
                     <div class="clearfix"></div>
@@ -52,7 +53,7 @@
         /*]]>*/
     </script>
 
-	<script th:inline="javascript" type="text/javascript">
+	<script th:inline="none" type="text/javascript">
         var contactTable;
         $(document).ready(function () {
             contactTable = $('#datatable-responsive').DataTable({
@@ -108,10 +109,22 @@
             $("#modify").click(function () {
                 var selectedRows = contactTable.rows({selected: true}).data().toArray();
                 if (selectedRows.length != 1) {
-                    addWarning("#error-messages", "Pentru modificări selectați o singură Instituție");
+                    addWarning("#error-messages", "Pentru modificări selectați un contact");
                     this.blur()
                 } else {
                     window.location.href = '/contact/' + selectedRows[0].id;
+                }
+            });
+
+            $("#delete").click(function () {
+                var selectedRows = contactTable.rows({selected: true}).data().toArray();
+                if (selectedRows.length != 1) {
+                    addWarning("#error-messages", "Pentru ștergere selectați un contact");
+                    this.blur()
+                } else {
+                    customAlert("Sunteți sigur că doriți ștergere contactului?", function () {
+                        window.location.href = '/contact/' + selectedRows[0].id + '/delete';
+                    });
                 }
             });
         });
