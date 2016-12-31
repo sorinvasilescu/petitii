@@ -3,20 +3,22 @@ package ro.petitii.model;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.Table;
+import javax.persistence.*;
 
-/**
- * Created by mpostelnicu on 12/23/2016.
- */
+import static ro.petitii.util.TranslationUtil.categoryMsg;
+
 @Entity
 @Table(name = "email_templates")
 public class EmailTemplate {
+    public enum Category {
+        response,
+        forward,
+        recover_password;
+
+        public String viewName() {
+            return categoryMsg(this);
+        }
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -25,6 +27,10 @@ public class EmailTemplate {
 
     @JsonView(DataTablesOutput.View.class)
     private String name;
+
+    @JsonView(DataTablesOutput.View.class)
+    @Enumerated(EnumType.STRING)
+    private Category category;
 
     @Lob
     @Column(name="CONTENT")
@@ -53,5 +59,13 @@ public class EmailTemplate {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 }

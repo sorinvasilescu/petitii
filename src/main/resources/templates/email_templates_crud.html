@@ -3,27 +3,33 @@
 
 <head th:replace="fragments/main_head :: head"></head>
 
+<!--/*@thymesVar id="emailTemplate" type="ro.petitii.model.EmailTemplate"*/-->
+<!--/*@thymesVar id="categories" type="java.util.List<ro.petitii.model.EmailTemplate.Category>"*/-->
+
 <body class="nav-md">
 <div class="container body">
     <div class="main_container">
         <div class="col-md-3 left_col" th:replace="fragments/left::menu"></div>
         <div class="top_nav" th:replace="fragments/top::menu"></div>
+
         <div class="right_col" role="main">
-            <form id="email-templates-form" class="form-horizontal form-label-left input_mask" th:object="${emailTemplate}"
+            <form id="email-templates-form" class="form-horizontal form-label-left input_mask"
+                  th:object="${emailTemplate}"
                   th:action="@{/emailTemplate}" method="post">
                 <div>
                     <div class="row">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <div class="buttons pull-right">
-                                <button id="top-submit" type="button" class="btn btn-success btn-sm"><i
-                                        class="fa fa-paste"></i> <span>Salvează</span></button>
+                                <button id="top-submit" type="submit" class="btn btn-default btn-md">
+                                    <i class="fa fa-paste"></i> Salvează
+                                </button>
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="x_panel">
                             <div class="x_title">
-                                <h2>Adauga/editeaza Email Template </h2>
+                                <h2>Adaugă / Editează Email Template </h2>
                                 <div class="clearfix"></div>
                             </div>
 
@@ -33,29 +39,28 @@
                                 <div class="x_content">
 
                                     <div class="form-group">
-                                        <label class="control-label col-md-3 col-sm-3 col-xs-12">
-                                            Nume
-                                            <span class="required">*</span>
-                                        </label>
+                                        <label class="control-label col-md-3 col-sm-3 col-xs-12">Nume<span class="required">*</span></label>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <input type="text" placeholder="Numele"
-                                                   class="form-control col-md-7 col-xs-12" required=""
-                                                   th:field="*{name}"/>
+                                            <input type="text" placeholder="Numele" class="form-control col-md-7 col-xs-12" required="" th:field="*{name}"/>
                                         </div>
                                     </div>
 
                                     <div class="form-group">
-                                        <label class="control-label col-md-3 col-sm-3 col-xs-12">Conținut
-                                            <span class="required">*</span>
-                                        </label>
+                                        <label for="category" class="control-label col-md-3 col-sm-3 col-xs-12">Categoria<span class="required">*</span></label>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <textarea class="resizable_textarea form-control"
-                                                      placeholder="Content" id="content" required="" th:field="*{content}"
-                                                       rows="20"></textarea>
+                                            <select class="form-control" name="category" id="category" tabindex="-1" required="" th:field="*{category}">
+                                                <option value=""></option>
+                                                <option th:each="cat : ${categories}" th:value="${cat.name()}" th:text="${cat.viewName()}"></option>
+                                            </select>
                                         </div>
                                     </div>
 
-
+                                    <div class="form-group">
+                                        <label class="control-label col-md-3 col-sm-3 col-xs-12">Conținut<span class="required">*</span></label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <textarea class="resizable_textarea form-control" placeholder="Content" id="content" required="" th:field="*{content}" rows="40"></textarea>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -63,14 +68,6 @@
                         </div>
                     </div>
                     <div class="clear"></div>
-                    <div class="row">
-                        <div class="col-md-12 col-sm-12 col-xs-12">
-                            <div class="buttons pull-right">
-                                <button id="bottom-submit" type="button" class="btn btn-success btn-sm"><i
-                                        class="fa fa-paste"></i> <span>Salvează</span></button>
-                            </div>
-                        </div>
-                    </div>
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                 </div>
             </form>
@@ -86,19 +83,28 @@
 </div>
 <div th:replace="fragments/main_head::includes"></div>
 
-<script type="text/javascript">
+<script type="text/javascript" th:inline="javascript">
+    /*<![CDATA[*/
+    var selectedCategory = /*[[${emailTemplate.category}]]*/ null;
+    /*]]>*/
+</script>
 
-    $(document).ready(function() {
-         $("#content").wysihtml5();
-         $('#email-templates-form').parsley();
+<script type="text/javascript" th:inline="none">
+    $(document).ready(function () {
+        $("#content").wysihtml5();
+        $('#email-templates-form').parsley();
 
-        $('#bottom-submit,#top-submit').click(function(){
-            $('#email-templates-form').submit();
+        var categoryComponent = $("#category");
+        categoryComponent.select2({
+            placeholder: "Alege categoria",
+            allowClear: true
         });
+        categoryComponent.val(selectedCategory);
+        categoryComponent.trigger('change');
     });
 
-    Parsley.on('field:validated', function(fieldInstance){
-    if (fieldInstance.$element.is(":hidden")) {
+    Parsley.on('field:validated', function (fieldInstance) {
+        if (fieldInstance.$element.is(":hidden")) {
             // hide the message wrapper
             fieldInstance._ui.$errorsWrapper.css('display', 'none');
             // set validation result to true

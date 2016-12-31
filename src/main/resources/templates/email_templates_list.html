@@ -15,26 +15,31 @@
         <div class="right_col" role="main">
             <!-- alert -->
             <div id="alert" class="alert alert-dismissible hidden" role="alert">
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
                 <span id="alert-content"></span>
             </div>
             <!-- end alert -->
             <div class="page-title-petitions">
-                <h2>
-                    <span th:text="${title}">Email Templates</span>
-                </h2>
-
+                <h2>Template-uri e-mail</h2>
                 <div class="clearfix"></div>
             </div>
 
-            <div class="align-right">
-                <button type="submit" id="add-email-template" class="btn btn-info"><span class="glyphicon glyphicon-plus"></span>Adaugă Email Template
+            <div class="buttons align-right">
+                <button type="button" id="add-email-template" class="btn btn-default btn-md">
+                    <span class="fa fa-plus-square-o"></span> Adaugă
+                </button>
+                <button type="button" id="modify-email-template" class="btn btn-default btn-md">
+                    <span class="fa fa-pencil-square-o"></span> Modifică
+                </button>
+                <button type="button" id="remove-email-template" class="btn btn-default btn-md">
+                    <span class="fa fa-minus-square-o"></span> Șterge
                 </button>
             </div>
 
             <div class="x_content">
-                <table id="datatable-responsive" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
-
+                <table id="email-template" class="table table-striped table-bordered dt-responsive nowrap jambo_table bulk_action"
+                       cellspacing="0" width="100%">
                 </table>
             </div>
         </div>
@@ -55,50 +60,75 @@
 
 <!-- Variables from backend -->
 <script th:inline="javascript">
-/*<![CDATA[*/
+    /*<![CDATA[*/
     var apiUrl = /*[[${apiUrl}]]*/ '/api/emailTemplates';
-/*]]>*/
+    var languageUrl = /*[[@{/vendors/datatables.net-i18n/Romanian.json}]]*/ "../static/vendors/datatables.net-i18n/Romanian.json";
+    /*]]>*/
 </script>
 
 <!-- Datatables -->
 <script type="text/javascript" th:inline="none">
     var table;
     $(document).ready(function () {
-        $('#add-email-template').click(function() {
-            window.location.href='/emailTemplate';
-    });
+        $('#add-email-template').click(function () {
+            window.location.href = '/emailTemplate';
+        });
 
-        table = $('#datatable-responsive').DataTable({
+        $("#modify-email-template").click(function () {
+            var selectedRows = table.rows({selected: true}).data().toArray();
+            if (selectedRows.length != 1) {
+                addWarning("#error-messages", "Pentru modificări selectați un template");
+                this.blur()
+            } else {
+                window.location.href = '/emailTemplate/' + selectedRows[0].id;
+            }
+        });
+
+        $("#remove-email-template").click(function () {
+            var selectedRows = table.rows({selected: true}).data().toArray();
+            if (selectedRows.length != 1) {
+                addWarning("#error-messages", "Pentru ștergere selectați un template");
+                this.blur()
+            } else {
+                customAlert("Sunteți sigur că doriți ștergere template-ului?", function () {
+                    window.location.href = '/emailTemplate/' + selectedRows[0].id + '/delete';
+                });
+            }
+        });
+
+        table = $('#email-template').DataTable({
+            select: {
+                style: 'single'
+            },
+            rowId: "id",
+            language: {
+                url: languageUrl,
+                select: selectTranslation()
+            },
             processing: true,
             serverSide: true,
             sDom: 'lrtip ',
-            order: [[ 1, 'desc']],
+            order: [[0, 'asc']],
             ajax: {
                 url: apiUrl,
                 type: 'POST'
             },
             columns: [
                 {
-                    data: null,
-                    render: function (data,type,full,meta) {
-                        return '<input type="checkbox"/>';
-                    },
-                    sortable: false
+                    name: 'id',
+                    data: 'id',
+                    title: '#',
+                    width: '10px'
+                },
+                {
+                    name: 'category',
+                    data: 'category',
+                    title: 'Categorie'
                 },
                 {
                     name: 'name',
                     data: 'name',
                     title: 'Nume'
-                },
-                {
-                    name: 'id',
-                    data: 'id',
-                    title: 'Email Template',
-                    render: function (data,type,full,meta) {
-                        if (data!=null) return '<a href="/emailTemplate/'+data+'">Editează Email Template</a>';
-                        else return '';
-                    },
-                    sortable: false
                 }
             ]
         });
