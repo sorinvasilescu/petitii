@@ -32,7 +32,7 @@
                           <button id="add" type="button" class="btn btn-default btn-md"><i class="fa fa-plus-square-o"></i>&nbsp;<span>Adaugă</span></button>
                           <button id="modify" type="button" class="btn btn-default btn-md"><i class="fa fa-pencil-square-o"></i>&nbsp;<span>Modifică</span></button>
                           <button id="start" type="button" class="btn btn-default btn-md"><i class="fa fa-hourglass-start"></i>&nbsp;<span>Incepe lucrul</span></button>
-                          <button id="classify" type="button" class="btn btn-default btn-md"><i class="fa fa-share-square-o"></i>&nbsp;<span>Clasează</span></button>
+                          <button id="close" type="button" class="btn btn-default btn-md"><i class="fa fa-share-square-o"></i>&nbsp;<span>Clasează</span></button>
                           <button id="resolve" type="button" class="btn btn-default btn-md"><i class="fa fa-check-square-o"></i>&nbsp;<span>Rezolvă</span></button>
                           <button id="redirect" type="button" class="btn btn-default btn-md"><i class="fa fa-mail-forward"></i>&nbsp;<span>Redirecționează</span></button>
                 	  </div>
@@ -187,6 +187,26 @@
                 }).fail(function (result) {
                     console.log(result)
                 });
+            }
+        });
+
+        $('#resolve').click(function(){
+            var selectedRows = petitionTable.rows({selected: true}).data().toArray();
+            if (selectedRows.length != 1) {
+                addWarning("#error-messages", "Pentru rezolvare selectați o singură petiție");
+                this.blur()
+            } else {
+                window.location.href = '/petition/' + selectedRows[0].id + '/resolve/resolved';
+            }
+        });
+
+        $('#close').click(function(){
+            var selectedRows = petitionTable.rows({selected: true}).data().toArray();
+            if (selectedRows.length != 1) {
+                addWarning("#error-messages", "Pentru clasare selectați o singură petiție");
+                this.blur()
+            } else {
+                window.location.href = '/petition/' + selectedRows[0].id + '/resolve/closed';
             }
         });
 

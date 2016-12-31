@@ -6,9 +6,9 @@
 <body class="nav-md">
 <div class="container body">
     <div class="main_container">
-        <div class="col-md-3 left_col" th:substituteby="fragments/left::menu"></div>
+        <div class="col-md-3 left_col" th:replace="fragments/left::menu"></div>
         <!-- top navigation -->
-        <div class="top_nav" th:substituteby="fragments/top::menu"></div>
+        <div class="top_nav" th:replace="fragments/top::menu"></div>
         <!-- /top navigation -->
         <!-- page content -->
         <div class="right_col" role="main">
@@ -17,9 +17,10 @@
                 <div class="clearfix"></div>
             </div>
             <div class="x_content">
-                <form class="form-horizontal form-label-left">
+                <form class="form-horizontal form-label-left" method="post">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                    <input id="selected-attachments" type="hidden" name="selected-attachments" value=""/>
+                    <input id="selected-attachments" type="hidden" name="attachments[]" value=""/>
+                    <input id="send-email" type="hidden" name="email" value="false">
                     <div class="row">
                         <div class="col-md-10 col-sm-10 col-xs-12">
                             <div class="buttons pull-right">
@@ -32,7 +33,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-2 col-sm-2 col-xs-12">Soluție: </label>
+                        <label for="resolution" class="control-label col-md-2 col-sm-2 col-xs-12">Soluție: </label>
                         <div class="col-md-8 col-sm-8 col-xs-12">
                             <select class="form-control" name="resolution" id="resolution">
                                 <option value=""></option>
@@ -47,8 +48,10 @@
                         <label class="control-label col-md-2 col-sm-2 col-xs-12"></label>
                         <div class="col-md-8 col-sm-8 col-xs-12">
                             <div class="checkbox-inline">
-                                <label><input id="send-email" type="checkbox" class="flat" name="iCheck"/>&nbsp;&nbsp;&nbsp;Trimite
-                                    e-mail petentului</label>
+                                <label>
+                                    <input id="email" type="checkbox" class="flat" name="email" value="false"/>
+                                    &nbsp;&nbsp;&nbsp;Trimite e-mail petentului
+                                </label>
                                 <span id="action2attachments" style="cursor: hand" onclick="$('html, body').animate({scrollTop: $('#group-attachments').offset().top}, 'slow');"> | Selectati atașamentele</span>
                                 <span id="action2connections" style="cursor: hand" onclick="$('html, body').animate({scrollTop: $('#group-connections').offset().top}, 'slow');"> | Petiții conexate</span>
                             </div>
@@ -56,7 +59,7 @@
                     </div>
                     <div class="ln_solid"></div>
                     <div class="form-group">
-                        <label class="control-label col-md-2 col-sm-2 col-xs-12">Mesaj: </label>
+                        <label for="description" class="control-label col-md-2 col-sm-2 col-xs-12">Mesaj: </label>
                         <div class="col-md-8 col-sm-8 col-xs-12">
                             <textarea class="resizable_textarea form-control" name="description" id="description"
                                       rows="30" style="width:100%"></textarea>
@@ -123,10 +126,15 @@
     var linkedByPetitionerApiUrl = /*[[${linkedPetitionerApiUrl}]]*/ '/api/petitions/{id}/by/petitioner';
     var pid = /*[[${pid}]]*/ "#";
     var pEmail = /*[[${pEmail}]]*/ '#';
+    var defaultAction = /*[[${action}]]*/ '#';
+    var selectedOption = defaultAction;
+    if (selectedOption == 'closed') {
+        selectedOption = 'noContent';
+    }
     /*]]>*/
 </script>
 
-<script type="application/javascript">
+<script type="application/javascript" th:inline="none">
     $(document).ready(function () {
         var resolutionComponent = $("#resolution");
         var connectionsGroup = $('#group-connections');
@@ -146,7 +154,7 @@
             }
         });
 
-        resolutionComponent.on('select2:unselect', function (e) {
+        resolutionComponent.on('select2:unselect', function () {
             changeSelection(null);
         });
 
@@ -181,28 +189,32 @@
             }
         }
 
-        changeSelection(null);
-
         $('#top-back').click(function () {
             window.location.href = '/petition/' + pid;
         });
 
         var attachmentsGroup = $('#group-attachments');
         var action2Attachments = $('#action2attachments');
-        $('input[name=iCheck]').on('ifToggled', function (event) {
+        var sendEmailComponent = $('#email');
+        sendEmailComponent.on('ifToggled', function (event) {
             attachmentsGroup.toggle(event.target.checked);
             action2Attachments.toggle(event.target.checked);
+            $('#send-email').val(event.target.checked);
         });
-        var sendEmailCheck = $('#send-email').checked;
+        var sendEmailCheck = sendEmailComponent.checked;
         attachmentsGroup.toggle(sendEmailCheck);
         action2Attachments.toggle(sendEmailCheck);
+
+        resolutionComponent.val(selectedOption);
+        resolutionComponent.trigger('change');
+        changeSelection(defaultAction);
     });
 </script>
-<script type="text/javascript">
+<script type="text/javascript" th:inline="none">
     $("#description").wysihtml5();
 </script>
 
-<script type="text/javascript">
+<script type="text/javascript" th:inline="none">
     $(document).ready(function () {
         var attachmentTable = $('#attachments').DataTable({
             select: {
@@ -241,7 +253,7 @@
                 {
                     data: null,
                     title: '',
-                    render: function (data, type, full, meta) {
+                    render: function (data) {
                         if (data != null) {
                             return '<a href="/api/attachments/download/' + data.id + '"><i class="fa fa-paperclip"></i> Vizualizează</a>';
                         } else {
@@ -281,7 +293,7 @@
     });
 </script>
 
-<script type="text/javascript">
+<script type="text/javascript" th:inline="none">
     $(document).ready(function () {
         var linkedTable = $('#connexions').DataTable({
             select: {
@@ -343,7 +355,7 @@
                 {
                     data: null,
                     title: '',
-                    render: function (data, type, full, meta) {
+                    render: function (data) {
                         if (data != null) {
                             return '<a href="/petition/' + data.id + '"><i class="fa fa-info-circle"></i> Vizualizează</a>';
                         } else {
@@ -361,7 +373,7 @@
                 $.ajax({
                     url: "/api/petitions/" + pid + "/link/" + result[0].id,
                     method: 'POST'
-                }).done(function (data) {
+                }).done(function () {
                     linkedTable.ajax.reload();
                 }).fail(function (reason) {
                     console.log(reason);
@@ -379,7 +391,7 @@
                         $.ajax({
                             url: "/api/petitions/" + pid + "/unlink/" + selectedRows[0].id,
                             method: 'POST'
-                        }).done(function (data) {
+                        }).done(function () {
                             linkedTable.ajax.reload();
                         }).fail(function (reason) {
                             console.log(reason);
@@ -391,7 +403,7 @@
     });
 </script>
 
-<div th:substituteby="fragments/main_head::toast"></div>
+<div th:replace="fragments/main_head::toast"></div>
 </body>
 
 </html>
