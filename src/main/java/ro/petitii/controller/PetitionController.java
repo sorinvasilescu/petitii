@@ -230,7 +230,7 @@ public class PetitionController extends ControllerBase {
     @ResponseBody
     public ModelAndView resolvePetition(@PathVariable("pid") long id,
                                         @PathVariable("action") String action,
-                                        @RequestParam("resolution") String resolution,
+                                        @RequestParam("resolution") PetitionStatus.Resolution resolution,
                                         @RequestParam("email") boolean sendEmail,
                                         @RequestParam(value = "attachments[]", required = false) long[] attachments,
                                         @RequestParam("description") String description,
@@ -249,10 +249,7 @@ public class PetitionController extends ControllerBase {
             attr.addFlashAttribute("toast", createToast(validationStatus.getMsg(), ToastType.danger));
             modelAndView.setViewName("redirect:/petition/" + id + "/resolve/" + action);
         } else {
-            PetitionStatus.Status status = PetitionStatus.Status.CLOSED;
-            if (resolution.equalsIgnoreCase("solved")) {
-                status = PetitionStatus.Status.SOLVED;
-            }
+            PetitionStatus.Status status = resolution.getStatus();
 
             statusService.create(status, petition, user);
 
@@ -267,6 +264,7 @@ public class PetitionController extends ControllerBase {
                 Email email = new Email();
                 email.setBody(description);
                 email.setDate(new Date());
+                //todo; translate resolution in something more user friendly
                 email.setSubject("Soluționare petiție: " + resolution);
                 email.setSender(smtpConfig.getUsername());
                 email.setRecipients(petition.getPetitioner().getEmail());
@@ -279,8 +277,7 @@ public class PetitionController extends ControllerBase {
                     smtpService.send(email);
                     attr.addFlashAttribute("toast", createToast("Petiția a fost rezolvata cu succes", ToastType.success));
                 } catch (MessagingException e) {
-                    attr.addFlashAttribute("toast", createToast("Petiția nu a fost rezolvata: " + e
-                            .getMessage(), ToastType.danger));
+                    attr.addFlashAttribute("toast", createToast("Petiția nu a fost rezolvata: " + e.getMessage(), ToastType.danger));
                 }
             } else {
                 commentService.createAndSave(user, petition, "Soluționare petiție: " + resolution + " \n <br/> " + description);
@@ -300,8 +297,8 @@ public class PetitionController extends ControllerBase {
         }
     }
 
-    private ValidationStatus validateSolutionParameters(Petition petition, String resolution, boolean sendEmail,
-                                                        String description) {
+    private ValidationStatus validateSolutionParameters(Petition petition, PetitionStatus.Resolution resolution,
+                                                        boolean sendEmail, String description) {
         if (petition.getCurrentStatus() != PetitionStatus.Status.IN_PROGRESS) {
             return new ValidationStatus(false, "Doar petițiile în lucru se pot rezolva");
         }
@@ -310,7 +307,7 @@ public class PetitionController extends ControllerBase {
             return new ValidationStatus(false, "Pentru a trimite o soluție petentului precizați un mesaj");
         }
 
-        if (Objects.equals(resolution, "duplicate") && petitionService.countLinkedPetitions(petition) == 0) {
+        if (Objects.equals(resolution, PetitionStatus.Resolution.duplicate) && petitionService.countLinkedPetitions(petition) == 0) {
             return new ValidationStatus(false, "Pentru a închide o petiție duplicat precizați cel puțin o petiție conexată");
         }
 
