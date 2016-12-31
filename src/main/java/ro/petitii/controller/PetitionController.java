@@ -15,12 +15,14 @@ import ro.petitii.config.SmtpConfig;
 import ro.petitii.model.*;
 import ro.petitii.service.*;
 import ro.petitii.service.email.SmtpService;
+import ro.petitii.util.ValidationStatus;
 
 import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 @Controller
 public class PetitionController extends ControllerBase {
@@ -194,37 +196,46 @@ public class PetitionController extends ControllerBase {
             smtpService.send(email);
             attr.addFlashAttribute("toast", createToast("Petiția a fost redirecționata cu succes", ToastType.success));
         } catch (MessagingException e) {
-            attr.addFlashAttribute("toast", createToast("Petiția nu a fost redirecționata: " + e.getMessage(), ToastType.danger));
+            attr.addFlashAttribute("toast", createToast("Petiția nu a fost redirecționata: " + e
+                    .getMessage(), ToastType.danger));
         }
 
         return modelAndView;
     }
 
     @RequestMapping(value = "/petition/{pid}/resolve/{action}", method = RequestMethod.GET)
-    public ModelAndView resolve(@PathVariable("pid") Long pid, @PathVariable("action") String action) {
+    public ModelAndView resolve(@PathVariable("pid") Long pid, @PathVariable("action") String action,
+                                final RedirectAttributes attr) {
         Petition petition = petitionService.findById(pid);
         if (petition == null) {
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
         }
 
-        ModelAndView modelAndView = new ModelAndView("petitions_resolve");
-        modelAndView.addObject("action", action);
-        modelAndView.addObject("pid", pid);
-        modelAndView.addObject("pEmail", petition.getPetitioner().getEmail());
-        modelAndView.addObject("attachmentApiUrl", "/api/petitions/" + pid + "/attachments");
-        modelAndView.addObject("linkedPetitionsApiUrl", "/api/petitions/" + pid + "/linked");
-        modelAndView.addObject("linkedPetitionerApiUrl", "/api/petitions/" + pid + "/by/petitioner");
-        return modelAndView;
+        if (petition.getCurrentStatus() == PetitionStatus.Status.IN_PROGRESS) {
+            ModelAndView modelAndView = new ModelAndView("petitions_resolve");
+            modelAndView.addObject("action", action);
+            modelAndView.addObject("pid", pid);
+            modelAndView.addObject("pEmail", petition.getPetitioner().getEmail());
+            modelAndView.addObject("attachmentApiUrl", "/api/petitions/" + pid + "/attachments");
+            modelAndView.addObject("linkedPetitionsApiUrl", "/api/petitions/" + pid + "/linked");
+            modelAndView.addObject("linkedPetitionerApiUrl", "/api/petitions/" + pid + "/by/petitioner");
+            return modelAndView;
+        } else {
+            ModelAndView modelAndView = new ModelAndView("redirect:/petition/" + petition.getId());
+            attr.addFlashAttribute("toast", createToast("Doar petițiile în lucru se pot rezolva", ToastType.danger));
+            return modelAndView;
+        }
     }
 
     @RequestMapping(value = "/petition/{pid}/resolve/{action}", method = RequestMethod.POST)
     @ResponseBody
     public ModelAndView resolvePetition(@PathVariable("pid") long id,
-                                         @RequestParam("resolution") String resolution,
-                                         @RequestParam("email") boolean sendEmail,
-                                         @RequestParam(value = "attachments[]", required = false) long[] attachments,
-                                         @RequestParam("description") String description,
-                                         final RedirectAttributes attr) {
+                                        @PathVariable("action") String action,
+                                        @RequestParam("resolution") String resolution,
+                                        @RequestParam("email") boolean sendEmail,
+                                        @RequestParam(value = "attachments[]", required = false) long[] attachments,
+                                        @RequestParam("description") String description,
+                                        final RedirectAttributes attr) {
 
         ModelAndView modelAndView = new ModelAndView();
 
@@ -233,41 +244,50 @@ public class PetitionController extends ControllerBase {
         Petition petition = petitionService.findById(id);
         modelAndView.setViewName("redirect:/petition/" + petition.getId());
 
-        PetitionStatus.Status status = PetitionStatus.Status.CLOSED;
-        if (resolution.equalsIgnoreCase("solved")) {
-            status = PetitionStatus.Status.SOLVED;
-        }
+        ValidationStatus validationStatus = validateSolutionParameters(petition, resolution, sendEmail, description);
 
-        statusService.create(status, petition, user);
-
-        if (sendEmail) {
-            List<Attachment> attachmentList = new LinkedList<>();
-            if (attachments != null) {
-                for (long aid : attachments) {
-                    attachmentList.add(attachmentService.findById(aid));
-                }
-            }
-
-            Email email = new Email();
-            email.setBody(description);
-            email.setDate(new Date());
-            email.setSubject("Soluționare petiție: " + resolution);
-            email.setSender(smtpConfig.getUsername());
-            email.setRecipients(petition.getPetitioner().getEmail());
-            email.setAttachments(attachmentList);
-            email.setPetition(petition);
-            email.setType(Email.EmailType.Outbox);
-            email = emailService.save(email);
-
-            try {
-                smtpService.send(email);
-                attr.addFlashAttribute("toast", createToast("Petiția a fost rezolvata cu succes", ToastType.success));
-            } catch (MessagingException e) {
-                attr.addFlashAttribute("toast", createToast("Petiția nu a fost rezolvata: " + e.getMessage(), ToastType.danger));
-            }
+        if (!validationStatus.isValid()) {
+            attr.addFlashAttribute("toast", createToast(validationStatus.getMsg(), ToastType.danger));
+            modelAndView.setViewName("redirect:/petition/" + id + "/resolve/" + action);
         } else {
-            commentService.createAndSave(user, petition, "Soluționare petiție: " + resolution + " \n <br/> " + description);
-            attr.addFlashAttribute("toast", createToast("Petiția a fost rezolvata cu succes", ToastType.success));
+            PetitionStatus.Status status = PetitionStatus.Status.CLOSED;
+            if (resolution.equalsIgnoreCase("solved")) {
+                status = PetitionStatus.Status.SOLVED;
+            }
+
+            statusService.create(status, petition, user);
+
+            if (sendEmail) {
+                List<Attachment> attachmentList = new LinkedList<>();
+                if (attachments != null) {
+                    for (long aid : attachments) {
+                        attachmentList.add(attachmentService.findById(aid));
+                    }
+                }
+
+                Email email = new Email();
+                email.setBody(description);
+                email.setDate(new Date());
+                email.setSubject("Soluționare petiție: " + resolution);
+                email.setSender(smtpConfig.getUsername());
+                email.setRecipients(petition.getPetitioner().getEmail());
+                email.setAttachments(attachmentList);
+                email.setPetition(petition);
+                email.setType(Email.EmailType.Outbox);
+                email = emailService.save(email);
+
+                try {
+                    smtpService.send(email);
+                    attr.addFlashAttribute("toast", createToast("Petiția a fost rezolvata cu succes", ToastType.success));
+                } catch (MessagingException e) {
+                    attr.addFlashAttribute("toast", createToast("Petiția nu a fost rezolvata: " + e
+                            .getMessage(), ToastType.danger));
+                }
+            } else {
+                commentService
+                        .createAndSave(user, petition, "Soluționare petiție: " + resolution + " \n <br/> " + description);
+                attr.addFlashAttribute("toast", createToast("Petiția a fost rezolvata cu succes", ToastType.success));
+            }
         }
 
         return modelAndView;
@@ -280,5 +300,22 @@ public class PetitionController extends ControllerBase {
             PetitionCustomParam param = petitionCustomParamService.findByType(type);
             modelAndView.addObject(type.name(), param);
         }
+    }
+
+    private ValidationStatus validateSolutionParameters(Petition petition, String resolution, boolean sendEmail,
+                                                        String description) {
+        if (petition.getCurrentStatus() != PetitionStatus.Status.IN_PROGRESS) {
+            return new ValidationStatus(false, "Doar petițiile în lucru se pot rezolva");
+        }
+
+        if (sendEmail && (description == null || description.trim().isEmpty())) {
+            return new ValidationStatus(false, "Pentru a trimite o soluție petentului precizați un mesaj");
+        }
+
+        if (Objects.equals(resolution, "duplicate") && petitionService.countLinkedPetitions(petition) == 0) {
+            return new ValidationStatus(false, "Pentru a închide o petiție duplicat precizați cel puțin o petiție conexată");
+        }
+
+        return new ValidationStatus(true, null);
     }
 }
