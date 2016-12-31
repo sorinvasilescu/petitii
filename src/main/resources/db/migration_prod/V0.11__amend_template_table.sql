@@ -1,0 +1,1 @@
+ALTER TABLE `petitions`.`email_templates` ADD COLUMN `category` VARCHAR(255) NULL AFTER `name`;

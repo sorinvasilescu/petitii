@@ -7,12 +7,10 @@ import org.springframework.stereotype.Service;
 import ro.petitii.model.EmailTemplate;
 import ro.petitii.repository.EmailTemplateRepository;
 
-/**
- * Created by mpostelnicu on 12/28/2016.
- */
+import java.util.List;
+
 @Service
 public class EmailTemplateServiceImpl implements EmailTemplateService {
-
     @Autowired
     private EmailTemplateRepository emailTemplateRepository;
 
@@ -29,5 +27,15 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
     @Override
     public DataTablesOutput<EmailTemplate> findAll(DataTablesInput input) {
         return emailTemplateRepository.findAll(input);
+    }
+
+    @Override
+    public List<EmailTemplate> findByCategory(EmailTemplate.Category category) {
+        return emailTemplateRepository.findByCategory(category);
+    }
+
+    @Override
+    public void delete(long id) {
+        emailTemplateRepository.delete(id);
     }
 }

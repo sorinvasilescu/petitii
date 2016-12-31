@@ -21,8 +21,7 @@ public class EmailTemplateRestController {
     @JsonView(DataTablesOutput.View.class)
     @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping(value = "/api/emailTemplates", method = {RequestMethod.GET, RequestMethod.POST})
-    public DataTablesOutput<EmailTemplate>
-        getEmailTemplates(@Valid DataTablesInput input) {
+    public DataTablesOutput<EmailTemplate> getEmailTemplates(@Valid DataTablesInput input) {
         return emailTemplateService.findAll(input);
     }
 }

@@ -196,8 +196,7 @@ public class PetitionController extends ControllerBase {
             smtpService.send(email);
             attr.addFlashAttribute("toast", createToast("Petiția a fost redirecționata cu succes", ToastType.success));
         } catch (MessagingException e) {
-            attr.addFlashAttribute("toast", createToast("Petiția nu a fost redirecționata: " + e
-                    .getMessage(), ToastType.danger));
+            attr.addFlashAttribute("toast", createToast("Petiția nu a fost redirecționata: " + e.getMessage(), ToastType.danger));
         }
 
         return modelAndView;
@@ -284,8 +283,7 @@ public class PetitionController extends ControllerBase {
                             .getMessage(), ToastType.danger));
                 }
             } else {
-                commentService
-                        .createAndSave(user, petition, "Soluționare petiție: " + resolution + " \n <br/> " + description);
+                commentService.createAndSave(user, petition, "Soluționare petiție: " + resolution + " \n <br/> " + description);
                 attr.addFlashAttribute("toast", createToast("Petiția a fost rezolvata cu succes", ToastType.success));
             }
         }

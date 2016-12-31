@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import ro.petitii.model.EmailTemplate;
 import ro.petitii.service.EmailTemplateService;
-import ro.petitii.service.email.ImapService;
 import ro.petitii.service.template.EmailTemplateProcessorService;
 
 import javax.validation.Valid;
@@ -23,20 +22,17 @@ import java.util.Set;
 @Controller
 @PreAuthorize("hasAuthority('ADMIN')")
 public class EmailTemplateController extends ControllerBase {
+    private static final Logger LOGGER = LoggerFactory.getLogger(EmailTemplateController.class);
 
     @Autowired
-    EmailTemplateService emailTemplateService;
+    private EmailTemplateService emailTemplateService;
 
     @Autowired
-    EmailTemplateProcessorService emailTemplateProcessorService;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ImapService.class);
+    private EmailTemplateProcessorService emailTemplateProcessorService;
 
     @RequestMapping("/emailTemplates")
     public ModelAndView emailTemplates() {
         ModelAndView modelAndView = new ModelAndView("email_templates_list");
-        modelAndView.addObject("page", "inbox");
-        modelAndView.addObject("title", "Email Templates");
         modelAndView.addObject("apiUrl", "/api/emailTemplates");
         return modelAndView;
     }
@@ -47,7 +43,7 @@ public class EmailTemplateController extends ControllerBase {
 
         EmailTemplate emailTemplate = emailTemplateService.findOne(id);
         modelAndView.addObject("emailTemplate", emailTemplate);
-
+        modelAndView.addObject("categories", EmailTemplate.Category.values());
         return modelAndView;
     }
 
@@ -57,17 +53,14 @@ public class EmailTemplateController extends ControllerBase {
 
         ModelAndView modelAndView = new ModelAndView("email_templates_crud");
         modelAndView.addObject("emailTemplate", emailTemplate);
+        modelAndView.addObject("categories", EmailTemplate.Category.values());
         return modelAndView;
     }
 
-
-    public void logTemplateExample(EmailTemplate emailTemplate) {
-        Set<String> variables = emailTemplateProcessorService.extractVariables(emailTemplate);
-
-        Map<String, Object> values=new HashMap<>();
-        variables.forEach(v-> values.put(v,"--value of "+v+"--"));
-
-        System.out.println(emailTemplateProcessorService.processTemplateWithId(emailTemplate.getId(),values));
+    @RequestMapping(path = "/emailTemplate/{id}/delete", method = RequestMethod.GET)
+    public ModelAndView deleteEmailTemplates(@PathVariable("id") Long id) {
+        emailTemplateService.delete(id);
+        return new ModelAndView("redirect:/emailTemplates");
     }
 
     @RequestMapping(path = "/emailTemplate", method = RequestMethod.POST)
@@ -80,6 +73,15 @@ public class EmailTemplateController extends ControllerBase {
 
 
         return new ModelAndView("redirect:/emailTemplates");
+    }
+
+    private void logTemplateExample(EmailTemplate emailTemplate) {
+        Set<String> variables = emailTemplateProcessorService.extractVariables(emailTemplate);
+
+        Map<String, Object> values = new HashMap<>();
+        variables.forEach(v -> values.put(v, "--value of " + v + "--"));
+
+        System.out.println(emailTemplateProcessorService.processTemplateWithId(emailTemplate.getId(), values));
     }
 
 }
