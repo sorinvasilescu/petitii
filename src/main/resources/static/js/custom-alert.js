@@ -153,3 +153,89 @@ function linkPopup(title, petitionsApiUrl, languageUrl, callback) {
         });
     })
 }
+
+function attachmentPopup(title, attachmentsApiUrl, languageUrl, callback) {
+    var dialog = bootbox.dialog({
+        title: title,
+        size: 'large',
+        backdrop: true,
+        message: '<div class="container"><table id="attachments-popup"' +
+        ' class="table table-striped row-border compact stripe dt-responsive nowrap"' +
+        ' cellspacing="0" width="100%">' +
+        '</table></div>',
+        buttons: {
+            upload: {
+                label: 'Selectează',
+                className: 'btn-success',
+                callback: function () {
+                    var selected = $('#attachments-popup').DataTable().rows({selected: true}).data().toArray();
+                    if (selected.length > 0) {
+                        callback(selected);
+                    }
+                }
+            },
+            cancel: {
+                label: 'Anulează',
+                className: 'btn-default'
+            }
+        }
+    });
+
+    dialog.init(function () {
+        $('#attachments-popup').DataTable({
+            select: {
+                style: 'multi'
+            },
+            processing: true,
+            serverSide: true,
+            sDom: 'lrtip ',
+            rowId: "id",
+            order: [[0, 'asc']],
+            ajax: {
+                url: attachmentsApiUrl,
+                type: 'POST'
+            },
+            language: {
+                url: languageUrl,
+                select: selectTranslation()
+            },
+            fixedColumns: true,
+            columns: [
+                {
+                    name: 'id',
+                    title: "#",
+                    data: 'id',
+                    sortable: false
+                },
+                {
+                    name: 'filename',
+                    data: 'filename',
+                    title: 'Nume fișier'
+                },
+                {
+                    name: 'date',
+                    data: 'date',
+                    title: 'Data'
+                },
+                {
+                    name: 'origin',
+                    data: 'origin',
+                    title: 'Adăugat de',
+                    sortable: false
+                },
+                {
+                    data: null,
+                    title: '',
+                    render: function (data, type, full, meta) {
+                        if (data != null) {
+                            return '<a href="/api/attachments/download/' + data.id + '"><i class="fa fa-paperclip"></i> Vizualizează</a>';
+                        } else {
+                            return '';
+                        }
+                    },
+                    sortable: false
+                }
+            ]
+        });
+    })
+}
