@@ -3,7 +3,9 @@ package ro.petitii.util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
+import ro.petitii.model.Email;
 import ro.petitii.model.EmailTemplate;
+import ro.petitii.model.PetitionStatus;
 
 import java.util.Locale;
 
@@ -24,5 +26,9 @@ public class TranslationUtil {
 
     public static String categoryMsg(EmailTemplate.Category category) {
         return i18n("emailTemplate.category." + category.name().toLowerCase());
+    }
+
+    public static String resolutionMsg(PetitionStatus.Resolution resolution) {
+        return i18n("petition.resolution." + resolution.name().toLowerCase());
     }
 }

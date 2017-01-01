@@ -54,6 +54,9 @@ public class PetitionController extends ControllerBase {
     private AttachmentService attachmentService;
 
     @Autowired
+    private EmailTemplateService emailTemplateService;
+
+    @Autowired
     private SmtpService smtpService;
 
     @Autowired
@@ -218,6 +221,7 @@ public class PetitionController extends ControllerBase {
             modelAndView.addObject("attachmentApiUrl", "/api/petitions/" + pid + "/attachments");
             modelAndView.addObject("linkedPetitionsApiUrl", "/api/petitions/" + pid + "/linked");
             modelAndView.addObject("linkedPetitionerApiUrl", "/api/petitions/" + pid + "/by/petitioner");
+            modelAndView.addObject("templateList", emailTemplateService.findByCategory(EmailTemplate.Category.response));
             return modelAndView;
         } else {
             ModelAndView modelAndView = new ModelAndView("redirect:/petition/" + petition.getId());
@@ -264,8 +268,7 @@ public class PetitionController extends ControllerBase {
                 Email email = new Email();
                 email.setBody(description);
                 email.setDate(new Date());
-                //todo; translate resolution in something more user friendly
-                email.setSubject("Soluționare petiție: " + resolution);
+                email.setSubject("Soluționare petiție: " + resolution.viewName());
                 email.setSender(smtpConfig.getUsername());
                 email.setRecipients(petition.getPetitioner().getEmail());
                 email.setAttachments(attachmentList);
@@ -280,8 +283,7 @@ public class PetitionController extends ControllerBase {
                     attr.addFlashAttribute("toast", createToast("Petiția nu a fost rezolvata: " + e.getMessage(), ToastType.danger));
                 }
             } else {
-                //todo; translate resolution in something more user friendly
-                commentService.createAndSave(user, petition, "Soluționare petiție: " + resolution + " \n <br/> " + description);
+                commentService.createAndSave(user, petition, "Soluționare petiție: " + resolution.viewName() + " \n <br/> " + description);
                 attr.addFlashAttribute("toast", createToast("Petiția a fost rezolvata cu succes", ToastType.success));
             }
         }
