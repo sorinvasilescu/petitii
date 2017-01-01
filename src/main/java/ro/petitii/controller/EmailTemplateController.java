@@ -69,7 +69,7 @@ public class EmailTemplateController extends ControllerBase {
         emailTemplateService.save(emailTemplate);
 
         //just for demonstration purposes
-        logTemplateExample(emailTemplate);
+//        logTemplateExample(emailTemplate);
 
 
         return new ModelAndView("redirect:/emailTemplates");
