@@ -37,7 +37,7 @@
                         <div class="col-md-8 col-sm-8 col-xs-12">
                             <select class="form-control" name="resolution" id="resolution">
                                 <option value=""></option>
-                                <option value="resolved">Rezolvată</option>
+                                <option value="solved">Rezolvată</option>
                                 <option value="noContent">Clasată - Fără conținut</option>
                                 <option value="invalidLanguage">Clasată - Limbaj licențios</option>
                                 <option value="duplicate">Clasată - Duplicat</option>
@@ -147,8 +147,8 @@
             var selectedId = e.params.data.id;
             if (selectedId == "" || selectedId == undefined) {
                 changeSelection(null);
-            } else if (selectedId == "resolved") {
-                changeSelection("resolved");
+            } else if (selectedId == "solved") {
+                changeSelection("solved");
             } else {
                 changeSelection("closed")
             }
@@ -164,7 +164,7 @@
             var sendEmail = $('#email');
 
             switch (selection) {
-                case "resolved":
+                case "solved":
                     actionComponent.toggle(true);
                     actionText.text("Rezolvă");
                     sendEmail.iCheck('check');

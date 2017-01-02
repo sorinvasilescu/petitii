@@ -5,9 +5,22 @@ import java.util.Date;
 
 @Entity
 public class PetitionStatus {
-
     public enum Status {
         RECEIVED, IN_PROGRESS, REDIRECTED, SOLVED, CLOSED
+    }
+
+    public enum Resolution {
+        solved(Status.SOLVED), noContent(Status.CLOSED), invalidLanguage(Status.CLOSED), duplicate(Status.CLOSED);
+
+        private Status status;
+
+        Resolution(Status status) {
+            this.status = status;
+        }
+
+        public Status getStatus() {
+            return status;
+        }
     }
 
     @Id
