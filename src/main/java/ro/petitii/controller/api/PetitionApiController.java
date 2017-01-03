@@ -315,7 +315,7 @@ public class PetitionApiController {
                 email.setSender(config.getUsername());
                 email.setSubject("Petitia dvs. a fost inregistrata");
                 email.setRecipients(pet.getPetitioner().getEmail());
-                DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+                DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
                 // todo: insert actual template
                 email.setBody("Petitia dvs a fost inregistrata cu numarul " + pet.getRegNo().toString() + " pe data de " + df.format(pet.getReceivedDate()) + ". Termen de solutionare: " + df.format(pet.getDeadline()));
                 try {
