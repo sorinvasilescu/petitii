@@ -15,6 +15,7 @@ import ro.petitii.model.*;
 import ro.petitii.model.datatables.PetitionResponse;
 import ro.petitii.repository.PetitionRepository;
 import ro.petitii.service.email.ImapService;
+import ro.petitii.util.DateUtil;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
@@ -119,6 +120,10 @@ public class PetitionServiceImpl implements PetitionService {
             }
         }
 
+        // check if deadline is not set
+        if (petition.getDeadline() == null)
+            petition.setDeadline(DateUtil.deadline(new Date()));
+
         return petition;
     }
 
@@ -147,8 +152,8 @@ public class PetitionServiceImpl implements PetitionService {
         }
         petition.setEmails(new ArrayList<>());
         petition.getEmails().add(email);
-        email.setPetition(petition);
         petition.setPetitioner(petitioner);
+        petition.setDeadline(DateUtil.deadline(email.getDate()));
         return petition;
     }
 
