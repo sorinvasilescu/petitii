@@ -5,7 +5,7 @@
 
     <groupId>org.springframework</groupId>
     <artifactId>petitii</artifactId>
-    <version>0.5-SNAPSHOT</version>
+    <version>0.4.1</version>
 
 
     <parent>
@@ -79,9 +79,9 @@
             <version>${thymeleaf.extras.version}</version>
         </dependency>
         <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
-            <version>1.4.7</version>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
+            <version>1.5.6</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
