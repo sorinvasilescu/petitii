@@ -15,6 +15,7 @@ import ro.petitii.config.SmtpConfig;
 import ro.petitii.model.*;
 import ro.petitii.service.*;
 import ro.petitii.service.email.SmtpService;
+import ro.petitii.util.DateUtil;
 import ro.petitii.util.ValidationStatus;
 
 import javax.mail.MessagingException;
@@ -69,6 +70,7 @@ public class PetitionController extends ControllerBase {
 
         Petition petition = new Petition();
         petition.setReceivedDate(new Date());
+        petition.setDeadline(DateUtil.deadline(new Date()));
         petition.setPetitioner(petitioner);
 
         petitionCustomParamService.initDefaults(petition);

@@ -65,23 +65,7 @@ public class EmailTemplateController extends ControllerBase {
 
     @RequestMapping(path = "/emailTemplate", method = RequestMethod.POST)
     public ModelAndView saveEmailTemplate(@Valid EmailTemplate emailTemplate) {
-
         emailTemplateService.save(emailTemplate);
-
-        //just for demonstration purposes
-//        logTemplateExample(emailTemplate);
-
-
         return new ModelAndView("redirect:/emailTemplates");
     }
-
-    private void logTemplateExample(EmailTemplate emailTemplate) {
-        Set<String> variables = emailTemplateProcessorService.extractVariables(emailTemplate);
-
-        Map<String, Object> values = new HashMap<>();
-        variables.forEach(v -> values.put(v, "--value of " + v + "--"));
-
-        System.out.println(emailTemplateProcessorService.processTemplateWithId(emailTemplate.getId(), values));
-    }
-
 }
