@@ -240,6 +240,8 @@ public class PetitionServiceImpl implements PetitionService {
         element.setLastUpdateDate(df.format(petition.getLastUpdateDate()));
         element.setRegNo(petition.getRegNo().getNumber());
         element.setStatus(messageSource.getMessage(petition.statusString(), null, new Locale("ro")));
+        DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+        element.setDeadline(df.format(petition.getDeadline()));
         return element;
     }
 }
