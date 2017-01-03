@@ -30,8 +30,6 @@ public class EmailTemplateController extends ControllerBase {
     @Autowired
     EmailTemplateProcessorService emailTemplateProcessorService;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ImapService.class);
-
     @RequestMapping("/emailTemplates")
     public ModelAndView emailTemplates() {
         ModelAndView modelAndView = new ModelAndView("email_templates_list");

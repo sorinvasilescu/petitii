@@ -21,6 +21,10 @@ public class Petition {
 
     @DateTimeFormat(pattern = "dd/MM/yyyy")
     private Date receivedDate;
+
+    @DateTimeFormat(pattern = "dd/MM/yyyy")
+    private Date deadline;
+
     private String relation;
 
     @ManyToOne
@@ -73,6 +77,14 @@ public class Petition {
 
     public void setReceivedDate(Date receivedDate) {
         this.receivedDate = receivedDate;
+    }
+
+    public Date getDeadline() {
+        return deadline;
+    }
+
+    public void setDeadline(Date deadline) {
+        this.deadline = deadline;
     }
 
     public String getRelation() {
