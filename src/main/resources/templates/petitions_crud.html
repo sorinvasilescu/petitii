@@ -73,6 +73,13 @@
                                             <div class="alert" th:if="${#fields.hasErrors('receivedDate')}">Câmpul nu poate fi gol</div>
                                         </div>
                                         <div class="item form-group">
+                                            <label class="control-label col-md-3 col-sm-3 col-xs-12">Data</label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <input type="text" name="deadline" class="form-control col-md-10" th:field="*{deadline}" disabled="disabled"/>
+                                            </div>
+                                            <div class="alert" th:if="${#fields.hasErrors('deadline')}">Câmpul nu poate fi gol</div>
+                                        </div>
+                                        <div class="item form-group">
                                             <label class="control-label col-md-3 col-sm-3 col-xs-12">Status</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <input id="status" type="text" name="status" disabled="disabled" class="form-control col-md-10" value="Petitie noua" th:value="#{${petition.statusString()}}" />
