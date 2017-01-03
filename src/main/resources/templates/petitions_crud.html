@@ -62,20 +62,20 @@
                                             <label class="control-label col-md-3 col-sm-3 col-xs-12">Nr. înregistrare
                                             </label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <input type="text" name="nr_inreg" class="form-control col-md-10" th:field="*{regNo.number}" disabled="disabled" />
+                                                <input type="text" name="nr_inreg" class="form-control col-md-10" th:field="*{regNo.number}" readonly="readonly" />
                                             </div>
                                         </div>
                                         <div class="item form-group">
-                                            <label class="control-label col-md-3 col-sm-3 col-xs-12">Data</label>
+                                            <label class="control-label col-md-3 col-sm-3 col-xs-12">Data primire:</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <input type="text" name="date" class="form-control col-md-10" th:field="*{receivedDate}" />
                                             </div>
                                             <div class="alert" th:if="${#fields.hasErrors('receivedDate')}">Câmpul nu poate fi gol</div>
                                         </div>
                                         <div class="item form-group">
-                                            <label class="control-label col-md-3 col-sm-3 col-xs-12">Data</label>
+                                            <label class="control-label col-md-3 col-sm-3 col-xs-12">Data limita:</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <input type="text" name="deadline" class="form-control col-md-10" th:field="*{deadline}" disabled="disabled"/>
+                                                <input type="text" name="deadline" class="form-control col-md-10" th:field="*{deadline}" readonly="readonly"/>
                                             </div>
                                             <div class="alert" th:if="${#fields.hasErrors('deadline')}">Câmpul nu poate fi gol</div>
                                         </div>
