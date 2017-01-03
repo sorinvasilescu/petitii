@@ -16,17 +16,17 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
-import ro.petitii.model.Attachment;
-import ro.petitii.model.Petition;
-import ro.petitii.model.PetitionStatus;
-import ro.petitii.model.User;
+import ro.petitii.config.SmtpConfig;
+import ro.petitii.model.*;
 import ro.petitii.model.datatables.AttachmentResponse;
 import ro.petitii.model.datatables.CommentResponse;
 import ro.petitii.model.datatables.PetitionResponse;
 import ro.petitii.service.*;
+import ro.petitii.service.email.SmtpService;
 import ro.petitii.util.Pair;
 import ro.petitii.util.ZipUtils;
 
+import javax.mail.MessagingException;
 import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -65,6 +65,12 @@ public class PetitionApiController {
 
     @Autowired
     private ConnectionService connectionService;
+
+    @Autowired
+    private SmtpConfig config;
+
+    @Autowired
+    private SmtpService smtpService;
 
     // will answer to compounded URL /api/petitions/user
     @RequestMapping(value = "/user", method = RequestMethod.POST)
@@ -303,6 +309,17 @@ public class PetitionApiController {
             }
             if (pet.getCurrentStatus().equals(PetitionStatus.Status.RECEIVED)) {
                 statusService.create(PetitionStatus.Status.IN_PROGRESS, pet, user);
+                Email email = new Email();
+                email.setSender(config.getUsername());
+                email.setSubject("Petitia dvs. a fost inregistrata");
+                email.setRecipients(pet.getPetitioner().getEmail());
+                // todo: insert actual template
+                email.setBody("Petitia dvs a fost inregistrata cu numarul " + pet.getRegNo().toString() + " pe data de " + pet.getReceivedDate() + ". Termen de solutionare: " + pet.getDeadline());
+                try {
+                    smtpService.send(email);
+                } catch (MessagingException e) {
+                    LOGGER.error("Could not send email with registration number " + pet.getRegNo().toString());
+                }
             } else {
                 errors.add(pet.getRegNo().getNumber());
             }

@@ -47,4 +47,9 @@ public class RegistrationNo {
     public void setPetition(Petition petition) {
         this.petition = petition;
     }
+
+    @Override
+    public String toString() {
+        return this.number;
+    }
 }
