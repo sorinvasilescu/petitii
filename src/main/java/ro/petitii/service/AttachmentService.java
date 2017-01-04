@@ -31,6 +31,10 @@ public interface AttachmentService {
     // get attachment by id
     Attachment findById(Long id);
 
+    List<Attachment> findByIds(List<Long> ids);
+
+    List<Attachment> findByIds(Long[] ids);
+
     // get attachment table content for a petition
     DataTablesOutput<AttachmentResponse> getTableContent(Petition petition, PageRequest pageRequest);
 }
