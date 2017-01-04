@@ -34,11 +34,11 @@ public class ImapService {
 
     private final static String protocol = "imap";
 
-    private static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+    private static final SimpleDateFormat df = new SimpleDateFormat("dd.MM.yyyy");
     static {
         df.setTimeZone(TimeZone.getTimeZone("EET"));
     }
-    private static final Date DEFAULT_START_DATE = df.parse("07/12/2016", new ParsePosition(0));
+    private static final Date DEFAULT_START_DATE = df.parse("07.12.2016", new ParsePosition(0));
 
     public synchronized void getMail() throws IOException, MessagingException {
         // set -Djava.security.egd=file:///dev/urandom

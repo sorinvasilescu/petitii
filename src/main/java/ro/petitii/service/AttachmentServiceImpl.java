@@ -39,7 +39,7 @@ import java.util.List;
 @Service
 public class AttachmentServiceImpl implements AttachmentService {
     private static final Logger LOGGER = LoggerFactory.getLogger(AttachmentServiceImpl.class);
-    private static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+    private static final SimpleDateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm");
 
     @Autowired
     private AttachmentRepository attachmentRepository;

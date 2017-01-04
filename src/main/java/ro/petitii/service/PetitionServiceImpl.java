@@ -29,7 +29,7 @@ import static ro.petitii.util.StringUtil.prepareForView;
 @Service
 public class PetitionServiceImpl implements PetitionService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ImapService.class);
-    private static final DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+    private static final DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
 
     @Autowired
     private PetitionRepository petitionRepository;
@@ -240,7 +240,7 @@ public class PetitionServiceImpl implements PetitionService {
         element.setLastUpdateDate(df.format(petition.getLastUpdateDate()));
         element.setRegNo(petition.getRegNo().getNumber());
         element.setStatus(messageSource.getMessage(petition.statusString(), null, new Locale("ro")));
-        DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+        DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
         element.setDeadline(df.format(petition.getDeadline()));
         return element;
     }
