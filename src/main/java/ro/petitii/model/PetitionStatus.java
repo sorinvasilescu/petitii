@@ -83,4 +83,9 @@ public class PetitionStatus {
     public void setUser(User user) {
         this.user = user;
     }
+
+    @Override
+    public String toString() {
+        return this.status.toString();
+    }
 }

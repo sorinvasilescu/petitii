@@ -32,18 +32,19 @@
                         <div class="row">
                             <div class="col-md-12 col-sm-12 col-xs-12">
                                 <div class="buttons pull-right">
-                                    <button id="top-submit" type="button" class="btn btn-success btn-md"><i class="fa fa-paste"></i> <span>Salvează</span></button>
-                                    <button id="top-start" type="button" class="btn btn-default btn-md"><i class="fa fa-hourglass-start"></i>&nbsp;<span>Începe lucrul</span></button>
-                                    <button id="top-close" type="button" class="btn btn-default btn-md"><i class="fa fa-file-text"></i> <span>Clasează</span></button>
-                                    <button id="top-resolve" type="button" class="btn btn-default btn-md"><i class="fa fa-check-square-o"></i> <span>Rezolvă</span></button>
-                                    <button id="top-redirect" type="button" class="btn btn-default btn-md"><i class="fa fa-mail-forward"></i> <span>Redirecționează</span></button>
+                                    <button th:if="${(petition.getCurrentStatus()==null) or (#strings.toString(petition.getCurrentStatus())=='RECEIVED') or (#strings.toString(petition.getCurrentStatus())=='IN_PROGRESS')or(#strings.toString(petition.getCurrentStatus())=='REDIRECTED')}" id="top-submit" type="button" class="btn btn-success btn-md"><i class="fa fa-paste"></i> <span>Salvează</span></button>
+                                    <button th:if="${(#strings.toString(petition.getCurrentStatus())=='RECEIVED')}" id="top-start" type="button" class="btn btn-default btn-md"><i class="fa fa-hourglass-start"></i>&nbsp;<span>Începe lucrul</span></button>
+                                    <button th:if="${(#strings.toString(petition.getCurrentStatus())=='RECEIVED') or (#strings.toString(petition.getCurrentStatus())=='IN_PROGRESS')}" id="top-close" type="button" class="btn btn-default btn-md"><i class="fa fa-file-text"></i> <span>Clasează</span></button>
+                                    <button th:if="${(#strings.toString(petition.getCurrentStatus())=='IN_PROGRESS')}" id="top-resolve" type="button" class="btn btn-default btn-md"><i class="fa fa-check-square-o"></i> <span>Rezolvă</span></button>
+                                    <button th:if="${(#strings.toString(petition.getCurrentStatus())=='RECEIVED') or (#strings.toString(petition.getCurrentStatus())=='IN_PROGRESS')}" id="top-redirect" type="button" class="btn btn-default btn-md"><i class="fa fa-mail-forward"></i> <span>Redirecționează</span></button>
                                 </div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="x_panel">
                                 <div class="x_title">
-                                    <h2>Adaugă/Editează petiție </h2>
+                                    <h2 th:if="*{id}">Adaugă petiție</h2>
+                                    <h2 th:unless="*{id}">Editează petiție</h2>
                                     <div class="clearfix"></div>
                                 </div>
                                 <div class="col-md-6 col-xs-12">
@@ -62,20 +63,20 @@
                                             <label class="control-label col-md-3 col-sm-3 col-xs-12">Nr. înregistrare
                                             </label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <input type="text" name="nr_inreg" class="form-control col-md-10" th:field="*{regNo.number}" disabled="disabled" />
+                                                <input type="text" name="nr_inreg" class="form-control col-md-10" th:field="*{regNo.number}" readonly="readonly" />
                                             </div>
                                         </div>
                                         <div class="item form-group">
-                                            <label class="control-label col-md-3 col-sm-3 col-xs-12">Data</label>
+                                            <label class="control-label col-md-3 col-sm-3 col-xs-12">Data primire:</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <input type="text" name="date" class="form-control col-md-10" th:field="*{receivedDate}" />
                                             </div>
                                             <div class="alert" th:if="${#fields.hasErrors('receivedDate')}">Câmpul nu poate fi gol</div>
                                         </div>
                                         <div class="item form-group">
-                                            <label class="control-label col-md-3 col-sm-3 col-xs-12">Data</label>
+                                            <label class="control-label col-md-3 col-sm-3 col-xs-12">Data limita:</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <input type="text" name="deadline" class="form-control col-md-10" th:field="*{deadline}" disabled="disabled"/>
+                                                <input type="text" name="deadline" class="form-control col-md-10" th:field="*{deadline}" readonly="readonly"/>
                                             </div>
                                             <div class="alert" th:if="${#fields.hasErrors('deadline')}">Câmpul nu poate fi gol</div>
                                         </div>
@@ -317,11 +318,11 @@
 						<div class="row">
                             <div class="col-md-12 col-sm-12 col-xs-12">
                                 <div class="buttons pull-right">
-                                    <button id="bottom-submit" type="button" class="btn btn-success btn-md"><i class="fa fa-paste"></i> <span>Salvează</span></button>
-                                    <button id="bottom-start" type="button" class="btn btn-default btn-md"><i class="fa fa-hourglass-start"></i>&nbsp;<span>Începe lucrul</span></button>
-                                    <button id="bottom-close" type="button" class="btn btn-default btn-md"><i class="fa fa-file-text"></i> <span>Clasează</span></button>
-                                    <button id="bottom-resolve" type="button" class="btn btn-default btn-md"><i class="fa fa-check-square-o"></i> <span>Rezolvă</span></button>
-                                    <button id="bottom-redirect" type="button" class="btn btn-default btn-md"><i class="fa fa-mail-forward"></i> <span>Redirecționează</span></button>
+                                    <button th:if="${(petition.getCurrentStatus()==null)||(petition.getCurrentStatus()=='RECEIVED')||(#strings.toString(petition.getCurrentStatus())=='IN_PROGRESS')||(#strings.toString(petition.getCurrentStatus())=='REDIRECTED')}" id="bottom-submit" type="button" class="btn btn-success btn-md"><i class="fa fa-paste"></i> <span>Salvează</span></button>
+                                    <button th:if="${(#strings.toString(petition.getCurrentStatus())=='RECEIVED')}" id="bottom-start" type="button" class="btn btn-default btn-md"><i class="fa fa-hourglass-start"></i>&nbsp;<span>Începe lucrul</span></button>
+                                    <button th:if="${(#strings.toString(petition.getCurrentStatus())=='RECEIVED')||(#strings.toString(petition.getCurrentStatus())=='IN_PROGRESS')}" id="bottom-close" type="button" class="btn btn-default btn-md"><i class="fa fa-file-text"></i> <span>Clasează</span></button>
+                                    <button th:if="${(#strings.toString(petition.getCurrentStatus())=='IN_PROGRESS')}" id="bottom-resolve" type="button" class="btn btn-default btn-md"><i class="fa fa-check-square-o"></i> <span>Rezolvă</span></button>
+                                    <button th:if="${(#strings.toString(petition.getCurrentStatus())=='RECEIVED')||(#strings.toString(petition.getCurrentStatus())=='IN_PROGRESS')}" id="bottom-redirect" type="button" class="btn btn-default btn-md"><i class="fa fa-mail-forward"></i> <span>Redirecționează</span></button>
                                 </div>
                             </div>
                         </div>
