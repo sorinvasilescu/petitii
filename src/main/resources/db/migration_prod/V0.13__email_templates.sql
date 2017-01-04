@@ -1,0 +1,3 @@
+INSERT INTO `petitions`.`email_templates` (`name`, `category`, `content`)
+VALUES ('Răspuns standard', 'response',
+        REPLACE('<img alt="" src="http://ithub.gov.ro/wp-content/uploads/2016/08/govithub000.png"><br><br>Stimate [[ ~{pet.petitioner.title} ]] [[ ~{pet.petitioner.getFullName()} ]],<br><br>Petiția numărul [[ ~{pet.regNo.number} ]]<br><br><b>-- Soluție </b><br><b><br></b>Cu respect,<br>Echipa Gov IT HUB', '~{', '${'));
