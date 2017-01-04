@@ -20,7 +20,7 @@ import static ro.petitii.util.StringUtil.prepareForView;
 
 @Service
 public class CommentServiceImpl implements CommentService {
-    private static final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+    private static final SimpleDateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm");
 
     @Autowired
     private CommentRepository commentRepository;

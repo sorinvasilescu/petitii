@@ -89,7 +89,7 @@ public class EmailServiceImpl implements EmailService {
     public DataTablesOutput<EmailResponse> getTableContent(Email.EmailType type, PageRequest p) {
         List<Email> result = this.findAllByType(type, p);
         List<EmailResponse> data = new ArrayList<>();
-        SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+        SimpleDateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm");
         for (Email e : result) {
             EmailResponse re = new EmailResponse();
             re.setId(e.getId());

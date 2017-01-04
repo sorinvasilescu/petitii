@@ -31,7 +31,7 @@
                 	  <div class="buttons pull-right">
                           <button id="add" type="button" class="btn btn-default btn-md"><i class="fa fa-plus-square-o"></i>&nbsp;<span>Adaugă</span></button>
                           <button id="modify" type="button" class="btn btn-default btn-md"><i class="fa fa-pencil-square-o"></i>&nbsp;<span>Modifică</span></button>
-                          <button id="start" type="button" class="btn btn-default btn-md"><i class="fa fa-hourglass-start"></i>&nbsp;<span>Incepe lucrul</span></button>
+                          <button id="start" type="button" class="btn btn-default btn-md" data-toggle="tooltip" title="Trimite e-mail cu o confirmare de primire către petent, având numărul de înregistrare alocat și termenul de soluționare"><i class="fa fa-hourglass-start"></i>&nbsp;<span>Trimite confirmare</span></button>
                           <button id="close" type="button" class="btn btn-default btn-md"><i class="fa fa-share-square-o"></i>&nbsp;<span>Clasează</span></button>
                           <button id="resolve" type="button" class="btn btn-default btn-md"><i class="fa fa-check-square-o"></i>&nbsp;<span>Rezolvă</span></button>
                           <button id="redirect" type="button" class="btn btn-default btn-md"><i class="fa fa-mail-forward"></i>&nbsp;<span>Redirecționează</span></button>
@@ -222,6 +222,8 @@
             statusFilter = event.target.id;
             petitionTable.ajax.reload();
         });
+
+        $('#start').tooltip();
     });
 </script>
 

@@ -11,12 +11,14 @@ import ro.petitii.model.PetitionStatus;
 import ro.petitii.model.Petitioner;
 import ro.petitii.model.User;
 
+import java.util.List;
+
 @Repository
 public interface PetitionRepository extends DataTablesRepository<Petition, Long> {
     Page<Petition> findByResponsible(User user, Pageable p);
     Page<Petition> findByPetitioner(Petitioner petitioner, Pageable p);
-    Page<Petition> findByResponsibleAndCurrentStatus(User user, PetitionStatus.Status status, Pageable p);
-    Page<Petition> findByCurrentStatus(PetitionStatus.Status status, Pageable p);
+    Page<Petition> findByResponsibleAndCurrentStatusIn(User user, List<PetitionStatus.Status> statuses, Pageable p);
+    Page<Petition> findByCurrentStatusIn(List<PetitionStatus.Status> statuses, Pageable p);
     Long countByResponsible(User responsible);
     Long countByPetitioner(Petitioner petitioner);
 
