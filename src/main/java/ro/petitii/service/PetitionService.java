@@ -5,6 +5,8 @@ import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import ro.petitii.model.*;
 import ro.petitii.model.datatables.PetitionResponse;
 
+import java.util.List;
+
 public interface PetitionService {
     Petition save(Petition petition);
 
@@ -12,7 +14,7 @@ public interface PetitionService {
 
     Petition findById(Long id);
 
-    DataTablesOutput<PetitionResponse> getTableContent(User user, PetitionStatus.Status status, PageRequest p);
+    DataTablesOutput<PetitionResponse> getTableContent(User user, List<PetitionStatus.Status> statuses, PageRequest p);
 
     DataTablesOutput<PetitionResponse> getTableContent(Petition petition, Petitioner petitioner, PageRequest p);
 
