@@ -19,6 +19,7 @@ import ro.petitii.util.DateUtil;
 import ro.petitii.util.ValidationStatus;
 
 import javax.mail.MessagingException;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Date;
 import java.util.LinkedList;
@@ -97,13 +98,20 @@ public class PetitionController extends ControllerBase {
     }
 
     @RequestMapping(path = "/petition/fromEmail/{id}", method = RequestMethod.GET)
-    public ModelAndView createPetitionFromEmail(@PathVariable("id") Long id) {
+    public ModelAndView createPetitionFromEmail(@PathVariable("id") Long id, HttpServletRequest request, final RedirectAttributes attr) {
+        ModelAndView modelAndView = new ModelAndView();
         Email email = emailService.searchById(id);
+
+        if (email.getPetition()!=null) {
+            attr.addFlashAttribute("toast", createToast("Exista deja o petitie pentru acest email", ToastType.danger));
+            modelAndView.setViewName("redirect:" + request.getHeader("referer"));
+            return modelAndView;
+        }
 
         Petition petition = petitionService.createFromEmail(email);
         petitionCustomParamService.initDefaults(petition);
 
-        ModelAndView modelAndView = new ModelAndView("petitions_crud");
+        modelAndView.setViewName("petitions_crud");
         modelAndView.addObject("petition", petition);
 
         addCustomParams(modelAndView);
