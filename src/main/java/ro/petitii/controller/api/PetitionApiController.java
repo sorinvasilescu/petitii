@@ -83,10 +83,9 @@ public class PetitionApiController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = userService.findUserByEmail(auth.getName()).get(0);
 
-        PetitionStatus.Status pStatus = parseStatus(status);
+        List<PetitionStatus.Status> pStatus = parseStatus(status);
 
-        DataTablesOutput<PetitionResponse> response = petitionService
-                .getTableContent(user, pStatus, pageRequest(input, PetitionResponse.sortMapping));
+        DataTablesOutput<PetitionResponse> response = petitionService.getTableContent(user, pStatus, pageRequest(input, PetitionResponse.sortMapping));
         response.setDraw(sequenceNo);
 
         return response;
@@ -96,9 +95,8 @@ public class PetitionApiController {
     @ResponseBody
     public DataTablesOutput<PetitionResponse> getAllPetitions(@Valid DataTablesInput input, String status) {
         int sequenceNo = input.getDraw();
-        PetitionStatus.Status pStatus = parseStatus(status);
-        DataTablesOutput<PetitionResponse> response = petitionService
-                .getTableContent(null, pStatus, pageRequest(input, PetitionResponse.sortMapping));
+        List<PetitionStatus.Status> pStatus = parseStatus(status);
+        DataTablesOutput<PetitionResponse> response = petitionService.getTableContent(null, pStatus, pageRequest(input, PetitionResponse.sortMapping));
         response.setDraw(sequenceNo);
         return response;
     }
@@ -217,9 +215,12 @@ public class PetitionApiController {
         return "done";
     }
 
-    private PetitionStatus.Status parseStatus(String status) {
+    private List<PetitionStatus.Status> parseStatus(String status) {
         if ("started".equalsIgnoreCase(status)) {
-            return PetitionStatus.Status.IN_PROGRESS;
+            List<PetitionStatus.Status> statuses = new LinkedList<>();
+            statuses.add(PetitionStatus.Status.RECEIVED);
+            statuses.add(PetitionStatus.Status.IN_PROGRESS);
+            return statuses;
         } else {
             return null;
         }
