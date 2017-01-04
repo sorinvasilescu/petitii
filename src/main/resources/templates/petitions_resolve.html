@@ -59,8 +59,19 @@
                     </div>
                     <div class="ln_solid"></div>
                     <div class="form-group">
+                        <label for="email-template" class="control-label col-md-2 col-sm-2 col-xs-12">Template: </label>
+                        <div class="col-md-8 col-sm-8 col-xs-12">
+                            <select class="form-control" name="email-template" id="email-template">
+                                <option value=""></option>
+                                <!--/*@thymesVar id="templateList" type="java.util.List<ro.petitii.model.EmailTemplate>"*/-->
+                                <option th:each="tpl : ${templateList}" th:value="${tpl.id}" th:text="${tpl.name}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label for="description" class="control-label col-md-2 col-sm-2 col-xs-12">Mesaj: </label>
                         <div class="col-md-8 col-sm-8 col-xs-12">
+                            <div th:replace="fragments/editor-toolbar"></div>
                             <textarea class="resizable_textarea form-control" name="description" id="description"
                                       rows="30" style="width:100%"></textarea>
                         </div>
@@ -132,6 +143,66 @@
         selectedOption = 'noContent';
     }
     /*]]>*/
+</script>
+
+<script type="text/javascript" th:inline="none">
+    var descriptionEditor = new wysihtml5.Editor("description", {
+        toolbar:      "wysihtml-toolbar",
+        parserRules:  wysihtml5ParserRules
+    });
+</script>
+
+<script type="text/javascript" th:inline="none">
+    $(document).ready(function () {
+        var templateComponent = $('#email-template');
+        templateComponent.select2({
+            placeholder: "Alege template",
+            allowClear: true
+        });
+        templateComponent.on('select2:select', function (e) {
+            var selectedId = e.params.data.id;
+            if (selectedId == "" || selectedId == undefined) {
+                changeTemplateSelection(null);
+            } else {
+                changeTemplateSelection(selectedId)
+            }
+        });
+
+        templateComponent.on('select2:unselect', function () {
+            changeTemplateSelection(null);
+        });
+
+        function changeTemplateSelection(templateId) {
+            if (descriptionEditor.getValue() == undefined || descriptionEditor.getValue().trim().length == 0) {
+                requestTemplate(templateId);
+            } else {
+                customAlert("Sunteți sigur că doriți schimbarea template-ului? " +
+                    "<p class='small'> Toate modificările făcute în text se vor pierde</p>",
+                    function (result) {
+                        if (result) {
+                            requestTemplate(templateId);
+                        }
+                    });
+            }
+        }
+
+        function requestTemplate(templateId) {
+            if (templateId == null) {
+                descriptionEditor.setValue("", false);
+            } else {
+                $.ajax({
+                    url: "/api/emailTemplate/" + templateId + "/petition/" + pid,
+                    method: 'GET',
+                    processData: false
+                }).done(function (data) {
+                    console.log(data);
+                    descriptionEditor.setValue(data, false);
+                }).fail(function (reason) {
+                    console.log(reason);
+                });
+            }
+        }
+    });
 </script>
 
 <script type="application/javascript" th:inline="none">
@@ -209,9 +280,6 @@
         resolutionComponent.trigger('change');
         changeSelection(defaultAction);
     });
-</script>
-<script type="text/javascript" th:inline="none">
-    $("#description").wysihtml5();
 </script>
 
 <script type="text/javascript" th:inline="none">

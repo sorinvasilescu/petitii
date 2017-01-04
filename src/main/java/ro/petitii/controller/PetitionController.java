@@ -19,6 +19,7 @@ import ro.petitii.util.DateUtil;
 import ro.petitii.util.ValidationStatus;
 
 import javax.mail.MessagingException;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Date;
 import java.util.LinkedList;
@@ -53,6 +54,9 @@ public class PetitionController extends ControllerBase {
 
     @Autowired
     private AttachmentService attachmentService;
+
+    @Autowired
+    private EmailTemplateService emailTemplateService;
 
     @Autowired
     private SmtpService smtpService;
@@ -97,13 +101,20 @@ public class PetitionController extends ControllerBase {
     }
 
     @RequestMapping(path = "/petition/fromEmail/{id}", method = RequestMethod.GET)
-    public ModelAndView createPetitionFromEmail(@PathVariable("id") Long id) {
+    public ModelAndView createPetitionFromEmail(@PathVariable("id") Long id, HttpServletRequest request, final RedirectAttributes attr) {
+        ModelAndView modelAndView = new ModelAndView();
         Email email = emailService.searchById(id);
+
+        if (email.getPetition()!=null) {
+            attr.addFlashAttribute("toast", createToast("Exista deja o petitie pentru acest email", ToastType.danger));
+            modelAndView.setViewName("redirect:" + request.getHeader("referer"));
+            return modelAndView;
+        }
 
         Petition petition = petitionService.createFromEmail(email);
         petitionCustomParamService.initDefaults(petition);
 
-        ModelAndView modelAndView = new ModelAndView("petitions_crud");
+        modelAndView.setViewName("petitions_crud");
         modelAndView.addObject("petition", petition);
 
         addCustomParams(modelAndView);
@@ -220,6 +231,7 @@ public class PetitionController extends ControllerBase {
             modelAndView.addObject("attachmentApiUrl", "/api/petitions/" + pid + "/attachments");
             modelAndView.addObject("linkedPetitionsApiUrl", "/api/petitions/" + pid + "/linked");
             modelAndView.addObject("linkedPetitionerApiUrl", "/api/petitions/" + pid + "/by/petitioner");
+            modelAndView.addObject("templateList", emailTemplateService.findByCategory(EmailTemplate.Category.response));
             return modelAndView;
         } else {
             ModelAndView modelAndView = new ModelAndView("redirect:/petition/" + petition.getId());
@@ -266,8 +278,7 @@ public class PetitionController extends ControllerBase {
                 Email email = new Email();
                 email.setBody(description);
                 email.setDate(new Date());
-                //todo; translate resolution in something more user friendly
-                email.setSubject("Soluționare petiție: " + resolution);
+                email.setSubject("Soluționare petiție: " + resolution.viewName());
                 email.setSender(smtpConfig.getUsername());
                 email.setRecipients(petition.getPetitioner().getEmail());
                 email.setAttachments(attachmentList);
@@ -282,8 +293,7 @@ public class PetitionController extends ControllerBase {
                     attr.addFlashAttribute("toast", createToast("Petiția nu a fost rezolvata: " + e.getMessage(), ToastType.danger));
                 }
             } else {
-                //todo; translate resolution in something more user friendly
-                commentService.createAndSave(user, petition, "Soluționare petiție: " + resolution + " \n <br/> " + description);
+                commentService.createAndSave(user, petition, "Soluționare petiție: " + resolution.viewName() + " \n <br/> " + description);
                 attr.addFlashAttribute("toast", createToast("Petiția a fost rezolvata cu succes", ToastType.success));
             }
         }

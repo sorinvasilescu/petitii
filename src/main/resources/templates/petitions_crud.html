@@ -33,7 +33,7 @@
                             <div class="col-md-12 col-sm-12 col-xs-12">
                                 <div class="buttons pull-right">
                                     <button th:if="${(petition.getCurrentStatus()==null) or (#strings.toString(petition.getCurrentStatus())=='RECEIVED') or (#strings.toString(petition.getCurrentStatus())=='IN_PROGRESS')or(#strings.toString(petition.getCurrentStatus())=='REDIRECTED')}" id="top-submit" type="button" class="btn btn-success btn-md"><i class="fa fa-paste"></i> <span>Salvează</span></button>
-                                    <button th:if="${(#strings.toString(petition.getCurrentStatus())=='RECEIVED')}" id="top-start" type="button" class="btn btn-default btn-md"><i class="fa fa-hourglass-start"></i>&nbsp;<span>Începe lucrul</span></button>
+                                    <button th:if="${(#strings.toString(petition.getCurrentStatus())=='RECEIVED')}" id="top-start" type="button" class="btn btn-default btn-md" data-toggle="tooltip" title="Trimite e-mail cu o confirmare de primire către petent, având numărul de înregistrare alocat și termenul de soluționare" data-placement="bottom"><i class="fa fa-hourglass-start"></i>&nbsp;<span>Trimite confirmare</span></button>
                                     <button th:if="${(#strings.toString(petition.getCurrentStatus())=='RECEIVED') or (#strings.toString(petition.getCurrentStatus())=='IN_PROGRESS')}" id="top-close" type="button" class="btn btn-default btn-md"><i class="fa fa-file-text"></i> <span>Clasează</span></button>
                                     <button th:if="${(#strings.toString(petition.getCurrentStatus())=='IN_PROGRESS')}" id="top-resolve" type="button" class="btn btn-default btn-md"><i class="fa fa-check-square-o"></i> <span>Rezolvă</span></button>
                                     <button th:if="${(#strings.toString(petition.getCurrentStatus())=='RECEIVED') or (#strings.toString(petition.getCurrentStatus())=='IN_PROGRESS')}" id="top-redirect" type="button" class="btn btn-default btn-md"><i class="fa fa-mail-forward"></i> <span>Redirecționează</span></button>
@@ -319,7 +319,7 @@
                             <div class="col-md-12 col-sm-12 col-xs-12">
                                 <div class="buttons pull-right">
                                     <button th:if="${(petition.getCurrentStatus()==null)||(petition.getCurrentStatus()=='RECEIVED')||(#strings.toString(petition.getCurrentStatus())=='IN_PROGRESS')||(#strings.toString(petition.getCurrentStatus())=='REDIRECTED')}" id="bottom-submit" type="button" class="btn btn-success btn-md"><i class="fa fa-paste"></i> <span>Salvează</span></button>
-                                    <button th:if="${(#strings.toString(petition.getCurrentStatus())=='RECEIVED')}" id="bottom-start" type="button" class="btn btn-default btn-md"><i class="fa fa-hourglass-start"></i>&nbsp;<span>Începe lucrul</span></button>
+                                    <button th:if="${(#strings.toString(petition.getCurrentStatus())=='RECEIVED')}" id="bottom-start" type="button" class="btn btn-default btn-md" data-toggle="tooltip" title="Trimite e-mail cu o confirmare de primire către petent, având numărul de înregistrare alocat și termenul de soluționare"><i class="fa fa-hourglass-start"></i>&nbsp;<span>Trimite confirmare</span></button>
                                     <button th:if="${(#strings.toString(petition.getCurrentStatus())=='RECEIVED')||(#strings.toString(petition.getCurrentStatus())=='IN_PROGRESS')}" id="bottom-close" type="button" class="btn btn-default btn-md"><i class="fa fa-file-text"></i> <span>Clasează</span></button>
                                     <button th:if="${(#strings.toString(petition.getCurrentStatus())=='IN_PROGRESS')}" id="bottom-resolve" type="button" class="btn btn-default btn-md"><i class="fa fa-check-square-o"></i> <span>Rezolvă</span></button>
                                     <button th:if="${(#strings.toString(petition.getCurrentStatus())=='RECEIVED')||(#strings.toString(petition.getCurrentStatus())=='IN_PROGRESS')}" id="bottom-redirect" type="button" class="btn btn-default btn-md"><i class="fa fa-mail-forward"></i> <span>Redirecționează</span></button>
@@ -428,6 +428,8 @@
         $('#top-close,#bottom-close').click(function () {
             window.location.href = '/petition/' + pid + '/resolve/closed';
         });
+
+        $('#top-start,#bottom-start').tooltip();
     });
     </script>
 
