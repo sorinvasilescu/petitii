@@ -71,6 +71,7 @@
                     <div class="form-group">
                         <label for="description" class="control-label col-md-2 col-sm-2 col-xs-12">Mesaj: </label>
                         <div class="col-md-8 col-sm-8 col-xs-12">
+                            <div th:replace="fragments/editor-toolbar"></div>
                             <textarea class="resizable_textarea form-control" name="description" id="description"
                                       rows="30" style="width:100%"></textarea>
                         </div>
@@ -145,9 +146,10 @@
 </script>
 
 <script type="text/javascript" th:inline="none">
-//    var descriptionComponent = $("#description").wysihtml5();
-// todo; customize the editor
-    var descriptionEditor = new wysihtml5.Editor('description');
+    var descriptionEditor = new wysihtml5.Editor("description", {
+        toolbar:      "wysihtml-toolbar",
+        parserRules:  wysihtml5ParserRules
+    });
 </script>
 
 <script type="text/javascript" th:inline="none">
@@ -186,14 +188,15 @@
 
         function requestTemplate(templateId) {
             if (templateId == null) {
-                descriptionEditor.setValue("", true);
+                descriptionEditor.setValue("", false);
             } else {
                 $.ajax({
                     url: "/api/emailTemplate/" + templateId + "/petition/" + pid,
                     method: 'GET',
                     processData: false
                 }).done(function (data) {
-                    descriptionEditor.setValue(data, true);
+                    console.log(data);
+                    descriptionEditor.setValue(data, false);
                 }).fail(function (reason) {
                     console.log(reason);
                 });

@@ -14,8 +14,7 @@
 
         <div class="right_col" role="main">
             <form id="email-templates-form" class="form-horizontal form-label-left input_mask"
-                  th:object="${emailTemplate}"
-                  th:action="@{/emailTemplate}" method="post">
+                  th:object="${emailTemplate}" th:action="@{/emailTemplate}" method="post">
                 <div>
                     <div class="row">
                         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -56,15 +55,16 @@
                                     </div>
 
                                     <div class="form-group">
-                                        <label class="control-label col-md-3 col-sm-3 col-xs-12">Conținut<span class="required">*</span></label>
+                                        <label for="content" class="control-label col-md-3 col-sm-3 col-xs-12">Conținut<span class="required">*</span></label>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <textarea class="resizable_textarea form-control" placeholder="Content" id="content" required="" th:field="*{content}" rows="40"></textarea>
+                                            <div th:replace="fragments/editor-toolbar"></div>
+                                            <textarea class="resizable_textarea form-control" placeholder="Content"
+                                                      id="content" required="" th:field="*{content}" rows="30">
+                                            </textarea>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
-
                         </div>
                     </div>
                     <div class="clear"></div>
@@ -91,8 +91,8 @@
 
 <script type="text/javascript" th:inline="none">
     $(document).ready(function () {
-        $("#content").wysihtml5();
-        $('#email-templates-form').parsley();
+        var form = $('#email-templates-form');
+        form.parsley();
 
         var categoryComponent = $("#category");
         categoryComponent.select2({
@@ -101,6 +101,11 @@
         });
         categoryComponent.val(selectedCategory);
         categoryComponent.trigger('change');
+
+        new wysihtml5.Editor("content", {
+            toolbar:      "wysihtml-toolbar",
+            parserRules:  wysihtml5ParserRules
+        });
     });
 
     Parsley.on('field:validated', function (fieldInstance) {
@@ -112,8 +117,6 @@
             return true;
         }
     });
-
-
 </script>
 
 <div th:replace="fragments/main_head::toast"></div>
