@@ -18,12 +18,12 @@
                 <div class="col-md-4 col-sm-4 col-xs-12">
                     <div class="radio">
                      <label>
-                       <input type="radio" class="flat" name="iCheck" id="started"/> Petiții în lucru
+                       <input type="radio" class="flat" name="iCheck" id="started" checked="true"/> Petiții în lucru
                      </label>
                    </div>
                    <div class="radio">
                      <label>
-                       <input type="radio" class="flat" name="iCheck" id="all" checked="true"/> Toate
+                       <input type="radio" class="flat" name="iCheck" id="all"/> Toate
                      </label>
                    </div>
                 </div>
@@ -69,7 +69,7 @@
 
 <script type="text/javascript" th:inline="none">
     $(document).ready(function () {
-        var statusFilter = "all";
+        var statusFilter = "started";
 
         <!-- Datatables -->
         var petitionTable = $('#datatable-responsive').DataTable({
@@ -79,7 +79,7 @@
             processing: true,
             serverSide: true,
             sDom: 'lrtip ',
-            order: [[1, 'desc']],
+            order: [[2, 'asc']],
             rowId: "id",
             ajax: {
                 url: apiUrl,
@@ -106,6 +106,11 @@
                     name: 'regNo',
                     data: 'regNo',
                     title: 'Numar inregistrare'
+                },
+                {
+                    name: 'deadline',
+                    data: 'deadline',
+                    title: 'Termen'
                 },
                 {
                     name: 'petitioner.lastName',
