@@ -412,6 +412,9 @@
                 } else {
                     addError('#error-messages', data.errorMsg);
                 }
+                if (data.warnMsg != undefined) {
+                    addWarning('#error-messages', data.warnMsg)
+                }
             }).fail(function(reason){
                 addError('#error-messages', reason);
                 });

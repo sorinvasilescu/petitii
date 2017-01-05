@@ -23,6 +23,7 @@ import ro.petitii.model.datatables.CommentResponse;
 import ro.petitii.model.datatables.PetitionResponse;
 import ro.petitii.service.*;
 import ro.petitii.service.email.SmtpService;
+import ro.petitii.service.template.EmailTemplateProcessorService;
 import ro.petitii.util.Pair;
 import ro.petitii.util.ZipUtils;
 
@@ -69,6 +70,12 @@ public class PetitionApiController {
     private ConnectionService connectionService;
 
     @Autowired
+    private EmailTemplateService emailTemplateService;
+
+    @Autowired
+    private EmailTemplateProcessorService emailTemplateProcessorService;
+
+    @Autowired
     private SmtpConfig config;
 
     @Autowired
@@ -83,10 +90,9 @@ public class PetitionApiController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = userService.findUserByEmail(auth.getName()).get(0);
 
-        PetitionStatus.Status pStatus = parseStatus(status);
+        List<PetitionStatus.Status> pStatus = parseStatus(status);
 
-        DataTablesOutput<PetitionResponse> response = petitionService
-                .getTableContent(user, pStatus, pageRequest(input, PetitionResponse.sortMapping));
+        DataTablesOutput<PetitionResponse> response = petitionService.getTableContent(user, pStatus, pageRequest(input, PetitionResponse.sortMapping));
         response.setDraw(sequenceNo);
 
         return response;
@@ -96,9 +102,8 @@ public class PetitionApiController {
     @ResponseBody
     public DataTablesOutput<PetitionResponse> getAllPetitions(@Valid DataTablesInput input, String status) {
         int sequenceNo = input.getDraw();
-        PetitionStatus.Status pStatus = parseStatus(status);
-        DataTablesOutput<PetitionResponse> response = petitionService
-                .getTableContent(null, pStatus, pageRequest(input, PetitionResponse.sortMapping));
+        List<PetitionStatus.Status> pStatus = parseStatus(status);
+        DataTablesOutput<PetitionResponse> response = petitionService.getTableContent(null, pStatus, pageRequest(input, PetitionResponse.sortMapping));
         response.setDraw(sequenceNo);
         return response;
     }
@@ -217,9 +222,12 @@ public class PetitionApiController {
         return "done";
     }
 
-    private PetitionStatus.Status parseStatus(String status) {
+    private List<PetitionStatus.Status> parseStatus(String status) {
         if ("started".equalsIgnoreCase(status)) {
-            return PetitionStatus.Status.IN_PROGRESS;
+            List<PetitionStatus.Status> statuses = new LinkedList<>();
+            statuses.add(PetitionStatus.Status.RECEIVED);
+            statuses.add(PetitionStatus.Status.IN_PROGRESS);
+            return statuses;
         } else {
             return null;
         }
@@ -304,6 +312,12 @@ public class PetitionApiController {
         User user = userService.findUserByEmail(auth.getName()).get(0);
         List<String> errors = new LinkedList<>();
 
+        EmailTemplate emailTemplate = emailTemplateService.findOneByCategory(EmailTemplate.Category.start_work);
+        if (emailTemplate == null) {
+            LOGGER.error("Email template not found for start work, using standard text messages ...");
+            result.put("warnMsg", "Template-urile pentru e-mail nu sunt configurate corect ...");
+        }
+
         for (long id : petitionIds) {
             Petition pet = petitionService.findById(id);
             if (pet == null) {
@@ -313,12 +327,23 @@ public class PetitionApiController {
                 statusService.create(PetitionStatus.Status.IN_PROGRESS, pet, user);
                 Email email = new Email();
                 email.setSender(config.getUsername());
-                email.setSubject("Petitia dvs. a fost inregistrata");
+                email.setSubject("Petiția dvs. a fost înregistrată");
                 email.setRecipients(pet.getPetitioner().getEmail());
-                DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
-                // todo: insert actual template
-                email.setBody("Petitia dvs a fost inregistrata cu numarul " + pet.getRegNo().toString() + " pe data de " + df.format(pet.getReceivedDate()) + ". Termen de solutionare: " + df.format(pet.getDeadline()));
+
                 try {
+                    if (emailTemplate == null) {
+                        email.setBody(createDefaultEmail(pet));
+                    } else {
+                        Map<String, Object> vars = new HashMap<>();
+                        vars.put("pet", pet);
+                        vars.put("petition", pet);
+                        String body = emailTemplateProcessorService.processTemplateWithId(emailTemplate.getId(), vars);
+                        if (body == null) {
+                            body = createDefaultEmail(pet);
+                        }
+                        LOGGER.info("Sending start-work email: " + body);
+                        email.setBody(body);
+                    }
                     smtpService.send(email);
                 } catch (MessagingException e) {
                     LOGGER.error("Could not send email with registration number " + pet.getRegNo().toString());
@@ -338,5 +363,13 @@ public class PetitionApiController {
         }
 
         return result;
+    }
+
+    private String createDefaultEmail(Petition petition) {
+        DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
+        String recDate = df.format(petition.getReceivedDate());
+        String deadline = df.format(petition.getDeadline());
+        return "Petiția dvs a fost înregistrată cu numărul " + petition.getRegNo().getNumber()
+                + " pe data de " + recDate + ". Termen de soluționare: " + deadline;
     }
 }

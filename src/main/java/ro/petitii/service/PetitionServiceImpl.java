@@ -163,20 +163,20 @@ public class PetitionServiceImpl implements PetitionService {
     }
 
     @Override
-    public DataTablesOutput<PetitionResponse> getTableContent(User user, PetitionStatus.Status status,
+    public DataTablesOutput<PetitionResponse> getTableContent(User user, List<PetitionStatus.Status> statuses,
                                                               PageRequest p) {
         Page<Petition> petitions;
         if (user != null) {
-            if (status == null) {
+            if (statuses == null) {
                 petitions = petitionRepository.findByResponsible(user, p);
             } else {
-                petitions = petitionRepository.findByResponsibleAndCurrentStatus(user, status, p);
+                petitions = petitionRepository.findByResponsibleAndCurrentStatusIn(user, statuses, p);
             }
         } else {
-            if (status == null) {
+            if (statuses == null) {
                 petitions = petitionRepository.findAll(p);
             } else {
-                petitions = petitionRepository.findByCurrentStatus(status, p);
+                petitions = petitionRepository.findByCurrentStatusIn(statuses, p);
             }
         }
         DataTablesOutput<PetitionResponse> response = new DataTablesOutput<>();

@@ -15,5 +15,7 @@ public interface EmailTemplateService {
 
     List<EmailTemplate> findByCategory(EmailTemplate.Category category);
 
+    EmailTemplate findOneByCategory(EmailTemplate.Category category);
+
     void delete(long id);
 }

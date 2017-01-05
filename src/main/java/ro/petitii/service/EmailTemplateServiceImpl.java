@@ -35,6 +35,16 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
     }
 
     @Override
+    public EmailTemplate findOneByCategory(EmailTemplate.Category category) {
+        List<EmailTemplate> templates = emailTemplateRepository.findByCategory(category);
+        if (templates.isEmpty()) {
+            return null;
+        } else {
+            return templates.get(0);
+        }
+    }
+
+    @Override
     public void delete(long id) {
         emailTemplateRepository.delete(id);
     }
