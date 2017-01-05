@@ -22,7 +22,6 @@ import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -164,6 +163,7 @@ public class PetitionController extends ControllerBase {
         modelAndView.addObject("petition", petition);
         List<Contact> contactList = (List<Contact>) (contactService.getAllContacts());
         modelAndView.addObject("contacts", contactList);
+        modelAndView.addObject("templateList", emailTemplateService.findByCategory(EmailTemplate.Category.forward));
         return modelAndView;
     }
 
@@ -172,7 +172,7 @@ public class PetitionController extends ControllerBase {
     public ModelAndView redirectPetition(@PathVariable("id") long id,
                                          @RequestParam("subject") String subject,
                                          @RequestParam("recipients") long[] recipients,
-                                         @RequestParam(value = "attachments[]", required = false) long[] attachments,
+                                         @RequestParam(value = "attachments[]", required = false) Long[] attachments,
                                          @RequestParam("description") String description,
                                          final RedirectAttributes attr) {
 
@@ -182,31 +182,11 @@ public class PetitionController extends ControllerBase {
         User user = userService.findUserByEmail(auth.getName()).get(0);
         Petition petition = petitionService.findById(id);
         modelAndView.setViewName("redirect:/petition/" + petition.getId());
-        String recipientString = "";
-        for (long rid : recipients) {
-            Contact contact = contactService.getById(rid);
-            recipientString += contact.getName() + " <" + contact.getEmail() + ">, ";
-        }
-        List<Attachment> attachmentList = new LinkedList<>();
-        if (attachments != null)
-            for (long aid : attachments) {
-                attachmentList.add(attachmentService.findById(aid));
-            }
 
         statusService.create(PetitionStatus.Status.REDIRECTED, petition, user);
-        Email email = new Email();
-        email.setBody(description);
-        email.setDate(new Date());
-        email.setSubject(subject);
-        email.setSender(smtpConfig.getUsername());
-        email.setRecipients(recipientString);
-        email.setAttachments(attachmentList);
-        email.setPetition(petition);
-        email.setType(Email.EmailType.Outbox);
-        email = emailService.save(email);
 
         try {
-            smtpService.send(email);
+            smtpService.send(createEmail(subject, description, convertRecipients(recipients), attachments, petition));
             attr.addFlashAttribute("toast", createToast("Petiția a fost redirecționata cu succes", ToastType.success));
         } catch (MessagingException e) {
             attr.addFlashAttribute("toast", createToast("Petiția nu a fost redirecționata: " + e.getMessage(), ToastType.danger));
@@ -246,7 +226,7 @@ public class PetitionController extends ControllerBase {
                                         @PathVariable("action") String action,
                                         @RequestParam("resolution") PetitionStatus.Resolution resolution,
                                         @RequestParam("email") boolean sendEmail,
-                                        @RequestParam(value = "attachments[]", required = false) long[] attachments,
+                                        @RequestParam(value = "attachments[]", required = false) Long[] attachments,
                                         @RequestParam("description") String description,
                                         final RedirectAttributes attr) {
 
@@ -264,30 +244,12 @@ public class PetitionController extends ControllerBase {
             modelAndView.setViewName("redirect:/petition/" + id + "/resolve/" + action);
         } else {
             PetitionStatus.Status status = resolution.getStatus();
-
             statusService.create(status, petition, user);
 
             if (sendEmail) {
-                List<Attachment> attachmentList = new LinkedList<>();
-                if (attachments != null) {
-                    for (long aid : attachments) {
-                        attachmentList.add(attachmentService.findById(aid));
-                    }
-                }
-
-                Email email = new Email();
-                email.setBody(description);
-                email.setDate(new Date());
-                email.setSubject("Soluționare petiție: " + resolution.viewName());
-                email.setSender(smtpConfig.getUsername());
-                email.setRecipients(petition.getPetitioner().getEmail());
-                email.setAttachments(attachmentList);
-                email.setPetition(petition);
-                email.setType(Email.EmailType.Outbox);
-                email = emailService.save(email);
-
                 try {
-                    smtpService.send(email);
+                    smtpService.send(createEmail("Soluționare petiție: " + resolution.viewName(), description,
+                                                 petition.getPetitioner().getEmail(), attachments, petition));
                     attr.addFlashAttribute("toast", createToast("Petiția a fost rezolvata cu succes", ToastType.success));
                 } catch (MessagingException e) {
                     attr.addFlashAttribute("toast", createToast("Petiția nu a fost rezolvata: " + e.getMessage(), ToastType.danger));
@@ -325,5 +287,29 @@ public class PetitionController extends ControllerBase {
         }
 
         return new ValidationStatus(true, null);
+    }
+
+    private Email createEmail(String subject, String description, String recipients, Long[] attachments, Petition petition) {
+        List<Attachment> attachmentList = attachmentService.findByIds(attachments);
+
+        Email email = new Email();
+        email.setBody(description);
+        email.setDate(new Date());
+        email.setSubject(subject);
+        email.setSender(smtpConfig.getUsername());
+        email.setRecipients(recipients);
+        email.setAttachments(attachmentList);
+        email.setPetition(petition);
+        email.setType(Email.EmailType.Outbox);
+        return emailService.save(email);
+    }
+
+    private String convertRecipients(long[] recipients) {
+        StringBuilder recipientString = new StringBuilder("");
+        for (long rid : recipients) {
+            Contact contact = contactService.getById(rid);
+            recipientString.append(contact.getName()).append(" <").append(contact.getEmail()).append(">, ");
+        }
+        return recipientString.toString();
     }
 }

@@ -189,6 +189,9 @@
                         addError("#error-messages", data.errorMsg);
                         petitionTable.ajax.reload();
                     }
+                    if (data.warnMsg != undefined) {
+                        addWarning('#error-messages', data.warnMsg)
+                    }
                 }).fail(function (result) {
                     console.log(result)
                 });

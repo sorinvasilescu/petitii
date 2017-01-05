@@ -13,6 +13,7 @@ public class EmailTemplate {
     public enum Category {
         response,
         forward,
+        start_work,
         recover_password;
 
         public String viewName() {

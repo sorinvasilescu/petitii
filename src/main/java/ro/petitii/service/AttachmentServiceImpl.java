@@ -31,10 +31,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class AttachmentServiceImpl implements AttachmentService {
@@ -133,6 +131,24 @@ public class AttachmentServiceImpl implements AttachmentService {
     @Override
     public Attachment findById(Long id) {
         return attachmentRepository.findOne(id);
+    }
+
+    @Override
+    public List<Attachment> findByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Collections.emptyList();
+        } else {
+            return ids.stream().map(this::findById).collect(Collectors.toList());
+        }
+    }
+
+    @Override
+    public List<Attachment> findByIds(Long[] ids) {
+        if (ids == null || ids.length == 0) {
+            return Collections.emptyList();
+        } else {
+            return Arrays.stream(ids).map(this::findById).collect(Collectors.toList());
+        }
     }
 
     @Override
