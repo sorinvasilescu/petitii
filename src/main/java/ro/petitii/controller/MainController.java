@@ -30,6 +30,11 @@ public class MainController implements ErrorController {
         return "login";
     }
 
+    @RequestMapping("/editor-toolbar")
+    public String editorToolbar() {
+        return "fragments/editor-toolbar";
+    }
+
     @Override
     public String getErrorPath() {
         return "/error";

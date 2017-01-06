@@ -14,7 +14,7 @@ import ro.petitii.service.UserService;
 import javax.validation.Valid;
 
 @RestController
-public class UserRestController {  
+public class UserApiController {
     @Autowired
     private UserService userService;
 

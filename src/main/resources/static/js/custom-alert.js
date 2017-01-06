@@ -18,7 +18,8 @@ function customInput(title, callback) {
     var dialog = bootbox.dialog({
         title: title,
         size: 'large',
-        message: '<textarea class="resizable_textarea form-control" name="description" id="message" rows="30" style="width:100%"></textarea>',
+        message: '<div id="toolbar"></div>' +
+        '<textarea class="resizable_textarea form-control" name="description" id="message" rows="20" style="width:100%"></textarea>',
         buttons: {
             add: {
                 label: 'Adaugă',
@@ -38,7 +39,11 @@ function customInput(title, callback) {
     });
 
     dialog.init(function () {
-        $("#message").wysihtml5();
+        $('#toolbar').load("/editor-toolbar");
+        new wysihtml5.Editor("message", {
+            toolbar:      "wysihtml-toolbar",
+            parserRules:  wysihtml5ParserRules
+        });
     });
 }
 
