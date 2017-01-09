@@ -254,6 +254,7 @@
                                     <div class="form-group">
                                         <label class="control-label col-md-2 col-sm-2 col-xs-12">Descriere</label>
                                         <div class="col-md-8 col-sm-8 col-xs-12">
+                                            <div th:replace="fragments/editor-toolbar"></div>
                                             <textarea name="description" id="description" rows="30" style="width:100%" th:field="*{description}"></textarea>
                                         </div>
                                     </div>
@@ -737,7 +738,10 @@
     </script>
 
     <script type="text/javascript">
-        $("#description").wysihtml5();
+        new wysihtml5.Editor("description", {
+            toolbar:      "wysihtml-toolbar",
+            parserRules:  wysihtml5ParserRules
+        });
     </script>
     <div th:replace="fragments/main_head::toast"></div>
 </body>
