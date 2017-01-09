@@ -98,8 +98,13 @@
                 /*<![CDATA[*/
                 var toastContent = /*[[${toast}]]*/ null;
                 console.log(toastContent);
-                if (toastContent!=null) {
-                    showToast($('.right_col'),toastContent.message,toastContent.type);
+                if (toastContent != null) {
+                    showToast($('.right_col'), toastContent.message, toastContent.type);
+                }
+                var toastsContent = /*[[${toasts}]]*/ null;
+                console.log(toastsContent);
+                if (toastsContent != null) {
+                    showToasts($('.right_col'), toastsContent);
                 }
                 /*]]>*/
             </script>
