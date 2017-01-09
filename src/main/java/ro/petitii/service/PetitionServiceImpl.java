@@ -134,22 +134,37 @@ public class PetitionServiceImpl implements PetitionService {
         petition.setDescription(email.getBody());
         petition.setSubject(email.getSubject());
         Petitioner petitioner = new Petitioner();
-        petitioner.setCountry(defaultsConfig.getCountry());
+        // parse the email
+        InternetAddress addr = null;
         try {
-            InternetAddress addr = new InternetAddress(email.getSender());
-            petitioner.setEmail(addr.getAddress());
-            if (addr.getPersonal() != null && addr.getPersonal().length() > 0) {
-                String[] name = addr.getPersonal().split(" ");
-                if (name.length > 1) {
-                    petitioner.setFirstName(name[0]);
-                    petitioner.setLastName(name[1]);
-                } else petitioner.setFirstName(addr.getPersonal());
-            }
-
+            addr = new InternetAddress(email.getSender());
         } catch (AddressException e) {
             LOGGER.error("Could not parse email address: " + email.getSender());
-            petitioner.setEmail(email.getSender());
         }
+        // look for a petitioner with the same email
+        List<Petitioner> petitioners = new ArrayList<>(petitionerService.findByEmail(addr.getAddress()));
+        // if found overwrite current petitioner
+        if (petitioners.size()>0) {
+            petitioner = petitioners.get(petitioners.size()-1);
+        } else { // if not found, set values for the new petitioner
+            // if previous try-catch didn't fail, addr will be not null
+            if (addr!=null) {
+                // set email
+                petitioner.setEmail(addr.getAddress());
+                if (addr.getPersonal() != null && addr.getPersonal().length() > 0) {
+                    String[] name = addr.getPersonal().split(" ");
+                    // set first and last name
+                    if (name.length > 1) {
+                        petitioner.setFirstName(name[0]);
+                        petitioner.setLastName(name[1]);
+                    } else petitioner.setFirstName(addr.getPersonal());
+                }
+            } else {
+                petitioner.setEmail(email.getSender());
+            }
+            petitioner.setCountry(defaultsConfig.getCountry());
+        }
+
         petition.setEmails(new ArrayList<>());
         petition.getEmails().add(email);
         petition.setPetitioner(petitioner);
