@@ -39,6 +39,8 @@ petitii:
     password: [[ PASSWORD ]]
   defaultValues:
     country: RO
+  schedule: # in cron format
+    email: "0 15 * * * *"
 
 ---
 spring:

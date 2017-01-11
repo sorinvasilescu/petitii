@@ -47,7 +47,7 @@
             </div>
             <div class="x_content">
                 <div th:if="${page=='inbox'}" class="align-right">
-                    <button type="submit" id="get-mail" class="btn btn-info btn-md"><span class="glyphicon glyphicon-envelope"></span> Get Email</button>
+                    <button id="get-mail" type="button" class="btn btn-default btn-md"><i class="fa fa-refresh"></i>&nbsp;&nbsp;Actualizează</button>
                     <button id="add" type="button" class="btn btn-default btn-md" title="Creează o petiție din e-mailul selectat"><i class="fa fa-plus-square-o"></i>&nbsp;<span>Creează petiție</span></button>
                     <button id="mark-spam" type="button" class="btn btn-default btn-md" title="Marchează ca spam"><i class="fa fa-trash-o"></i>&nbsp;<span>Marchează ca spam</span></button>
                 </div>
@@ -108,7 +108,7 @@
             columns: [
                 {
                     data: null,
-                    render: function (data, type, full, meta) {
+                    render: function () {
                         return '<input type="checkbox" class="flat" name="email_records"/>';
                     },
                     title: '<input type="checkbox" id="check-all" class="flat"/>',
@@ -142,13 +142,13 @@
                     data: 'date',
                     title: 'Data',
                     'className': 'text-center',
-                    'width': '120px',
+                    'width': '120px'
                 },
                 {
                     name: 'petition_id',
                     data: 'petition_id',
                     title: 'Petitie',
-                    render: function (data, type, full, meta) {
+                    render: function (data) {
                         if (data != null) return '<a href="/petition/' + data + '"><i class="fa fa-info-circle"></i> Vezi petitie</a>';
                         else return '';
                     },
@@ -159,7 +159,7 @@
                 {
                     data: null,
                     title: 'Email',
-                    render: function (data, type, full, meta) {
+                    render: function (data) {
                         if (data != null) {
                             return '<a href="/email/' + data.id + '"><i class="fa fa-envelope-square"></i> Detalii</a>';
                         } else {
@@ -173,6 +173,10 @@
             ]
         });
         selectActions(emailTable);
+
+        setInterval(function () {
+            emailTable.ajax.reload();
+        }, 30000);
     });
 </script>
 <!-- /Datatables -->
