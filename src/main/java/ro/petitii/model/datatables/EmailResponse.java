@@ -3,6 +3,7 @@ package ro.petitii.model.datatables;
 public class EmailResponse {
     private Long id;
     private String sender;
+    private String recipients;
     private String subject;
     private String date;
     private Long petition_id;
@@ -23,6 +24,14 @@ public class EmailResponse {
 
     public void setSender(String sender) {
         this.sender = sender;
+    }
+
+    public String getRecipients() {
+        return recipients;
+    }
+
+    public void setRecipients(String recipients) {
+        this.recipients = recipients;
     }
 
     public String getSubject() {
