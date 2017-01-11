@@ -93,6 +93,7 @@ public class PetitionController extends ControllerBase {
         modelAndView.addObject("attachmentApiUrl", "/api/petitions/" + petition.getId() + "/attachments");
         modelAndView.addObject("linkedPetitionsApiUrl", "/api/petitions/" + petition.getId() + "/linked");
         modelAndView.addObject("linkedPetitionerApiUrl", "/api/petitions/" + petition.getId() + "/by/petitioner");
+        modelAndView.addObject("emailsApiUrl", "/api/petitions/" + petition.getId() + "/emails");
 
         addCustomParams(modelAndView);
 
