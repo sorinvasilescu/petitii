@@ -21,7 +21,7 @@ public class ContactApiController {
 
     @JsonView(DataTablesOutput.View.class)
     @RequestMapping(value = "/api/contacts", method = RequestMethod.POST)
-    public DataTablesOutput<Contact> getUsers(@Valid DataTablesInput input) {
+    public DataTablesOutput<Contact> getContacts(@Valid DataTablesInput input) {
         return contactService.findAll(input);
     }
 }
