@@ -149,7 +149,7 @@
                     data: 'petition_id',
                     title: 'Petitie',
                     render: function (data) {
-                        if (data != null) return '<a href="/petition/' + data + '"><i class="fa fa-info-circle"></i> Vezi petitie</a>';
+                        if (data != null) return '<a class="btn btn-default btn-md" href="/petition/' + data + '" style="margin: 0"><i class="fa fa-info-circle"></i>&nbsp;&nbsp;Vezi petitie</a>';
                         else return '';
                     },
                     sortable: false,
@@ -161,7 +161,7 @@
                     title: 'Email',
                     render: function (data) {
                         if (data != null) {
-                            return '<a href="/email/' + data.id + '"><i class="fa fa-envelope-square"></i> Detalii</a>';
+                            return '<a class="btn btn-default btn-md" href="/email/' + data.id + '" style="margin: 0"><i class="fa fa-envelope-o"></i>&nbsp;&nbsp;Detalii</a>';
                         } else {
                             return '';
                         }
