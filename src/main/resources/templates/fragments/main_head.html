@@ -94,11 +94,16 @@
             <!-- Toast -->
             <script th:inline="javascript">
                 /*<![CDATA[*/
-                var toastContent = /*[[${toast}]]*/ null;
-                if (toastContent != null) {
-                    showToast($('.right_col'), toastContent.message, toastContent.type);
-                }
+                var singleToast = /*[[${toast}]]*/ null;
                 var toastsContent = /*[[${toasts}]]*/ null;
+                if (singleToast != null) {
+                    if (toastsContent == null) {
+                        toastsContent = [singleToast];
+                    } else {
+                        toastsContent.push(singleToast);
+                    }
+                }
+
                 if (toastsContent != null) {
                     showToasts($('.right_col'), toastsContent);
                 }
