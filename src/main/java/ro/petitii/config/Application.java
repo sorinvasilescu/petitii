@@ -56,7 +56,7 @@ public class Application extends WebMvcConfigurerAdapter {
     @Bean
     public TaskScheduler executor() {
         ThreadPoolTaskScheduler executor = new ThreadPoolTaskScheduler();
-        executor.setPoolSize(50);
+        executor.setPoolSize(8);
         return executor;
     }
 }
