@@ -17,10 +17,6 @@
                     <h2>Lista de contacte institutii</h2>
                     <div class="col-md-12 col-sm-12 col-xs-12">
                         <div class="buttons align-right">
-                	  		<!-- 
-                	  		<button type="button" class="btn btn-default btn-sm"><a href="/adauga-contact"><i class="fa fa-file"></i> <span th:text="${adauga}">Contact nou</span></a></button>
-                	  		<button type="button" class="btn btn-default btn-sm"><a href="/edit-contact"><i class="fa fa-edit"></i> <span th:text="${editeaza} ">Editeaza contact</span></a></button>
-                	  		 -->
                 	  		<button id="add" type="button" class="btn btn-default btn-md"><i class="fa fa-plus-square-o"></i>&nbsp;<span>Adaugă</span></button>
                 	  		<button id="modify" type="button" class="btn btn-default btn-md"><i class="fa fa-pencil-square-o"></i>&nbsp;<span>Modifică</span></button>
                 	  		<button id="delete" type="button" class="btn btn-default btn-md"><i class="fa fa-minus-square-o"></i>&nbsp;<span>Șterge</span></button>
@@ -29,7 +25,7 @@
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
-                    <table id="datatable-responsive" class="table table-striped table-bordered dt-responsive nowrap jambo_table bulk_action" cellspacing="0" width="100%">
+                    <table id="datatable-responsive" class="table table-striped table-bordered dt-responsive nowrap jambo_table bulk_action top_search" cellspacing="0" width="100%">
                     </table>
                 </div>
             </div>
@@ -62,7 +58,6 @@
                 },
                 processing: true,
                 serverSide: true,
-                sDom: 'lrtip ',
                 order: [[2, 'desc']],
                 rowId: "id",
                 ajax: {
@@ -79,22 +74,27 @@
                         render: function (data, type, full, meta) {
                             return '<input type="checkbox"/>';
                         },
-                        sortable: false
+                        sortable: false,
+                        searchable: false
                     },
                     {
                         name: 'name',
                         data: 'name',
-                        title: 'Instituție'
+                        title: 'Instituție',
+                        searchable: true
+                        
                     },
                     {
                         name: 'email',
                         data: 'email',
-                        title: 'Email'
+                        title: 'Email',
+                        searchable: true
                     },
                     {
                         name: 'phone',
                         data: 'phone',
-                        title: 'Telefon'
+                        title: 'Telefon',
+                        searchable: true
                     }
                 ]
             });

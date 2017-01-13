@@ -21,21 +21,6 @@ public class ContactServiceImpl implements ContactService {
 	}
 
 	@Override
-	public List<Contact> findUserByEmail(String email) {
-		return contactRepository.findByEmail(email);
-	}
-
-	@Override
-	public List<Contact> findUserByName(String name) {
-		return contactRepository.findByName(name);
-	}
-
-	@Override
-	public List<Contact> findUserByPhone(String phone) {
-		return contactRepository.findByPhone(phone);
-	}
-
-	@Override
 	public Contact getById(Long id) {
 		return contactRepository.findOne(id);
 	}
