@@ -24,7 +24,6 @@
         <link href="../../static/vendors/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" th:href="@{/vendors/datatables.net-responsive-bs/css/responsive.bootstrap.min.css}" rel="stylesheet"/>
         <link href="../../static/vendors/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" th:href="@{/vendors/datatables.net-scroller-bs/css/scroller.bootstrap.min.css}" rel="stylesheet"/>
         <link href="../../static/vendors/datatables.net-select.css/select.dataTables.min.css" th:href="@{/vendors/datatables.net-select.css/select.dataTables.min.css}" rel="stylesheet"/>
-        <link href="../../static/vendors/bootstrap-wysiwyg/bootstrap3-wysihtml5.css" th:href="@{/vendors/bootstrap-wysiwyg/bootstrap3-wysihtml5.css}" rel="stylesheet"/>
         <!-- Custom Theme Style -->
         <link href="../../static/css/theme.min.css" th:href="@{/css/theme.min.css}" rel="stylesheet"/>
         <link href="../../static/css/styles.css" th:href="@{/css/styles.css}" rel="stylesheet"/>
@@ -73,7 +72,6 @@
             <script src="../../static/vendors/bootbox-js/bootbox.min.js" th:src="@{/vendors/bootbox-js/bootbox.min.js}"></script>
             <script src="../../static/js/custom-alert.js" th:src="@{/js/custom-alert.js}"></script>
             <script src="../../static/js/custom.js" th:src="@{/js/custom.js}"></script>
-            <script src="../../static/vendors/bootstrap-wysiwyg/bootstrap3-wysihtml5.all.min.js" th:src="@{/vendors/bootstrap-wysiwyg/bootstrap3-wysihtml5.all.min.js}"></script>
             <script src="../../static/vendors/wysihtml-0.5.5/dist/wysihtml.min.js" th:src="@{/vendors/wysihtml-0.5.5/dist/wysihtml.min.js}"></script>
             <script src="../../static/vendors/wysihtml-0.5.5/dist/wysihtml-toolbar.min.js" th:src="@{/vendors/wysihtml-0.5.5/dist/wysihtml-toolbar.min.js}"></script>
             <script src="../../static/vendors/wysihtml-0.5.5/parser_rules/advanced.js" th:src="@{/vendors/wysihtml-0.5.5/parser_rules/advanced.js}"></script>
@@ -85,7 +83,7 @@
                 $(function () {
                     var token = $("meta[name='_csrf']").attr("content");
                     var header = $("meta[name='_csrf_header']").attr("content");
-                    $(document).ajaxSend(function (e, xhr, options) {
+                    $(document).ajaxSend(function (e, xhr) {
                         xhr.setRequestHeader(header, token);
                     });
                 });
@@ -96,13 +94,16 @@
             <!-- Toast -->
             <script th:inline="javascript">
                 /*<![CDATA[*/
-                var toastContent = /*[[${toast}]]*/ null;
-                console.log(toastContent);
-                if (toastContent != null) {
-                    showToast($('.right_col'), toastContent.message, toastContent.type);
-                }
+                var singleToast = /*[[${toast}]]*/ null;
                 var toastsContent = /*[[${toasts}]]*/ null;
-                console.log(toastsContent);
+                if (singleToast != null) {
+                    if (toastsContent == null) {
+                        toastsContent = [singleToast];
+                    } else {
+                        toastsContent.push(singleToast);
+                    }
+                }
+
                 if (toastsContent != null) {
                     showToasts($('.right_col'), toastsContent);
                 }
