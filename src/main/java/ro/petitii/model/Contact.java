@@ -31,6 +31,12 @@ public class Contact {
     @JsonView(DataTablesOutput.View.class)
     String email;
 
+    public Contact(){}
+    
+    public Contact(long id){
+    	this.id = id;
+    }
+    
 	public Long getId() {
 		return id;
 	}
