@@ -10,6 +10,7 @@ import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import ro.petitii.config.DeadlineConfig;
 import ro.petitii.config.DefaultsConfig;
 import ro.petitii.model.*;
 import ro.petitii.model.datatables.PetitionResponse;
@@ -24,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static ro.petitii.util.DateUtil.alertStatus;
 import static ro.petitii.util.StringUtil.prepareForView;
 
 @Service
@@ -53,10 +55,13 @@ public class PetitionServiceImpl implements PetitionService {
     private MessageSource messageSource;
 
     @Autowired
+    private AttachmentService attachmentService;
+
+    @Autowired
     private DefaultsConfig defaultsConfig;
 
     @Autowired
-    private AttachmentService attachmentService;
+    private DeadlineConfig deadlineConfig;
 
     @Override
     public Petition save(Petition petition) {
@@ -122,7 +127,7 @@ public class PetitionServiceImpl implements PetitionService {
 
         // check if deadline is not set
         if (petition.getDeadline() == null)
-            petition.setDeadline(DateUtil.deadline(new Date()));
+            petition.setDeadline(DateUtil.deadline(new Date(), deadlineConfig.getDays()));
 
         return petition;
     }
@@ -168,13 +173,18 @@ public class PetitionServiceImpl implements PetitionService {
         petition.setEmails(new ArrayList<>());
         petition.getEmails().add(email);
         petition.setPetitioner(petitioner);
-        petition.setDeadline(DateUtil.deadline(email.getDate()));
+        petition.setDeadline(DateUtil.deadline(email.getDate(), deadlineConfig.getDays()));
         return petition;
     }
 
     @Override
     public Petition findById(Long id) {
         return petitionRepository.findOne(id);
+    }
+
+    @Override
+    public List<Petition> findAllByResponsible(User user) {
+        return petitionRepository.findByResponsible(user);
     }
 
     @Override
@@ -257,6 +267,7 @@ public class PetitionServiceImpl implements PetitionService {
         element.setStatus(messageSource.getMessage(petition.statusString(), null, new Locale("ro")));
         DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
         element.setDeadline(df.format(petition.getDeadline()));
+        element.setAlertStatus(alertStatus(new Date(), petition.getDeadline(), deadlineConfig));
         return element;
     }
 }
