@@ -6,3 +6,4 @@ target/
 .project
 .settings/
 application.yml
+*.DS_Store
