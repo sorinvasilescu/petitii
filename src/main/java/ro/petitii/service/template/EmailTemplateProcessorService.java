@@ -47,4 +47,17 @@ public class EmailTemplateProcessorService {
         context.setVariables(variables);
         return templateEngine.process(EmailTemplateResolver.PREFIX + templateId.toString(), context);
     }
+
+    /**
+     * Process static templates located under templates/email/<name></name>
+     *
+     * @param templateName - the name to be resolved
+     * @param variables - variables
+     * @return the compiled template
+     */
+    public String processStaticTemplate(String templateName, Map<String, Object> variables) {
+        Context context = new Context();
+        context.setVariables(variables);
+        return templateEngine.process("email/" + templateName, context);
+    }
 }

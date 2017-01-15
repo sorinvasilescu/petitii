@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="email/email_style :: head"></head>
+<body class="">
+<!--/*@thymesVar id="today" type="java.lang.String"*/-->
+<!--/*@thymesVar id="serverUrl" type="java.lang.String"*/-->
+<!--/*@thymesVar id="notifications" type="java.util.Map<java.util.String, java.util.List<ro.petitii.model.Petition>>"*/-->
+
+<table border="0" cellpadding="0" cellspacing="0" class="body">
+    <tr>
+        <td>&nbsp;</td>
+        <td class="container">
+            <div class="content">
+                <span class="preheader">Notificare termene de rezolvarea petițiilor din data de: 12.03.2017</span>
+                <table class="main">
+                    <tr>
+                        <td class="wrapper">
+                            <table border="0" cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td>
+                                        <h3><b>Termene urgente</b></h3>
+                                        <p>Notificare termene de rezolvarea petițiilor din data de: <span th:text="${today}"></span></p>
+                                        <table border="0" cellpadding="1" cellspacing="1" class="pretty-table">
+                                            <thead style="font-weight: bold">
+                                            <tr class="pretty-header">
+                                                <td align="left">
+                                                    Număr înregistrare
+                                                </td>
+                                                <td align="left">
+                                                    Petent
+                                                </td>
+                                                <td align="left">
+                                                    Termen de rezolvare
+                                                </td>
+                                                <td align="left">
+                                                </td>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr th:each="pet : ${notifications.get('red')}" style="background-color: #ffb699" class="pretty-row">
+                                                <td align="left" th:text="${pet.regNo.number}">
+                                                    Număr înregistrare
+                                                </td>
+                                                <td align="left" th:text="${pet.petitioner.getFullName()}">
+                                                    Petentul
+                                                </td>
+                                                <td align="left" th:text="${#dates.format(pet.deadline, 'dd.MM.yyyy')}">
+                                                    Termen de rezolvare
+                                                </td>
+                                                <td align="left" class="btn btn-primary">
+                                                    <a th:href="${serverUrl + '/petition/' + pet.id}" href="#">Vezi în portal</a>
+                                                </td>
+                                            </tr>
+                                            <tr th:each="pet : ${notifications.get('yellow')}" style="background-color: #FFFACD" class="pretty-row">
+                                                <td align="left" th:text="${pet.regNo.number}">
+                                                    Număr înregistrare
+                                                </td>
+                                                <td align="left" th:text="${pet.petitioner.getFullName()}">
+                                                    Petentul
+                                                </td>
+                                                <td align="left" th:text="${#dates.format(pet.deadline, 'dd.MM.yyyy')}">
+                                                    Termen de rezolvare
+                                                </td>
+                                                <td align="left" class="btn btn-primary">
+                                                    <a th:href="${serverUrl + '/petition/' + pet.id}" href="#">Vezi în portal</a>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+
+                <div class="footer">
+                    <table border="0" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td class="content-block">
+                                <span class="apple-link">Acest e-mail este trimis zilnic tuturor utilizatorilor activi ai Portalului de Rezolvarea Petițiilor</span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </td>
+        <td>&nbsp;</td>
+    </tr>
+</table>
+</body>
+</html>

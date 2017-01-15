@@ -15,6 +15,7 @@ import java.util.List;
 
 @Repository
 public interface PetitionRepository extends DataTablesRepository<Petition, Long> {
+    List<Petition> findByResponsible(User user);
     Page<Petition> findByResponsible(User user, Pageable p);
     Page<Petition> findByPetitioner(Petitioner petitioner, Pageable p);
     Page<Petition> findByResponsibleAndCurrentStatusIn(User user, List<PetitionStatus.Status> statuses, Pageable p);

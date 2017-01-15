@@ -14,6 +14,7 @@ public class EmailTemplate {
         response,
         forward,
         start_work,
+        //todo; remove these
         recover_password,
         reset_password;
 
