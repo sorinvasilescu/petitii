@@ -1,5 +1,6 @@
 package ro.petitii.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,7 @@ import ro.petitii.repository.ContactRepository;
 public class ContactServiceImpl implements ContactService {
 	@Autowired
 	private ContactRepository contactRepository;
-	 
+
 	@Override
 	public Iterable<Contact> getAllContacts() {
 		return contactRepository.findAll();
@@ -24,7 +25,7 @@ public class ContactServiceImpl implements ContactService {
 	public Contact getById(Long id) {
 		return contactRepository.findOne(id);
 	}
-	
+
 	@Override
 	public DataTablesOutput<Contact> findAll(DataTablesInput input) {
 		return contactRepository.findAll(input);
@@ -38,5 +39,16 @@ public class ContactServiceImpl implements ContactService {
 	@Override
 	public void delete(long id) {
 		contactRepository.delete(id);
+	}
+
+	@Override
+	public void delete(long[] contactIds) {
+
+		List<Contact> contactList = new ArrayList<Contact>(contactIds.length);
+		for (long id : contactIds) {
+			contactList.add(new Contact(id));
+		}
+		
+		contactRepository.delete(contactList);
 	}
 }

@@ -109,7 +109,7 @@
             $("#modify").click(function () {
                 var selectedRows = contactTable.rows({selected: true}).data().toArray();
                 if (selectedRows.length != 1) {
-                    addWarning("#error-messages", "Pentru modificări selectați un contact");
+                    addWarning("#error-messages", "Pentru modificări selectați un singur contact");
                     this.blur()
                 } else {
                     window.location.href = '/contact/' + selectedRows[0].id;
@@ -117,17 +117,51 @@
             });
 
             $("#delete").click(function () {
-                var selectedRows = contactTable.rows({selected: true}).data().toArray();
-                if (selectedRows.length != 1) {
-                    addWarning("#error-messages", "Pentru ștergere selectați un contact");
+            	//get ids from the selected rows
+            	var selectedRows = [];
+                $.each(contactTable.rows({selected: true}).data().toArray(), function (i, row) {
+                    selectedRows.push(row.id);
+                });
+            	
+                var alertMsg; 
+                if (selectedRows.length == 0){
+                	//must select at least one
+                	addWarning("#error-messages", "Pentru ștergere selectați cel puțin un contact");
                     this.blur()
-                } else {
-                    customAlert("Sunteți sigur că doriți ștergere contactului?", function () {
-                        window.location.href = '/contact/' + selectedRows[0].id + '/delete';
-                    });
+                }else{
+                	//some selected	
+                	handleDelete(selectedRows);
                 }
             });
         });
+        
+        function handleDelete(selectedRows){
+        	if (selectedRows.length == 1) {
+            	alertMsg = "Sunteți sigur că doriți ștergerea contactului selectat?";
+            } else {
+            	alertMsg = "Sunteți sigur că doriți ștergerea contactelor selectate ("+selectedRows.length+")?"
+            }
+        
+        	customAlert(alertMsg, function (confirmed) {
+            	if(confirmed){
+	            	$.ajax({
+	                     url: '/api/contacts/delete',
+	                     data: {'contacts':selectedRows},
+	                     method: 'post'
+	                 }).done(function(data){
+	                     if (data.success=='true') {
+	                         addSuccess('#error-messages', data.errorMsg);
+	                         contactTable.ajax.reload();
+	                     } else {
+	                         addError('#error-messages', data.errorMsg);
+	                         contactTable.ajax.reload();
+	                     }
+	                 }).fail(function(reason){
+	                     addError('#error-messages', reason);
+	                     });
+            	}
+            });
+        }
     </script>
     <!-- /Datatables -->
     <div th:replace="fragments/main_head::toast"></div>
