@@ -100,7 +100,7 @@ public class PetitionApiController {
 
         List<PetitionStatus.Status> pStatus = parseStatus(status);
 
-        DataTablesOutput<PetitionResponse> response = petitionService.getTableContent(user, pStatus, pageRequest(input, PetitionResponse.sortMapping));
+        DataTablesOutput<PetitionResponse> response = petitionService.getTableContent(input, user, pStatus);
         response.setDraw(sequenceNo);
 
         return response;
@@ -111,7 +111,7 @@ public class PetitionApiController {
     public DataTablesOutput<PetitionResponse> getAllPetitions(@Valid DataTablesInput input, String status) {
         int sequenceNo = input.getDraw();
         List<PetitionStatus.Status> pStatus = parseStatus(status);
-        DataTablesOutput<PetitionResponse> response = petitionService.getTableContent(null, pStatus, pageRequest(input, PetitionResponse.sortMapping));
+        DataTablesOutput<PetitionResponse> response = petitionService.getTableContent(input, null, pStatus);
         response.setDraw(sequenceNo);
         return response;
     }

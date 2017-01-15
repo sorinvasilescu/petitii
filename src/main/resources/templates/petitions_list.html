@@ -78,7 +78,6 @@
             },
             processing: true,
             serverSide: true,
-            sDom: 'lrtip ',
             order: [[2, 'asc']],
             rowId: "id",
             ajax: {
@@ -100,17 +99,20 @@
                     },
                     sortable: false,
                     className: 'text-center',
-                    width: '15px'
+                    width: '15px',
+                    searchable: false
                 },
                 {
                     name: 'regNo',
                     data: 'regNo',
-                    title: 'Număr înregistrare'
+                    title: 'Număr înregistrare',
+                    searchable: true
                 },
                 {
                     name: 'deadline',
                     data: 'deadline',
-                    title: 'Termen'
+                    title: 'Termen',
+                    searchable: false
                 },
                 {
                     name: 'petitioner.lastName',
@@ -118,12 +120,14 @@
                     title: 'Nume petent',
                     render: function (data) {
                         return strLimit(data, 30);
-                    }
+                    },
+                    searchable: true
                 },
                 {
                     name: 'petitionerEmail',
                     data: 'petitionerEmail',
-                    title: 'Email petent'
+                    title: 'Email petent',
+                    searchable: false
                 },
                 {
                     name: '_abstract',
@@ -132,12 +136,14 @@
                     render: function (data) {
                         return strLimit(data, 70);
                     },
-                    sortable: false
+                    sortable: false,
+                    searchable: true
                 },
                 {
                     name: 'status',
                     data: 'status',
-                    title: 'Status'
+                    title: 'Status',
+                    searchable: false
                 },
                 {
                     data: null,
@@ -151,7 +157,8 @@
                     },
                     sortable: false,
                     'className': 'text-center',
-                    'width': '80px'
+                    'width': '80px',
+                    searchable: false
                 }
             ]
         });

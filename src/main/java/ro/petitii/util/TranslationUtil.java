@@ -3,7 +3,6 @@ package ro.petitii.util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
-import ro.petitii.model.Email;
 import ro.petitii.model.EmailTemplate;
 import ro.petitii.model.PetitionStatus;
 

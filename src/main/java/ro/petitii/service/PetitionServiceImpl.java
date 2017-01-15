@@ -6,12 +6,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import ro.petitii.config.DefaultsConfig;
 import ro.petitii.model.*;
+import ro.petitii.model.Petition_;
 import ro.petitii.model.datatables.PetitionResponse;
 import ro.petitii.repository.PetitionRepository;
 import ro.petitii.service.email.ImapService;
@@ -19,6 +22,12 @@ import ro.petitii.util.DateUtil;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -57,6 +66,9 @@ public class PetitionServiceImpl implements PetitionService {
 
     @Autowired
     private AttachmentService attachmentService;
+
+    @PersistenceContext
+    private EntityManager em;
 
     @Override
     public Petition save(Petition petition) {
@@ -178,24 +190,31 @@ public class PetitionServiceImpl implements PetitionService {
     }
 
     @Override
-    public DataTablesOutput<PetitionResponse> getTableContent(User user, List<PetitionStatus.Status> statuses,
-                                                              PageRequest p) {
-        Page<Petition> petitions;
+    public DataTablesOutput<PetitionResponse> getTableContent(DataTablesInput input, User user, List<PetitionStatus.Status> statuses) {
+        DataTablesOutput<Petition> petitions;
         if (user != null) {
             if (statuses == null) {
-                petitions = petitionRepository.findByResponsible(user, p);
+                petitions = petitionRepository.findAll(input, new Specification<Petition>() {
+                    @Override
+                    public Predicate toPredicate(Root<Petition> root, CriteriaQuery<?> q, CriteriaBuilder cb) {
+                        return cb.and(root.get(Petition_.currentStatus).in(statuses));
+                    }
+                });
             } else {
-                petitions = petitionRepository.findByResponsibleAndCurrentStatusIn(user, statuses, p);
+                // filter by responsible and status
+                petitions = petitionRepository.findAll(input);
             }
         } else {
             if (statuses == null) {
-                petitions = petitionRepository.findAll(p);
+                // filter by nothing
+                petitions = petitionRepository.findAll(input);
             } else {
-                petitions = petitionRepository.findByCurrentStatusIn(statuses, p);
+                // filter by status
+                petitions = petitionRepository.findAll(input);
             }
         }
         DataTablesOutput<PetitionResponse> response = new DataTablesOutput<>();
-        response.setData(convert(petitions));
+        response.setData(convert(petitions.getData()));
         Long count;
         if (user != null) {
             count = petitionRepository.countByResponsible(user);
@@ -237,6 +256,10 @@ public class PetitionServiceImpl implements PetitionService {
 
     private List<PetitionResponse> convert(Page<Petition> petitions) {
         return petitions.getContent().stream().map(this::convert).collect(Collectors.toList());
+    }
+
+    private List<PetitionResponse> convert(List<Petition> petitions) {
+        return petitions.stream().map(this::convert).collect(Collectors.toList());
     }
 
     private List<PetitionResponse> convertAndFilter(Page<Petition> petitions, Long filterPetitionId) {

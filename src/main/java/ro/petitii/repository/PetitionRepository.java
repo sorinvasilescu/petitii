@@ -2,7 +2,10 @@ package ro.petitii.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
+import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.data.jpa.datatables.repository.DataTablesRepository;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -21,6 +24,7 @@ public interface PetitionRepository extends DataTablesRepository<Petition, Long>
     Page<Petition> findByCurrentStatusIn(List<PetitionStatus.Status> statuses, Pageable p);
     Long countByResponsible(User responsible);
     Long countByPetitioner(Petitioner petitioner);
+    DataTablesOutput<Petition> findAll(DataTablesInput input, Specification<Petition> spec);
 
     @Query("select p from Petition p " +
             "where p in (select c.oldPetition from Connection c where c.newPetition.id = :id) " +
