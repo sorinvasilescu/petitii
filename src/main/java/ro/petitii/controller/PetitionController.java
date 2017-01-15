@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import ro.petitii.config.DeadlineConfig;
 import ro.petitii.config.DefaultsConfig;
 import ro.petitii.config.SmtpConfig;
 import ro.petitii.model.*;
@@ -63,6 +64,9 @@ public class PetitionController extends ControllerBase {
     @Autowired
     private SmtpConfig smtpConfig;
 
+    @Autowired
+    private DeadlineConfig deadlineConfig;
+
     @RequestMapping(path = "/petition", method = RequestMethod.GET)
     public ModelAndView addPetition() {
         Petitioner petitioner = new Petitioner();
@@ -70,7 +74,7 @@ public class PetitionController extends ControllerBase {
 
         Petition petition = new Petition();
         petition.setReceivedDate(new Date());
-        petition.setDeadline(DateUtil.deadline(new Date()));
+        petition.setDeadline(DateUtil.deadline(new Date(), deadlineConfig.getDays()));
         petition.setPetitioner(petitioner);
 
         petitionCustomParamService.initDefaults(petition);

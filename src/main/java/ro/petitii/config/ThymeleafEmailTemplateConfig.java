@@ -8,9 +8,6 @@ import ro.petitii.service.template.EmailTemplateResolver;
 
 import javax.annotation.PostConstruct;
 
-/**
- * Created by mpostelnicu on 12/29/2016.
- */
 @Configuration
 public class ThymeleafEmailTemplateConfig {
 

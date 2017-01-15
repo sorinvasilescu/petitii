@@ -20,6 +20,7 @@ public class PetitionResponse {
     private String _abstract;
     private String status;
     private String deadline;
+    private String alertStatus;
 
     public Long getId() {
         return id;
@@ -99,5 +100,13 @@ public class PetitionResponse {
 
     public void setDeadline(String deadline) {
         this.deadline = deadline;
+    }
+
+    public String getAlertStatus() {
+        return alertStatus;
+    }
+
+    public void setAlertStatus(String alertStatus) {
+        this.alertStatus = alertStatus;
     }
 }

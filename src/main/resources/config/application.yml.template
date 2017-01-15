@@ -40,7 +40,12 @@ petitii:
   defaultValues:
     country: RO
   schedule: # in cron format
-    email: "0 15 * * * *"
+    email: "0 */15 * * * *"
+    deadline: "0 0 5 * * *"
+  deadline:
+    days: 30
+    yellowAlert: 0.75
+    redAlert: 0.90
 
 ---
 spring:
