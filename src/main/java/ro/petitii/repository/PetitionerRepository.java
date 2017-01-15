@@ -5,8 +5,9 @@ import org.springframework.stereotype.Repository;
 import ro.petitii.model.Petitioner;
 
 import java.util.Collection;
+import java.util.List;
 
 @Repository
 public interface PetitionerRepository extends CrudRepository<Petitioner,Long> {
-    Collection<Petitioner> findByEmail(String email);
+    List<Petitioner> findByEmail(String email);
 }
