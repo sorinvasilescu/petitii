@@ -20,6 +20,7 @@ import ro.petitii.config.SmtpConfig;
 import ro.petitii.model.*;
 import ro.petitii.model.datatables.AttachmentResponse;
 import ro.petitii.model.datatables.CommentResponse;
+import ro.petitii.model.datatables.EmailResponse;
 import ro.petitii.model.datatables.PetitionResponse;
 import ro.petitii.service.*;
 import ro.petitii.service.email.SmtpService;
@@ -38,7 +39,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static ro.petitii.controller.api.DatatableUtils.pageRequest;
@@ -68,6 +72,10 @@ public class PetitionApiController {
 
     @Autowired
     private ConnectionService connectionService;
+
+    @Autowired
+    private EmailService emailService;
+
 
     @Autowired
     private EmailTemplateService emailTemplateService;
@@ -134,6 +142,19 @@ public class PetitionApiController {
         }
         DataTablesOutput<PetitionResponse> response = petitionService
                 .getTableLinkedPetitions(petition, pageRequest(input, PetitionResponse.sortMapping));
+        response.setDraw(sequenceNo);
+        return response;
+    }
+
+    @RequestMapping(value = "{id}/emails", method = RequestMethod.POST)
+    @ResponseBody
+    public DataTablesOutput<EmailResponse> getEmails(@Valid DataTablesInput input, @PathVariable("id") long id) {
+        int sequenceNo = input.getDraw();
+        Petition petition = petitionService.findById(id);
+        if (petition == null) {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        }
+        DataTablesOutput<EmailResponse> response = emailService.getTableContent(petition, pageRequest(input));
         response.setDraw(sequenceNo);
         return response;
     }

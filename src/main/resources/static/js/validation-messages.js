@@ -16,6 +16,15 @@ function showToast(container, message, type) {
         .children('#alert-content').text(message);
 }
 
+function showToasts(container, toasts) {
+    if (toasts.constructor === Array) {
+        for (var i = 0; i < toasts.length; i++) {
+            var toast = toasts[i];
+            showToast(container, toast.message, toast.type);
+        }
+    }
+}
+
 function addWarning(container, msg) {
     showToast(container, msg, "warning");
 }

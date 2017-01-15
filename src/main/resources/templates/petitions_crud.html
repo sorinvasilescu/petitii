@@ -8,6 +8,7 @@
 <!--/*@thymesVar id="commentsApiUrl" type="java.lang.String"*/-->
 <!--/*@thymesVar id="attachmentApiUrl" type="java.lang.String"*/-->
 <!--/*@thymesVar id="linkedPetitionsApiUrl" type="java.lang.String"*/-->
+<!--/*@thymesVar id="emailsApiUrl" type="java.lang.String"*/-->
 <!-- Custom Params -->
 <!--/*@thymesVar id="entity" type="ro.petitii.model.PetitionCustomParam"*/-->
 <!--/*@thymesVar id="information" type="ro.petitii.model.PetitionCustomParam"*/-->
@@ -43,14 +44,14 @@
                         <div class="row">
                             <div class="x_panel">
                                 <div class="x_title">
-                                    <h2 th:if="*{id}">Adaugă petiție</h2>
-                                    <h2 th:unless="*{id}">Editează petiție</h2>
+                                    <h2 th:unless="*{id}">Adaugă petiție</h2>
+                                    <h2 th:if="*{id}">Editează petiție</h2>
                                     <div class="clearfix"></div>
                                 </div>
                                 <div class="col-md-6 col-xs-12">
                                     <div class="x_content">
                                         <div class="item form-group" th:classappend="${#fields.hasErrors('responsible')} ? bad">
-                                            <label class="control-label col-md-3 col-sm-3 col-xs-12">Responsabil</label>
+                                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="responsible">Responsabil</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <select class="form-control" name="responsible" id="responsible" th:field="*{responsible}">
                                                     <option value="" selected="selected">Selectează responsabilul</option>
@@ -60,28 +61,27 @@
                                             <div class="alert" th:if="${#fields.hasErrors('responsible')}">Câmpul nu poate fi gol</div>
                                         </div>
                                         <div class="item form-group">
-                                            <label class="control-label col-md-3 col-sm-3 col-xs-12">Nr. înregistrare
-                                            </label>
+                                            <label for="regNo" class="control-label col-md-3 col-sm-3 col-xs-12">Nr. înregistrare</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <input type="text" name="nr_inreg" class="form-control col-md-10" th:field="*{regNo.number}" readonly="readonly" />
+                                                <input type="text" id="regNo" name="nr_inreg" class="form-control col-md-10" th:field="*{regNo.number}" readonly="readonly" />
                                             </div>
                                         </div>
                                         <div class="item form-group">
-                                            <label class="control-label col-md-3 col-sm-3 col-xs-12">Data primire:</label>
+                                            <label for="date" class="control-label col-md-3 col-sm-3 col-xs-12">Data primire:</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <input type="text" name="date" class="form-control col-md-10" th:field="*{receivedDate}" />
+                                                <input type="text" id="date" name="date" class="form-control col-md-10" th:field="*{receivedDate}" />
                                             </div>
                                             <div class="alert" th:if="${#fields.hasErrors('receivedDate')}">Câmpul nu poate fi gol</div>
                                         </div>
                                         <div class="item form-group">
-                                            <label class="control-label col-md-3 col-sm-3 col-xs-12">Data limita:</label>
+                                            <label for="deadline" class="control-label col-md-3 col-sm-3 col-xs-12">Data limita:</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <input type="text" name="deadline" class="form-control col-md-10" th:field="*{deadline}" readonly="readonly"/>
+                                                <input type="text" id="deadline" name="deadline" class="form-control col-md-10" th:field="*{deadline}" readonly="readonly"/>
                                             </div>
                                             <div class="alert" th:if="${#fields.hasErrors('deadline')}">Câmpul nu poate fi gol</div>
                                         </div>
                                         <div class="item form-group">
-                                            <label class="control-label col-md-3 col-sm-3 col-xs-12">Status</label>
+                                            <label for="status" class="control-label col-md-3 col-sm-3 col-xs-12">Status</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <input id="status" type="text" name="status" disabled="disabled" class="form-control col-md-10" value="Petitie noua" th:value="#{${petition.statusString()}}" />
                                             </div>
@@ -172,7 +172,7 @@
                                             <label for="country" class="control-label col-md-3 col-sm-3 col-xs-12">Țara</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <select class="form-control" name="country" id="country" tabindex="-1" th:field="*{petitioner.country}">
-                                                    <span th:replace="fragments/countries"></span>
+                                                    <option th:replace="fragments/countries"></option>
                                                 </select>
                                             </div>
                                             <div class="alert" th:if="${#fields.hasErrors('petitioner.country')}">Câmpul nu poate fi gol</div>
@@ -182,7 +182,7 @@
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <select class="form-control" name="county" id="county" tabindex="-1" th:field="*{petitioner.county}">
                                                     <option value="">Alege județul</option>
-                                                    <span th:replace="fragments/counties"></span>
+                                                    <option th:replace="fragments/counties"></option>
                                                 </select>
                                             </div>
                                             <div class="alert" th:if="${#fields.hasErrors('petitioner.county')}">Câmpul nu poate fi gol</div>
@@ -192,7 +192,7 @@
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <select class="form-control" name="city" id="city" tabindex="-1" th:field="*{petitioner.city}">
                                                     <option value="">Alege orașul</option>
-                                                    <span th:replace="fragments/cities"></span>
+                                                    <option th:replace="fragments/cities"></option>
                                                 </select>
                                             </div>
                                             <div class="alert" th:if="${#fields.hasErrors('petitioner.city')}">Câmpul nu poate fi gol</div>
@@ -239,6 +239,9 @@
                                 <li role="presentation" class="">
                                     <a href="#tab_content4" role="tab" id="obs-tab" data-toggle="tab" aria-expanded="false">Observații</a>
                                 </li>
+                                <li th:if="${emailsApiUrl} != null" role="presentation" class="">
+                                    <a href="#tab_content5" role="tab" id="email-tab" data-toggle="tab" aria-expanded="false">E-mail-uri</a>
+                                </li>
                             </ul>
                             <div id="myTabContent" class="tab-content">
                                 <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="home-tab">
@@ -252,8 +255,9 @@
                                         <div class="alert" th:if="${#fields.hasErrors('subject')}">Minim 5 caractere</div>
                                     </div>
                                     <div class="form-group">
-                                        <label class="control-label col-md-2 col-sm-2 col-xs-12">Descriere</label>
+                                        <label for="description" class="control-label col-md-2 col-sm-2 col-xs-12">Descriere</label>
                                         <div class="col-md-8 col-sm-8 col-xs-12">
+                                            <div th:replace="fragments/editor-toolbar"></div>
                                             <textarea name="description" id="description" rows="30" style="width:100%" th:field="*{description}"></textarea>
                                         </div>
                                     </div>
@@ -313,6 +317,14 @@
                                         <h2 align="center">Salvați petiția pentru a putea adăuga comentarii ...</h2>
                                     </div>
                                 </div>
+                                <div role="tabpanel" class="tab-pane fade" id="tab_content5" aria-labelledby="profile-tab">
+                                    <div>
+                                        <table id="emailsTable"
+                                               class="table table-striped row-border compact stripe dt-responsive nowrap"
+                                               cellspacing="0" width="100%">
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 						<div class="row">
@@ -349,6 +361,7 @@
         var attachmentsApiUrl = /*[[${attachmentApiUrl}]]*/ '/api/petitions/{id}/attachments/';
         var linkedPetitionsApiUrl = /*[[${linkedPetitionsApiUrl}]]*/ '/api/petitions/{id}/linked';
         var linkedByPetitionerApiUrl = /*[[${linkedPetitionerApiUrl}]]*/ '/api/petitions/{id}/by/petitioner';
+        var emailsApiUrl = /*[[${emailsApiUrl}]]*/ '/api/petitions/{id}/by/petitioner';
         var pEmail = /*[[${petition.petitioner.email}]]*/ '#';
         var pid = /*[[${petition.id}]]*/ '#';
         var inLucru = /*[[#{IN_PROGRESS}]]*/ "In lucru";
@@ -398,7 +411,10 @@
             $('#petition-form').submit();
         });
 
-        $('#top-start,#bottom-start').click(function () {
+        var startBtns = $('#top-start,#bottom-start');
+        startBtns.tooltip();
+
+        startBtns.click(function () {
             var selectedRows = [];
             selectedRows.push(pid);
             $.ajax({
@@ -431,8 +447,6 @@
         $('#top-close,#bottom-close').click(function () {
             window.location.href = '/petition/' + pid + '/resolve/closed';
         });
-
-        $('#top-start,#bottom-start').tooltip();
     });
     </script>
 
@@ -489,7 +503,7 @@
                         contentType: 'text/plain',
                         processData: false,
                         data: result
-                    }).done(function (data) {
+                    }).done(function () {
                         observationsTable.ajax.reload();
                     }).fail(function (reason) {
                         console.log(reason);
@@ -506,7 +520,7 @@
                         url: "/api/petitions/" + pid + "/comment/" + selectedRows[0].id + "/delete",
                         method: 'POST',
                         processData: false
-                    }).done(function (data) {
+                    }).done(function () {
                         observationsTable.ajax.reload();
                     }).fail(function (reason) {
                         console.log(reason);
@@ -563,7 +577,7 @@
                     {
                         data: null,
                         title: '',
-                        render: function (data, type, full, meta) {
+                        render: function (data) {
                             if (data != null) {
                                 return '<a href="/api/attachments/download/' + data.id + '"><i class="fa fa-paperclip"></i> Salvează</a>';
                             } else {
@@ -592,7 +606,7 @@
                         data: data,
                         contentType: false,
                         processData: false
-                    }).done(function (data) {
+                    }).done(function () {
                         attachmentTable.ajax.reload();
                     }).fail(function (reason) {
                         if (reason.status == 422) {
@@ -614,7 +628,7 @@
                             $.ajax({
                                 url: "/api/petitions/" + pid + "/attachment/" + selectedRows[0].id + "/delete/",
                                 method: 'POST'
-                            }).done(function (data) {
+                            }).done(function () {
                                 attachmentTable.ajax.reload();
                             }).fail(function (reason) {
                                 console.log(reason);
@@ -688,7 +702,7 @@
                     {
                         data: null,
                         title: '',
-                        render: function (data, type, full, meta) {
+                        render: function (data) {
                             if (data != null) {
                                 return '<a href="/petition/' + data.id + '"><i class="fa fa-info-circle"></i> Vizualizează</a>';
                             } else {
@@ -706,7 +720,7 @@
                     $.ajax({
                         url: "/api/petitions/" + pid + "/link/" + result[0].id,
                         method: 'POST'
-                    }).done(function (data) {
+                    }).done(function () {
                         linkedTable.ajax.reload();
                     }).fail(function (reason) {
                         console.log(reason);
@@ -724,7 +738,7 @@
                             $.ajax({
                                 url: "/api/petitions/" + pid + "/unlink/" + selectedRows[0].id,
                                 method: 'POST'
-                            }).done(function (data) {
+                            }).done(function () {
                                 linkedTable.ajax.reload();
                             }).fail(function (reason) {
                                 console.log(reason);
@@ -736,8 +750,86 @@
         });
     </script>
 
+    <script th:if="${emailsApiUrl} != null" type="application/javascript" th:inline="none">
+        $(document).ready(function() {
+            var emailsTable = $('#emailsTable').DataTable({
+                select: false,
+                processing: true,
+                serverSide: true,
+                sDom: 'lrtip ',
+                rowId: "id",
+                order: [[0, 'desc']],
+                autoWidth: false,
+                ajax: {
+                    url: emailsApiUrl,
+                    type: 'POST'
+                },
+                language: {
+                    url: languageUrl
+                },
+                fixedColumns: true,
+                columns: [
+                    {
+                        name: 'sender',
+                        data: 'sender',
+                        title: 'Expeditor',
+                        render: function (data) {
+                            return strLimit(data, 70);
+                        },
+                        'className': 'text-center',
+                        'width': '120px'
+                    },
+                    {
+                        name: 'recipients',
+                        data: 'recipients',
+                        title: 'Destinatari',
+                        render: function (data) {
+                            return strLimit(data, 70);
+                        },
+                        'className': 'text-center',
+                        'width': '120px'
+                    },
+                    {
+                        name: 'subject',
+                        data: 'subject',
+                        title: 'Subiect',
+                        render: function (data) {
+                            return strLimit(data, 120);
+                        },
+                        'className': "elipsis-subiect",
+                        'width': '900px'
+                    },
+                    {
+                        name: 'date',
+                        data: 'date',
+                        title: 'Data',
+                        'className': 'text-center',
+                        'width': '120px'
+                    },
+                    {
+                        data: null,
+                        title: 'Email',
+                        render: function (data) {
+                            if (data != null) {
+                                return '<a class="btn btn-default btn-sm" href="/email/' + data.id + '"><i class="fa fa-envelope-square"></i> Detalii</a>';
+                            } else {
+                                return '';
+                            }
+                        },
+                        sortable: false,
+                        'className': 'text-center',
+                        'width': '80px'
+                    }
+                ]
+            });
+        });
+    </script>
+
     <script type="text/javascript">
-        $("#description").wysihtml5();
+        new wysihtml5.Editor("description", {
+            toolbar:      "wysihtml-toolbar",
+            parserRules:  wysihtml5ParserRules
+        });
     </script>
     <div th:replace="fragments/main_head::toast"></div>
 </body>

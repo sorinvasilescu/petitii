@@ -14,12 +14,17 @@ public class EmailTemplate {
         response,
         forward,
         start_work,
-        recover_password;
+        recover_password,
+        reset_password;
 
         public String viewName() {
             return categoryMsg(this);
         }
-    }
+
+        public String toString() {
+            return viewName();
+        }
+     }
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

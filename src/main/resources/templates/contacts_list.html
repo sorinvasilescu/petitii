@@ -17,10 +17,6 @@
                     <h2>Lista de contacte institutii</h2>
                     <div class="col-md-12 col-sm-12 col-xs-12">
                         <div class="buttons align-right">
-                	  		<!-- 
-                	  		<button type="button" class="btn btn-default btn-sm"><a href="/adauga-contact"><i class="fa fa-file"></i> <span th:text="${adauga}">Contact nou</span></a></button>
-                	  		<button type="button" class="btn btn-default btn-sm"><a href="/edit-contact"><i class="fa fa-edit"></i> <span th:text="${editeaza} ">Editeaza contact</span></a></button>
-                	  		 -->
                 	  		<button id="add" type="button" class="btn btn-default btn-md"><i class="fa fa-plus-square-o"></i>&nbsp;<span>Adaugă</span></button>
                 	  		<button id="modify" type="button" class="btn btn-default btn-md"><i class="fa fa-pencil-square-o"></i>&nbsp;<span>Modifică</span></button>
                 	  		<button id="delete" type="button" class="btn btn-default btn-md"><i class="fa fa-minus-square-o"></i>&nbsp;<span>Șterge</span></button>
@@ -29,7 +25,7 @@
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
-                    <table id="datatable-responsive" class="table table-striped table-bordered dt-responsive nowrap jambo_table bulk_action" cellspacing="0" width="100%">
+                    <table id="datatable-responsive" class="table table-striped table-bordered dt-responsive nowrap jambo_table bulk_action top_search" cellspacing="0" width="100%">
                     </table>
                 </div>
             </div>
@@ -62,7 +58,6 @@
                 },
                 processing: true,
                 serverSide: true,
-                sDom: 'lrtip ',
                 order: [[2, 'desc']],
                 rowId: "id",
                 ajax: {
@@ -79,22 +74,27 @@
                         render: function (data, type, full, meta) {
                             return '<input type="checkbox"/>';
                         },
-                        sortable: false
+                        sortable: false,
+                        searchable: false
                     },
                     {
                         name: 'name',
                         data: 'name',
-                        title: 'Instituție'
+                        title: 'Instituție',
+                        searchable: true
+                        
                     },
                     {
                         name: 'email',
                         data: 'email',
-                        title: 'Email'
+                        title: 'Email',
+                        searchable: true
                     },
                     {
                         name: 'phone',
                         data: 'phone',
-                        title: 'Telefon'
+                        title: 'Telefon',
+                        searchable: true
                     }
                 ]
             });
@@ -109,7 +109,7 @@
             $("#modify").click(function () {
                 var selectedRows = contactTable.rows({selected: true}).data().toArray();
                 if (selectedRows.length != 1) {
-                    addWarning("#error-messages", "Pentru modificări selectați un contact");
+                    addWarning("#error-messages", "Pentru modificări selectați un singur contact");
                     this.blur()
                 } else {
                     window.location.href = '/contact/' + selectedRows[0].id;
@@ -117,17 +117,51 @@
             });
 
             $("#delete").click(function () {
-                var selectedRows = contactTable.rows({selected: true}).data().toArray();
-                if (selectedRows.length != 1) {
-                    addWarning("#error-messages", "Pentru ștergere selectați un contact");
+            	//get ids from the selected rows
+            	var selectedRows = [];
+                $.each(contactTable.rows({selected: true}).data().toArray(), function (i, row) {
+                    selectedRows.push(row.id);
+                });
+            	
+                var alertMsg; 
+                if (selectedRows.length == 0){
+                	//must select at least one
+                	addWarning("#error-messages", "Pentru ștergere selectați cel puțin un contact");
                     this.blur()
-                } else {
-                    customAlert("Sunteți sigur că doriți ștergere contactului?", function () {
-                        window.location.href = '/contact/' + selectedRows[0].id + '/delete';
-                    });
+                }else{
+                	//some selected	
+                	handleDelete(selectedRows);
                 }
             });
         });
+        
+        function handleDelete(selectedRows){
+        	if (selectedRows.length == 1) {
+            	alertMsg = "Sunteți sigur că doriți ștergerea contactului selectat?";
+            } else {
+            	alertMsg = "Sunteți sigur că doriți ștergerea contactelor selectate ("+selectedRows.length+")?"
+            }
+        
+        	customAlert(alertMsg, function (confirmed) {
+            	if(confirmed){
+	            	$.ajax({
+	                     url: '/api/contacts/delete',
+	                     data: {'contacts':selectedRows},
+	                     method: 'post'
+	                 }).done(function(data){
+	                     if (data.success=='true') {
+	                         addSuccess('#error-messages', data.errorMsg);
+	                         contactTable.ajax.reload();
+	                     } else {
+	                         addError('#error-messages', data.errorMsg);
+	                         contactTable.ajax.reload();
+	                     }
+	                 }).fail(function(reason){
+	                     addError('#error-messages', reason);
+	                     });
+            	}
+            });
+        }
     </script>
     <!-- /Datatables -->
     <div th:replace="fragments/main_head::toast"></div>

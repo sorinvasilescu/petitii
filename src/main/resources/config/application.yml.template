@@ -4,20 +4,14 @@ spring:
   thymeleaf:
     cache: false
   datasource:
-    url: jdbc:mysql://localhost/petitions?useUnicode=yes&characterEncoding=UTF-8&useSSL=false
-    username: petitions
-    password: petitions
+    url: [[ DB URL ex:jdbc:mysql://localhost/petitions?useUnicode=yes&characterEncoding=UTF-8&useSSL=false ]]
+    username: [[ DB USER ]]
+    password: [[ DB PASSWORD ]]
     driver-class-name: com.mysql.jdbc.Driver
   jpa.hibernate.ddl-auto: none
   http.multipart:
     max-file-size: 4MB
     max-request-size: 4MB
-#  jpa:
-#    properties.javax.persistence.schema-generation:
-#      create-source: metadata
-#      scripts.action: create
-#      scripts.create-target: create.sql
-    #show-sql: true
 
 #logging.level.org.springframework.web: DEBUG
 #logging.level.org.hibernate: DEBUG
@@ -26,25 +20,27 @@ security.basic.enabled: false
 
 petitii:
   imap:
-    server: imap.gmail.com
+    server: [[ SERVER ex:imap.gmail.com ]]
     port: 993
     ssl: true
-    username: petitii.gov@gmail.com
-    password: Q!W@E#R$T%Y^
-    startDate: 06.12.2016
-    folder: "INBOX"
+    username: [[ EMAIL ADDRESS ]]
+    password: [[ PASSWORD ]]
+    startDate: [[ START DATE ex:06.12.2016 ]]
+    folder: [[ FOLDER ex:INBOX ]]
   emailAttachments:
     path: target/attachments
   regNo:
     pattern: PET-%d-GOV
   smtp:
-    server: smtp.gmail.com
+    server: [[ SERVER ex:smtp.gmail.com ]]
     port: 587
     ssl: true
-    username: petitii.gov@gmail.com
-    password: Q!W@E#R$T%Y^
+    username: [[ EMAIL ADDRESS ]]
+    password: [[ PASSWORD ]]
   defaultValues:
     country: RO
+  schedule: # in cron format
+    email: "0 15 * * * *"
 
 ---
 spring:

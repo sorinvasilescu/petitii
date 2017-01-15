@@ -95,7 +95,7 @@
             columns: [
                 {
                     data: null,
-                    render: function (data, type, full, meta) {
+                    render: function () {
                         return '<input type="checkbox"/>';
                     },
                     sortable: false,
@@ -105,7 +105,7 @@
                 {
                     name: 'regNo',
                     data: 'regNo',
-                    title: 'Numar inregistrare'
+                    title: 'Număr înregistrare'
                 },
                 {
                     name: 'deadline',
@@ -128,7 +128,7 @@
                 {
                     name: '_abstract',
                     data: '_abstract',
-                    title: 'Rezumat petitie',
+                    title: 'Rezumat petiție',
                     render: function (data) {
                         return strLimit(data, 70);
                     },
@@ -138,6 +138,20 @@
                     name: 'status',
                     data: 'status',
                     title: 'Status'
+                },
+                {
+                    data: null,
+                    title: '',
+                    render: function (data) {
+                        if (data != null) {
+                            return '<a class="btn btn-default btn-md" href="/petition/' + data.id + '" style="margin: 0"><i class="fa fa-pencil-square-o"></i>&nbsp;&nbsp;Modifică</a>';
+                        } else {
+                            return '';
+                        }
+                    },
+                    sortable: false,
+                    'className': 'text-center',
+                    'width': '80px'
                 }
             ]
         });

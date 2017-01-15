@@ -8,6 +8,7 @@ import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.stereotype.Service;
 import ro.petitii.model.Email;
 import ro.petitii.model.Attachment;
+import ro.petitii.model.Petition;
 import ro.petitii.model.datatables.EmailResponse;
 import ro.petitii.repository.EmailRepository;
 
@@ -17,9 +18,12 @@ import javax.transaction.Transactional;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class EmailServiceImpl implements EmailService {
+    private static final SimpleDateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+
     @Autowired
     private EmailRepository emailRepository;
 
@@ -56,11 +60,6 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public long count(Email.EmailType type) {
-        return emailRepository.countByType(type);
-    }
-
-    @Override
     public long lastUid() {
         PageRequest pr = new PageRequest(0, 1, Sort.Direction.DESC, "uid");
         Page<Email> result = emailRepository.findAll(pr);
@@ -74,36 +73,37 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public List<Email> findAll(PageRequest p) {
-        Page<Email> emails = emailRepository.findAll(p);
-        return emails.getContent();
-    }
-
-    @Override
-    public List<Email> findAllByType(Email.EmailType type, PageRequest p) {
-        Page<Email> emails = emailRepository.findByType(type, p);
-        return emails.getContent();
-    }
-
-    @Override
     public DataTablesOutput<EmailResponse> getTableContent(Email.EmailType type, PageRequest p) {
-        List<Email> result = this.findAllByType(type, p);
-        List<EmailResponse> data = new ArrayList<>();
-        SimpleDateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm");
-        for (Email e : result) {
-            EmailResponse re = new EmailResponse();
-            re.setId(e.getId());
-            re.setSender(e.getSender());
-            re.setSubject(e.getSubject());
-            re.setDate(df.format(e.getDate()));
-            if (e.getPetition() != null) re.setPetition_id(e.getPetition().getId());
-            data.add(re);
-        }
+        List<Email> result = emailRepository.findByType(type, p).getContent();
+        List<EmailResponse> data = result.stream().map(this::convert).collect(Collectors.toList());
         DataTablesOutput<EmailResponse> response = new DataTablesOutput<>();
         response.setData(data);
-        Long count = this.count(type);
+        Long count = emailRepository.countByType(type);
         response.setRecordsFiltered(count);
         response.setRecordsTotal(count);
         return response;
+    }
+
+    @Override
+    public DataTablesOutput<EmailResponse> getTableContent(Petition petition, PageRequest pageRequest) {
+        List<Email> result = emailRepository.findByPetition(petition, pageRequest).getContent();
+        List<EmailResponse> data = result.stream().map(this::convert).collect(Collectors.toList());
+        DataTablesOutput<EmailResponse> response = new DataTablesOutput<>();
+        response.setData(data);
+        Long count = emailRepository.countByPetition(petition);
+        response.setRecordsFiltered(count);
+        response.setRecordsTotal(count);
+        return response;
+    }
+
+    private EmailResponse convert(Email e) {
+        EmailResponse re = new EmailResponse();
+        re.setId(e.getId());
+        re.setSender(e.getSender());
+        re.setRecipients(e.getRecipients());
+        re.setSubject(e.getSubject());
+        re.setDate(df.format(e.getDate()));
+        if (e.getPetition() != null) re.setPetition_id(e.getPetition().getId());
+        return re;
     }
 }

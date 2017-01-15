@@ -2,6 +2,8 @@ package ro.petitii.controller;
 
 import javax.validation.Valid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -11,11 +13,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import ro.petitii.controller.api.AttachmentApiController;
 import ro.petitii.model.Contact;
 import ro.petitii.service.ContactService;
 
 @Controller
 public class ContactController extends ControllerBase {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(AttachmentApiController.class);
 
 	@Autowired
 	private ContactService contactService;
@@ -37,12 +42,6 @@ public class ContactController extends ControllerBase {
     	Contact contact = contactService.getById(id); 
     	return editContact(contact);
     }
-
-	@RequestMapping(path = "/contact/{id}/delete", method = RequestMethod.GET)
-	public ModelAndView deleteContact(@PathVariable("id") Long id) {
-		contactService.delete(id);
-		return new ModelAndView("contacts_list");
-	}
 
 	private ModelAndView editContact(Contact contact) {
 		ModelAndView modelAndView = new ModelAndView("contacts_crud");
