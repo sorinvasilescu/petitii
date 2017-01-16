@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="email/email_style :: head"></head>
+<body class="">
+<!--/*@thymesVar id="pass" type="java.lang.String"*/-->
+<!--/*@thymesVar id="user" type="ro.petitii.model.User"*/-->
+
+<table border="0" cellpadding="0" cellspacing="0" class="body">
+    <tr>
+        <td>&nbsp;</td>
+        <td class="container">
+            <div class="content">
+                <span class="preheader">Utilizator nou - Bine ați venit</span>
+                <table class="main">
+                    <tr>
+                        <td class="wrapper">
+                            <table border="0" cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td>
+                                        <h3><b>Bine ați venit,</b></h3>
+                                        <p>Contul dumneavoastră a fost creeat cu success.</p>
+                                        <p>Numele de utilizator este adresa dumneavoastră de e-mail: <span th:text="${user.getEmail()}"></span></p>
+                                        <p>Parola dumneavoastră este:  <span th:text="${pass}"></span></p>
+                                        <p>Este recomandată schimbarea parolei imediat după prima logare.</p>
+                                        <br/>
+                                        <p style="font-style: italic;"> Portalul pentru Rezolvarea Petițiilor</p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+
+                <div class="footer">
+                    <table border="0" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td class="content-block">
+                                <p class="apple-link">Acest e-mail este trimis de Portalul pentru Rezolvarea Petițiilor.</p>
+                                <p class="apple-link">Dacă nu ați solicitat această operațiune, vă rugăm contactați urgent administratorul de sistem.</p>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </td>
+        <td>&nbsp;</td>
+    </tr>
+</table>
+</body>
+</html>

@@ -10,6 +10,7 @@ import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import ro.petitii.config.DeadlineConfig;
 import ro.petitii.config.DefaultsConfig;
 import ro.petitii.model.*;
 import ro.petitii.model.datatables.PetitionResponse;
@@ -24,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static ro.petitii.util.DateUtil.alertStatus;
 import static ro.petitii.util.StringUtil.prepareForView;
 
 @Service
@@ -53,10 +55,13 @@ public class PetitionServiceImpl implements PetitionService {
     private MessageSource messageSource;
 
     @Autowired
+    private AttachmentService attachmentService;
+
+    @Autowired
     private DefaultsConfig defaultsConfig;
 
     @Autowired
-    private AttachmentService attachmentService;
+    private DeadlineConfig deadlineConfig;
 
     @Override
     public Petition save(Petition petition) {
@@ -122,7 +127,7 @@ public class PetitionServiceImpl implements PetitionService {
 
         // check if deadline is not set
         if (petition.getDeadline() == null)
-            petition.setDeadline(DateUtil.deadline(new Date()));
+            petition.setDeadline(DateUtil.deadline(new Date(), deadlineConfig.getDays()));
 
         return petition;
     }
@@ -141,40 +146,37 @@ public class PetitionServiceImpl implements PetitionService {
         } catch (AddressException e) {
             LOGGER.error("Could not parse email address: " + email.getSender());
         }
-        // look for a petitioner with the same email
-        List<Petitioner> petitioners = new ArrayList<>(petitionerService.findByEmail(addr.getAddress()));
+
+        Petitioner existing;
+        if (addr != null) {
+            existing = petitionerService.findOneByEmail(addr.getAddress());
+        } else {
+            existing = petitionerService.findOneByEmail(email.getSender());
+        }
         // if found overwrite current petitioner
-        if (petitioners.size()>0) {
-            petitioner = petitioners.get(petitioners.size()-1);
+        if (existing != null) {
+            petitioner = existing;
         } else { // if not found, set values for the new petitioner
-            // if previous try-catch didn't fail, addr will be not null
-            if (addr!=null) {
-                // set email
-                petitioner.setEmail(addr.getAddress());
-                if (addr.getPersonal() != null && addr.getPersonal().length() > 0) {
-                    String[] name = addr.getPersonal().split(" ");
-                    // set first and last name
-                    if (name.length > 1) {
-                        petitioner.setFirstName(name[0]);
-                        petitioner.setLastName(name[1]);
-                    } else petitioner.setFirstName(addr.getPersonal());
-                }
-            } else {
-                petitioner.setEmail(email.getSender());
-            }
+            petitioner.setEmail(email.getSender());
+            convert(addr, petitioner);
             petitioner.setCountry(defaultsConfig.getCountry());
         }
 
-        petition.setEmails(new ArrayList<>());
+        petition.setEmails(new LinkedList<>());
         petition.getEmails().add(email);
         petition.setPetitioner(petitioner);
-        petition.setDeadline(DateUtil.deadline(email.getDate()));
+        petition.setDeadline(DateUtil.deadline(email.getDate(), deadlineConfig.getDays()));
         return petition;
     }
 
     @Override
     public Petition findById(Long id) {
         return petitionRepository.findOne(id);
+    }
+
+    @Override
+    public List<Petition> findAllByResponsible(User user) {
+        return petitionRepository.findByResponsible(user);
     }
 
     @Override
@@ -235,6 +237,22 @@ public class PetitionServiceImpl implements PetitionService {
         return petitionRepository.countLinkedPetitions(petition.getId());
     }
 
+    private void convert(InternetAddress addr, Petitioner petitioner) {
+        if (addr != null) {
+            petitioner.setEmail(addr.getAddress());
+            if (addr.getPersonal() != null && addr.getPersonal().length() > 0) {
+                String[] name = addr.getPersonal().split(" ");
+                // set first and last name
+                if (name.length > 1) {
+                    petitioner.setFirstName(name[0]);
+                    petitioner.setLastName(name[1]);
+                } else {
+                    petitioner.setFirstName(addr.getPersonal());
+                }
+            }
+        }
+    }
+
     private List<PetitionResponse> convert(Page<Petition> petitions) {
         return petitions.getContent().stream().map(this::convert).collect(Collectors.toList());
     }
@@ -257,6 +275,7 @@ public class PetitionServiceImpl implements PetitionService {
         element.setStatus(messageSource.getMessage(petition.statusString(), null, new Locale("ro")));
         DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
         element.setDeadline(df.format(petition.getDeadline()));
+        element.setAlertStatus(alertStatus(new Date(), petition.getDeadline(), deadlineConfig));
         return element;
     }
 }
