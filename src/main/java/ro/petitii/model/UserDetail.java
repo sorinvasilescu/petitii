@@ -21,6 +21,8 @@ public class UserDetail extends User implements UserDetails {
         return authorities;
     }
 
+    public Long getUserId() {return user.getId();}
+
     @Override
     public String getPassword() {
         return this.user.getPassword();
