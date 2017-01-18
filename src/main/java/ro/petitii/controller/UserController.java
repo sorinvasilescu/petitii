@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.annotation.PostConstruct;
 import javax.mail.MessagingException;
 import javax.validation.Valid;
 
@@ -29,37 +28,16 @@ import ro.petitii.model.User;
 import ro.petitii.service.UserService;
 import ro.petitii.service.email.SmtpService;
 import ro.petitii.service.template.EmailTemplateProcessorService;
-import ro.petitii.util.Pair;
 import ro.petitii.util.TranslationUtil;
 
 @Controller
 @PreAuthorize("hasAuthority('ADMIN')")
 public class UserController extends ControllerBase {
-
-	private String WELCOME_MESSAGE;
-	private Pair<String, String> WELCOME;
-	private String PASSWORD_RESETED;
-	private Pair<String, String> RESET;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
-    
-    @Autowired
-	private TranslationUtil translationService;
 
-    public UserController(){
-    	super();
-    }
-    
-    @PostConstruct
-    public void initMessages(){
-    	if(WELCOME_MESSAGE == null || PASSWORD_RESETED == null){
-	    	WELCOME_MESSAGE = translationService.i18n("controller.user.welcome");
-	    	WELCOME = new Pair<>("welcome_user", WELCOME_MESSAGE);
-	    	PASSWORD_RESETED = translationService.i18n("controller.user.password_reseted");
-	    	RESET = new Pair<>("reset_password", PASSWORD_RESETED);
-    	}
-    }
-    
+    @Autowired
+    private TranslationUtil translationService;
+
     @Autowired
     private UserService userService;
 
@@ -117,7 +95,8 @@ public class UserController extends ControllerBase {
         userService.save(user);
 
         //TODO: catch exceptions, add  error/success message
-        List<Map<String, String>> toasts = sendUserPasswordReset(RESET, newPassword, user);
+        String subject = translationService.i18n("controller.user.password_reseted");
+        List<Map<String, String>> toasts = sendUserPasswordReset("reset_password", subject, newPassword, user);
         attr.addFlashAttribute("toasts", toasts);
         return new ModelAndView("redirect:/users");
     }
@@ -172,7 +151,8 @@ public class UserController extends ControllerBase {
         	//TODO: catch exceptions, add  error/success message
             userService.save(user);
             if (newUser) {
-                List<Map<String, String>> toasts = sendUserPasswordReset(WELCOME, newPassword, user);
+                String subject = translationService.i18n("controller.user.welcome");
+                List<Map<String, String>> toasts = sendUserPasswordReset("welcome_user", subject, newPassword, user);
                 attr.addFlashAttribute("toasts", toasts);
             }
         }
@@ -180,13 +160,13 @@ public class UserController extends ControllerBase {
         return new ModelAndView("redirect:/users");
     }
 
-    private List<Map<String, String>> sendUserPasswordReset(Pair<String, String> template, String password, User user) {
+    private List<Map<String, String>> sendUserPasswordReset(String template, String subject, String password, User user) {
         List<Map<String, String>> toasts = new LinkedList<>();
 
         Map<String, Object> vars = new HashMap<>();
         vars.put("pass", password);
         vars.put("user", user);
-        String emailBody = emailTemplateProcessorService.processStaticTemplate(template.getFirst(), vars);
+        String emailBody = emailTemplateProcessorService.processStaticTemplate(template, vars);
         if (emailBody == null) {
             LOGGER.error("Could not compile the reset password for user = " + user.getEmail());
             String message = translationService.i18n("controller.user.reset_password_email_failed");
@@ -194,7 +174,7 @@ public class UserController extends ControllerBase {
         } else {
             Email email = new Email();
             email.setSender(config.getUsername());
-            email.setSubject(template.getSecond());
+            email.setSubject(subject);
             email.setRecipients(user.getEmail());
             email.setBody(emailBody);
             try {

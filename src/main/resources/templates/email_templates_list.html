@@ -90,8 +90,10 @@
                 addWarning("#error-messages", "Pentru ștergere selectați un template");
                 this.blur()
             } else {
-                customAlert("Sunteți sigur că doriți ștergere template-ului?", function () {
-                    window.location.href = '/emailTemplate/' + selectedRows[0].id + '/delete';
+                customAlert("Sunteți sigur că doriți ștergere template-ului?", function (confirm) {
+                    if (confirm) {
+                        window.location.href = '/emailTemplate/' + selectedRows[0].id + '/delete';
+                    }
                 });
             }
         });
