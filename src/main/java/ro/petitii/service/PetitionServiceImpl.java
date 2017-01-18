@@ -192,35 +192,31 @@ public class PetitionServiceImpl implements PetitionService {
     @Override
     public DataTablesOutput<PetitionResponse> getTableContent(DataTablesInput input, User user, List<PetitionStatus.Status> statuses) {
         DataTablesOutput<Petition> petitions;
+        Long count;
+        Specification<Petition> spec = null;
         if (user != null) {
             if (statuses == null) {
-                petitions = petitionRepository.findAll(input, new Specification<Petition>() {
-                    @Override
-                    public Predicate toPredicate(Root<Petition> root, CriteriaQuery<?> q, CriteriaBuilder cb) {
-                        return cb.and(root.get(Petition_.currentStatus).in(statuses));
-                    }
-                });
+                spec = (Root<Petition> root, CriteriaQuery<?> q, CriteriaBuilder cb) -> cb.equal(root.get(Petition_.responsible),user);
             } else {
                 // filter by responsible and status
-                petitions = petitionRepository.findAll(input);
+                spec = (Root<Petition> root, CriteriaQuery<?> q, CriteriaBuilder cb) -> {
+                    Predicate responsible = cb.equal(root.get(Petition_.responsible),user);
+                    Predicate status = cb.isTrue(root.get(Petition_.currentStatus).in(statuses));
+                    return cb.and(responsible,status);
+                };
             }
         } else {
-            if (statuses == null) {
-                // filter by nothing
-                petitions = petitionRepository.findAll(input);
-            } else {
+            if (statuses != null) {
                 // filter by status
-                petitions = petitionRepository.findAll(input);
+                spec = (Root<Petition> root, CriteriaQuery<?> q, CriteriaBuilder cb) -> cb.isTrue(root.get(Petition_.currentStatus).in(statuses));
             }
         }
+
+        petitions = petitionRepository.findAll(input, spec);
+        count = petitionRepository.count(spec);
+
         DataTablesOutput<PetitionResponse> response = new DataTablesOutput<>();
         response.setData(convert(petitions.getData()));
-        Long count;
-        if (user != null) {
-            count = petitionRepository.countByResponsible(user);
-        } else {
-            count = petitionRepository.count();
-        }
         response.setRecordsTotal(count);
         response.setRecordsFiltered(count);
 
