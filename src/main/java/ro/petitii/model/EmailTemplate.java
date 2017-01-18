@@ -1,7 +1,9 @@
 package ro.petitii.model;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
+import ro.petitii.model.serializers.JsonCategorySerializer;
 
 import javax.persistence.*;
 
@@ -24,6 +26,7 @@ public class EmailTemplate {
 
     @JsonView(DataTablesOutput.View.class)
     @Enumerated(EnumType.STRING)
+    @JsonSerialize(using = JsonCategorySerializer.class)
     private Category category;
 
     @Lob
