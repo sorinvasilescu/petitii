@@ -45,11 +45,6 @@ public class Application extends WebMvcConfigurerAdapter {
         slr.setDefaultLocale(TranslationUtil.ro);
         return slr;
     }
-
-    @Bean
-    public TranslationUtil translationService() {
-        return new TranslationUtil();
-    }
     
     @Bean
     public MessageSource messageSource() {

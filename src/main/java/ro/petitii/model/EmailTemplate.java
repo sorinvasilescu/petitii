@@ -5,23 +5,13 @@ import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 
 import javax.persistence.*;
 
-import static ro.petitii.util.TranslationUtil.categoryMsg;
-
 @Entity
 @Table(name = "email_templates")
 public class EmailTemplate {
     public enum Category {
         response,
         forward,
-        start_work;
-
-        public String viewName() {
-            return categoryMsg(this);
-        }
-
-        public String toString() {
-            return viewName();
-        }
+        start_work
      }
 
     @Id

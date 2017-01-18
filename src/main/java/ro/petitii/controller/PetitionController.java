@@ -15,7 +15,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ro.petitii.config.DeadlineConfig;
 import ro.petitii.config.DefaultsConfig;
 import ro.petitii.config.SmtpConfig;
-import ro.petitii.controller.api.ContactApiController;
 import ro.petitii.model.*;
 import ro.petitii.service.*;
 import ro.petitii.service.email.SmtpService;
@@ -279,7 +278,7 @@ public class PetitionController extends ControllerBase {
 
             if (sendEmail) {
                 try {
-                    smtpService.send(createEmail("Soluționare petiție: " + resolution.viewName(), description,
+                    smtpService.send(createEmail("Soluționare petiție: " + translationService.i18n(resolution), description,
                                                  petition.getPetitioner().getEmail(), attachments, petition));
                     String message = translationService.i18n("controller.petition.resolve_succesful");
                 	attr.addFlashAttribute("toast", createToast(message, ToastType.success));
@@ -291,7 +290,7 @@ public class PetitionController extends ControllerBase {
             } else {
             	String message = translationService.i18n("controller.petition.resolve_resolution");
             	//TODO: catch exceptions, add  error message
-            	commentService.createAndSave(user, petition, message + ": " + resolution.viewName() + " \n <br/> " + description);
+            	commentService.createAndSave(user, petition, message + ": " + translationService.i18n(resolution) + " \n <br/> " + description);
             	message = translationService.i18n("controller.petition.resolve_succesful");
             	attr.addFlashAttribute("toast", createToast(message, ToastType.success));
             }
