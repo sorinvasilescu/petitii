@@ -8,7 +8,6 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +18,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import ro.petitii.model.Contact;
 import ro.petitii.service.ContactService;
-import ro.petitii.util.TranslationUtil;
 
 @Controller
 public class ContactController extends ControllerBase {
@@ -29,9 +27,6 @@ public class ContactController extends ControllerBase {
 	@Autowired
 	private ContactService contactService;
 	
-	@Autowired
-	private TranslationUtil translationService;
-
 	@RequestMapping("/contacts")
 	public ModelAndView contacts() {
 		return new ModelAndView("contacts_list");
@@ -62,15 +57,13 @@ public class ContactController extends ControllerBase {
 		
 		if (bindingResult.hasErrors()) {
 			modelAndView = editContact(contact);
-        	String message = translationService.i18n("controller.contact.not_saved", null, request);
-            modelAndView.addObject("toast", createToast(message, ToastType.danger));
+            modelAndView.addObject("toast", i18nToast("controller.contact.not_saved", request, ToastType.danger));
             String serializedErrors = Arrays.toString(bindingResult.getAllErrors().toArray());
-			LOGGER.debug("Cannot save contact!"+ contact.toString() + "\n resons:" + serializedErrors);			
+			LOGGER.debug("Cannot save contact!"+ contact.toString() + "\n reasons:" + serializedErrors);
         } else {
             Contact savedContact = contactService.save(contact);
             modelAndView = new ModelAndView("redirect:/contact/" + savedContact.getId());
-            String message = translationService.i18n("controller.contact.saved", null, request);
-            attr.addFlashAttribute("toast", createToast(message, ToastType.success));
+            attr.addFlashAttribute("toast", i18nToast("controller.contact.saved", request, ToastType.success));
         }
         return modelAndView;
     }

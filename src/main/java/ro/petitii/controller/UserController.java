@@ -28,15 +28,12 @@ import ro.petitii.model.User;
 import ro.petitii.service.UserService;
 import ro.petitii.service.email.SmtpService;
 import ro.petitii.service.template.EmailTemplateProcessorService;
-import ro.petitii.util.TranslationUtil;
 
 @Controller
 @PreAuthorize("hasAuthority('ADMIN')")
 public class UserController extends ControllerBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
-    @Autowired
-    private TranslationUtil translationService;
 
     @Autowired
     private UserService userService;
@@ -57,8 +54,7 @@ public class UserController extends ControllerBase {
     public ModelAndView users() {
         ModelAndView modelAndView = new ModelAndView("users_list");
         modelAndView.addObject("page", "inbox");
-        String title = translationService.i18n("controller.user.title_users");
-        modelAndView.addObject("title", title);
+        modelAndView.addObject("title", i18n("controller.user.title_users"));
         modelAndView.addObject("apiUrl", "/api/users");
         return modelAndView;
     }
@@ -80,8 +76,7 @@ public class UserController extends ControllerBase {
         user.setRole(User.UserRole.SUSPENDED);
         //TODO: catch exceptions, add  error/success message
         userService.save(user);
-        String message = translationService.i18n("controller.user.account_disabled");
-        attr.addFlashAttribute("toast", createToast(message, ToastType.success));
+        attr.addFlashAttribute("toast", i18nToast("controller.user.account_disabled", ToastType.success));
         return new ModelAndView("redirect:/users");
     }
 
@@ -95,7 +90,7 @@ public class UserController extends ControllerBase {
         userService.save(user);
 
         //TODO: catch exceptions, add  error/success message
-        String subject = translationService.i18n("controller.user.password_reseted");
+        String subject = i18n("controller.user.password_reset_success");
         List<Map<String, String>> toasts = sendUserPasswordReset("reset_password", subject, newPassword, user);
         attr.addFlashAttribute("toasts", toasts);
         return new ModelAndView("redirect:/users");
@@ -145,13 +140,12 @@ public class UserController extends ControllerBase {
         //TODO: catch exceptions, add  error/success message
         List<User> existingUser = userService.findUserByEmail(user.getEmail());
         if (newUser && existingUser != null && !existingUser.isEmpty()) {
-        	String message = translationService.i18n("controller.user.email_address_exists");
-            attr.addFlashAttribute("toast", createToast(message, ToastType.danger));
+            attr.addFlashAttribute("toast", i18nToast("controller.user.email_address_exists", ToastType.danger));
         } else {
         	//TODO: catch exceptions, add  error/success message
             userService.save(user);
             if (newUser) {
-                String subject = translationService.i18n("controller.user.welcome");
+                String subject = i18n("controller.user.welcome");
                 List<Map<String, String>> toasts = sendUserPasswordReset("welcome_user", subject, newPassword, user);
                 attr.addFlashAttribute("toasts", toasts);
             }
@@ -169,8 +163,7 @@ public class UserController extends ControllerBase {
         String emailBody = emailTemplateProcessorService.processStaticTemplate(template, vars);
         if (emailBody == null) {
             LOGGER.error("Could not compile the reset password for user = " + user.getEmail());
-            String message = translationService.i18n("controller.user.reset_password_email_failed");
-            toasts.add(createToast(message, ToastType.danger));
+            toasts.add(i18nToast("controller.user.reset_password_email_failed", ToastType.danger));
         } else {
             Email email = new Email();
             email.setSender(config.getUsername());
@@ -180,12 +173,10 @@ public class UserController extends ControllerBase {
             try {
                 LOGGER.info("Sending reset password email" + emailBody);
                 smtpService.send(email);
-                String message = translationService.i18n("controller.user.reset_password_email_sent");
-                toasts.add(createToast(message, ToastType.success));
+                toasts.add(i18nToast("controller.user.reset_password_email_sent", ToastType.success));
             } catch (MessagingException e) {
                 LOGGER.error("Could not send email with password reset for user = " + user.getEmail(), e);
-                String message = translationService.i18n("controller.user.reset_password_email_failed_with_error", new String[]{e.getMessage()});
-                toasts.add(createToast(message , ToastType.danger));
+                toasts.add(i18nToast("controller.user.reset_password_email_failed_with_error" , ToastType.danger, e.getMessage()));
             }
         }
         return toasts;

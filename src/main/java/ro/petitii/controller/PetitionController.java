@@ -19,7 +19,6 @@ import ro.petitii.model.*;
 import ro.petitii.service.*;
 import ro.petitii.service.email.SmtpService;
 import ro.petitii.util.DateUtil;
-import ro.petitii.util.TranslationUtil;
 import ro.petitii.util.ValidationStatus;
 
 import javax.mail.MessagingException;
@@ -72,9 +71,6 @@ public class PetitionController extends ControllerBase {
     @Autowired
     private DeadlineConfig deadlineConfig;
 
-    @Autowired
-	private TranslationUtil translationService;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(PetitionController.class);
 	
     @RequestMapping(path = "/petition", method = RequestMethod.GET)
@@ -121,8 +117,7 @@ public class PetitionController extends ControllerBase {
         //TODO: catch exceptions, add  error/success message
         Email email = emailService.searchById(id);
         if (email.getPetition()!=null) {
-        	String message = translationService.i18n("controller.petition.petition_exists_for_email");
-        	attr.addFlashAttribute("toast", createToast(message, ToastType.danger));
+        	attr.addFlashAttribute("toast", i18nToast("controller.petition.petition_exists_for_email", ToastType.danger));
             modelAndView.setViewName("redirect:" + request.getHeader("referer"));
             return modelAndView;
         }
@@ -150,15 +145,13 @@ public class PetitionController extends ControllerBase {
             modelAndView.setViewName("petitions_crud");
             addCustomParams(modelAndView);
             modelAndView.addObject("petition", petition);
-            String message = translationService.i18n("controller.petition.petition_not_saved");
-            modelAndView.addObject("toast", createToast(message, ToastType.danger));
+            modelAndView.addObject("toast", i18nToast("controller.petition.petition_not_saved", ToastType.danger));
             String serializedErrors = Arrays.toString(bindingResult.getAllErrors().toArray());
-            LOGGER.debug(message + "\n" + serializedErrors);
+            LOGGER.debug(i18n("controller.petition.petition_not_saved") + "\n" + serializedErrors);
         } else {
             petition = petitionService.save(petition);
             modelAndView.setViewName("redirect:/petition/" + petition.getId());
-            String message = translationService.i18n("controller.petition.petition_saved");
-            attr.addFlashAttribute("toast", createToast(message, ToastType.success));
+            attr.addFlashAttribute("toast", i18nToast("controller.petition.petition_saved", ToastType.success));
         }
 
         return modelAndView;
@@ -211,12 +204,10 @@ public class PetitionController extends ControllerBase {
 
         try {
             smtpService.send(createEmail(subject, description, convertRecipients(recipients), attachments, petition));
-            String message = translationService.i18n("controller.petition.petition_redirected");
-        	attr.addFlashAttribute("toast", createToast(message, ToastType.success));
+        	attr.addFlashAttribute("toast", i18nToast("controller.petition.petition_redirected", ToastType.success));
         } catch (MessagingException e) {
-        	String message = translationService.i18n("controller.petition.petition_not_redirected");
-        	attr.addFlashAttribute("toast", createToast(message + ": " + e.getMessage(), ToastType.danger));
-        	LOGGER.debug(message, e);
+        	attr.addFlashAttribute("toast", i18nToast("controller.petition.petition_not_redirected", ToastType.danger, e.getMessage()));
+        	LOGGER.error(i18n("controller.petition.petition_not_redirected"), e);
         }
 
         return modelAndView;
@@ -243,8 +234,7 @@ public class PetitionController extends ControllerBase {
             return modelAndView;
         } else {
             ModelAndView modelAndView = new ModelAndView("redirect:/petition/" + petition.getId());
-            String message = translationService.i18n("controller.petition.resolve_work_not_started");
-        	attr.addFlashAttribute("toast", createToast(message, ToastType.danger));
+        	attr.addFlashAttribute("toast", i18nToast("controller.petition.resolve_work_not_started", ToastType.danger));
             return modelAndView;
         }
     }
@@ -270,7 +260,7 @@ public class PetitionController extends ControllerBase {
         ValidationStatus validationStatus = validateSolutionParameters(petition, resolution, sendEmail, description);
 
         if (!validationStatus.isValid()) {
-            attr.addFlashAttribute("toast", createToast(validationStatus.getMsg(), ToastType.danger));
+            attr.addFlashAttribute("toast", i18nToast(validationStatus.getMsg(), ToastType.danger));
             modelAndView.setViewName("redirect:/petition/" + id + "/resolve/" + action);
         } else {
             PetitionStatus.Status status = resolution.getStatus();
@@ -278,21 +268,18 @@ public class PetitionController extends ControllerBase {
 
             if (sendEmail) {
                 try {
-                    smtpService.send(createEmail("Soluționare petiție: " + translationService.i18n(resolution), description,
+                    smtpService.send(createEmail("Soluționare petiție: " + i18n(resolution), description,
                                                  petition.getPetitioner().getEmail(), attachments, petition));
-                    String message = translationService.i18n("controller.petition.resolve_succesful");
-                	attr.addFlashAttribute("toast", createToast(message, ToastType.success));
+                	attr.addFlashAttribute("toast", i18nToast("controller.petition.resolve_successful", ToastType.success));
                 } catch (MessagingException e) {
-                	String message = translationService.i18n("controller.petition.resolve_failed");
-                	attr.addFlashAttribute("toast", createToast(message + ": " + e.getMessage(), ToastType.danger));
-                    LOGGER.debug(message, e);
+                	attr.addFlashAttribute("toast", i18nToast("controller.petition.resolve_failed", ToastType.danger, e.getMessage()));
+                    LOGGER.debug(i18n("controller.petition.resolve_failed"), e);
                 }
             } else {
-            	String message = translationService.i18n("controller.petition.resolve_resolution");
+            	String message = i18n("controller.petition.resolve_resolution") + ": " + i18n(resolution) + " \n <br/> " + description;
             	//TODO: catch exceptions, add  error message
-            	commentService.createAndSave(user, petition, message + ": " + translationService.i18n(resolution) + " \n <br/> " + description);
-            	message = translationService.i18n("controller.petition.resolve_succesful");
-            	attr.addFlashAttribute("toast", createToast(message, ToastType.success));
+            	commentService.createAndSave(user, petition, message );
+            	attr.addFlashAttribute("toast", i18nToast("controller.petition.resolve_successful", ToastType.success));
             }
         }
 
@@ -312,18 +299,15 @@ public class PetitionController extends ControllerBase {
     private ValidationStatus validateSolutionParameters(Petition petition, PetitionStatus.Resolution resolution,
                                                         boolean sendEmail, String description) {
         if (petition.getCurrentStatus() != PetitionStatus.Status.IN_PROGRESS) {
-        	String message = translationService.i18n("controller.petition.resolve_work_not_started");
-        	return new ValidationStatus(false, message);
+        	return new ValidationStatus(false, "controller.petition.resolve_work_not_started");
         }
 
         if (sendEmail && (description == null || description.trim().isEmpty())) {
-        	String message = translationService.i18n("controller.petition.resolve_message_required");
-        	return new ValidationStatus(false, message);
+        	return new ValidationStatus(false, "controller.petition.resolve_message_required");
         }
 
         if (Objects.equals(resolution, PetitionStatus.Resolution.duplicate) && petitionService.countLinkedPetitions(petition) == 0) {
-        	String message = translationService.i18n("controller.petition.resolve_duplicate_petition");
-        	return new ValidationStatus(false, message);
+        	return new ValidationStatus(false, "controller.petition.resolve_duplicate_petition");
         }
 
         return new ValidationStatus(true, null);
