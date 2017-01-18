@@ -32,8 +32,6 @@ public class UserController extends ControllerBase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
-
-
     @Autowired
     private UserService userService;
 
