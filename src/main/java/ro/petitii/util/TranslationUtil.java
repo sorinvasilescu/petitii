@@ -30,27 +30,27 @@ public class TranslationUtil {
         TranslationUtil.localeResolver = localeResolver;
     }
     
-    public static String i18n(String templateId, HttpServletRequest request) {
+    public String i18n(String templateId, HttpServletRequest request) {
         return messageSource.getMessage(templateId, null, localeResolver.resolveLocale(request));
     }
 
-    public static String i18n(String key, String args[], HttpServletRequest request) {
+    public String i18n(String key, String args[], HttpServletRequest request) {
     	 return messageSource.getMessage(key, null, localeResolver.resolveLocale(request));
     }
     
-    public static String i18n(String key, String args[]) {
+    public String i18n(String key, String args[]) {
    	 return messageSource.getMessage(key, args, ro);
     }
     
-    public static String i18n(String key) {
+    public String i18n(String key) {
       	 return messageSource.getMessage(key, (String[])null, ro);
     }
     
     public static String categoryMsg(EmailTemplate.Category category) {
-        return i18n("emailTemplate.category." + category.name().toLowerCase());
+    	return messageSource.getMessage("emailTemplate.category." + category.name().toLowerCase(), null, ro);
     }
 
     public static String resolutionMsg(PetitionStatus.Resolution resolution) {
-        return i18n("petition.resolution." + resolution.name().toLowerCase(), (String[])null);
+    	return messageSource.getMessage("petition.resolution." + resolution.name().toLowerCase(), null, ro);
     }
 }

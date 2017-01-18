@@ -31,6 +31,9 @@ public class ContactApiController {
 	
 	@Autowired
     private ContactService contactService;
+	
+	@Autowired
+	private TranslationUtil translationService;
 
     @JsonView(DataTablesOutput.View.class)
     @RequestMapping(value = "/api/contacts", method = RequestMethod.POST)
@@ -45,12 +48,12 @@ public class ContactApiController {
     	try{
     		contactService.delete(contactIds);
     		result.put("success", "true");
-    		String message = TranslationUtil.i18n("api.controller.contact.delete_successful");
+    		String message = translationService.i18n("api.controller.contact.delete_successful");
             result.put("errorMsg", message);
     	}catch (Exception e){
     		LOGGER.info("Cannot delete contacts: " + Arrays.toString(contactIds), e);
     		result.put("success", "false");
-    		String message = TranslationUtil.i18n("api.controller.contact.delete_failed");
+    		String message = translationService.i18n("api.controller.contact.delete_failed");
             result.put("errorMsg", message);
     	}
     	return result;

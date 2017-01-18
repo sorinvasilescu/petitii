@@ -22,12 +22,15 @@ public class EmailController extends ControllerBase {
 
     @Autowired
     private EmailService emailService;
-
+    
+    @Autowired
+	private TranslationUtil translationService;
+    
     @RequestMapping("/inbox")
     public ModelAndView inbox() {
         ModelAndView modelAndView = new ModelAndView("email_list");
         modelAndView.addObject("page", "inbox");
-        String titleMessage = TranslationUtil.i18n("controller.email.received_emails");
+        String titleMessage = translationService.i18n("controller.email.received_emails");
         modelAndView.addObject("title", titleMessage);
         modelAndView.addObject("email", config.getUsername());
         modelAndView.addObject("apiUrl", "/api/emails");
@@ -38,7 +41,7 @@ public class EmailController extends ControllerBase {
     public ModelAndView spam() {
         ModelAndView modelAndView = new ModelAndView("email_list");
         modelAndView.addObject("page", "spam");
-        String titleMessage = TranslationUtil.i18n("controller.email.spam");
+        String titleMessage = translationService.i18n("controller.email.spam");
         modelAndView.addObject("title", titleMessage);
         modelAndView.addObject("email", config.getUsername());
         modelAndView.addObject("apiUrl", "/api/spam");
@@ -55,12 +58,12 @@ public class EmailController extends ControllerBase {
         ModelAndView modelAndView = new ModelAndView("email_detail");
         //TODO: is the "page" really used?  (sergiu)
         modelAndView.addObject("page", "Detalii");
-        String titleMessage = TranslationUtil.i18n("controller.email.received_emails");
+        String titleMessage = translationService.i18n("controller.email.received_emails");
         modelAndView.addObject("title", titleMessage);
         modelAndView.addObject("email", config.getUsername());
         modelAndView.addObject("data", email);
         if (email.getPetition() != null) {
-            String status = TranslationUtil.i18n(email.getPetition().statusString());
+            String status = translationService.i18n(email.getPetition().statusString());
             modelAndView.addObject("status", status);
         }
         return modelAndView;

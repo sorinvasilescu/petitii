@@ -27,6 +27,9 @@ public class ContactController extends ControllerBase {
 	
 	@Autowired
 	private ContactService contactService;
+	
+	@Autowired
+	private TranslationUtil translationService;
 
 	@RequestMapping("/contacts")
 	public ModelAndView contacts() {
@@ -58,14 +61,14 @@ public class ContactController extends ControllerBase {
 		
 		if (bindingResult.hasErrors()) {
 			modelAndView = editContact(contact);
-        	String message = TranslationUtil.i18n("controller.contact.not_saved", null, request);
+        	String message = translationService.i18n("controller.contact.not_saved", null, request);
             modelAndView.addObject("toast", createToast(message, ToastType.danger));
             String serializedErrors = Arrays.toString(bindingResult.getAllErrors().toArray());
 			LOGGER.debug("Cannot save contact!"+ contact.toString() + "\n resons:" + serializedErrors);			
         } else {
             Contact savedContact = contactService.save(contact);
             modelAndView = new ModelAndView("redirect:/contact/" + savedContact.getId());
-            String message = TranslationUtil.i18n("controller.contact.saved", null, request);
+            String message = translationService.i18n("controller.contact.saved", null, request);
             attr.addFlashAttribute("toast", createToast(message, ToastType.success));
         }
         return modelAndView;

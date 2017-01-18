@@ -47,6 +47,11 @@ public class Application extends WebMvcConfigurerAdapter {
     }
 
     @Bean
+    public TranslationUtil translationService() {
+        return new TranslationUtil();
+    }
+    
+    @Bean
     public MessageSource messageSource() {
         ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
         messageSource.setBasename("classpath:/config/messages");
