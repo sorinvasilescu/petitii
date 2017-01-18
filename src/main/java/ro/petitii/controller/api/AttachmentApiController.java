@@ -41,10 +41,10 @@ public class AttachmentApiController {
             is.close();
             response.flushBuffer();
         } catch (IOException e) {
-            LOGGER.error("Could not find attachment with id " + id + " on disk: " + e.getMessage());
+            LOGGER.error("Could not find attachment with id " + id + " on disk. ", e);
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
         } catch (EntityNotFoundException e) {
-            LOGGER.error("Could not find attachment with id " + id + ": " + e.getMessage());
+            LOGGER.error("Could not find attachment with id " + id, e);
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
         }
     }

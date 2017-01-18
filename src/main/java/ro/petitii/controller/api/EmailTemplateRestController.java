@@ -33,6 +33,7 @@ public class EmailTemplateRestController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping(value = "/api/emailTemplates", method = {RequestMethod.GET, RequestMethod.POST})
     public DataTablesOutput<EmailTemplate> getEmailTemplates(@Valid DataTablesInput input) {
+    	//TODO: catch exceptions, add  error/success message
         return emailTemplateService.findAll(input);
     }
 
@@ -42,6 +43,7 @@ public class EmailTemplateRestController {
     @ResponseBody
     @RequestMapping(value = "/api/emailTemplate/{tid}/petition/{pid}", method = RequestMethod.GET)
     public String compileByPetition(@PathVariable("tid") Long tid, @PathVariable("pid") Long pid) {
+    	//TODO: catch exceptions, add  error/success message
         Petition petition = petitionService.findById(pid);
         if (petition == null) {
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND);

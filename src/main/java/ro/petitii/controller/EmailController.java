@@ -11,6 +11,7 @@ import org.springframework.web.servlet.ModelAndView;
 import ro.petitii.config.ImapConfig;
 import ro.petitii.model.Email;
 import ro.petitii.service.EmailService;
+import ro.petitii.util.TranslationUtil;
 
 import java.util.Locale;
 
@@ -22,14 +23,12 @@ public class EmailController extends ControllerBase {
     @Autowired
     private EmailService emailService;
 
-    @Autowired
-    private MessageSource messageSource;
-
     @RequestMapping("/inbox")
     public ModelAndView inbox() {
         ModelAndView modelAndView = new ModelAndView("email_list");
         modelAndView.addObject("page", "inbox");
-        modelAndView.addObject("title", "Email-uri primite");
+        String titleMessage = TranslationUtil.i18n("controller.email.received_emails");
+        modelAndView.addObject("title", titleMessage);
         modelAndView.addObject("email", config.getUsername());
         modelAndView.addObject("apiUrl", "/api/emails");
         return modelAndView;
@@ -39,7 +38,8 @@ public class EmailController extends ControllerBase {
     public ModelAndView spam() {
         ModelAndView modelAndView = new ModelAndView("email_list");
         modelAndView.addObject("page", "spam");
-        modelAndView.addObject("title", "Spam");
+        String titleMessage = TranslationUtil.i18n("controller.email.spam");
+        modelAndView.addObject("title", titleMessage);
         modelAndView.addObject("email", config.getUsername());
         modelAndView.addObject("apiUrl", "/api/spam");
         return modelAndView;
@@ -53,12 +53,14 @@ public class EmailController extends ControllerBase {
         }
 
         ModelAndView modelAndView = new ModelAndView("email_detail");
+        //TODO: is the "page" really used?  (sergiu)
         modelAndView.addObject("page", "Detalii");
-        modelAndView.addObject("title", "Email-uri primite");
+        String titleMessage = TranslationUtil.i18n("controller.email.received_emails");
+        modelAndView.addObject("title", titleMessage);
         modelAndView.addObject("email", config.getUsername());
         modelAndView.addObject("data", email);
         if (email.getPetition() != null) {
-            String status = messageSource.getMessage(email.getPetition().statusString(), null, new Locale("ro"));
+            String status = TranslationUtil.i18n(email.getPetition().statusString());
             modelAndView.addObject("status", status);
         }
         return modelAndView;

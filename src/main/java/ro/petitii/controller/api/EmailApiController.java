@@ -46,6 +46,7 @@ public class EmailApiController {
     @ResponseBody
     public DataTablesOutput<EmailResponse> getInbox(@Valid DataTablesInput input) {
         int sequenceNo = input.getDraw();
+        //TODO: catch exceptions, add  error/success message
         DataTablesOutput<EmailResponse> response = emailService.getTableContent(Email.EmailType.Inbox, pageRequest(input));
         response.setDraw(sequenceNo);
         return response;
@@ -56,6 +57,7 @@ public class EmailApiController {
     public DataTablesOutput<EmailResponse> getSpam(@Valid DataTablesInput input) {
         int sequenceNo = input.getDraw();
 
+        //TODO: catch exceptions, add  error/success message
         DataTablesOutput<EmailResponse> response = emailService.getTableContent(Email.EmailType.Spam, pageRequest(input));
         response.setDraw(sequenceNo);
         return response;
@@ -80,6 +82,7 @@ public class EmailApiController {
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
         }
         email.setType(emailType);
+        //TODO: catch exceptions, add  error/success message
         emailService.save(email);
         return "OK";
     }
@@ -91,6 +94,7 @@ public class EmailApiController {
         try {
             imapService.getMail();
         } catch (Exception e) {
+        	LOGGER.error("Cannot read from inbox:", e);
             result.put("error", e.getClass().getName());
             result.put("errorMsg", e.getMessage());
         }
@@ -105,8 +109,7 @@ public class EmailApiController {
     @RequestMapping("/api/email/{id}/attachments/zip")
     public void downloadAllFromEmail(@PathVariable("id") Long id, HttpServletResponse response) {
         try {
-
-            Email email = emailService.searchById(id);
+        	Email email = emailService.searchById(id);
             if (email == null) {
                 throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
             }
@@ -123,11 +126,15 @@ public class EmailApiController {
             is.close();
             response.flushBuffer();
         } catch (IOException e) {
-            LOGGER.error("Could not find attachment with id " + id + " on disk: " + e.getMessage());
+            LOGGER.error("Could not find attachment with id " + id + " on disk", e);
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
         } catch (EntityNotFoundException e) {
-            LOGGER.error("Could not find attachment with id " + id + ": " + e.getMessage());
+            LOGGER.error("Could not find attachment with id " + id, e);
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            LOGGER.error("Could not download attachment with id " + id, e);
+            throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        
     }
 }

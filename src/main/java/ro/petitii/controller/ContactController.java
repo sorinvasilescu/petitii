@@ -1,5 +1,8 @@
 package ro.petitii.controller;
 
+import java.util.Arrays;
+
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
@@ -13,15 +16,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import ro.petitii.controller.api.AttachmentApiController;
 import ro.petitii.model.Contact;
 import ro.petitii.service.ContactService;
+import ro.petitii.util.TranslationUtil;
 
 @Controller
 public class ContactController extends ControllerBase {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(AttachmentApiController.class);
-
+	private static final Logger LOGGER = LoggerFactory.getLogger(ContactController.class);
+	
 	@Autowired
 	private ContactService contactService;
 
@@ -50,16 +53,20 @@ public class ContactController extends ControllerBase {
 
 	@RequestMapping(path = "/contact", method = RequestMethod.POST)
     public ModelAndView saveContact(@Valid Contact contact, BindingResult bindingResult,
-                                     final RedirectAttributes attr) {
+                                     final RedirectAttributes attr, HttpServletRequest request) {
 		ModelAndView modelAndView;
 		
 		if (bindingResult.hasErrors()) {
-        	modelAndView = editContact(contact);
-            modelAndView.addObject("toast", createToast("Instituția nu a fost salvată", ToastType.danger));
+			modelAndView = editContact(contact);
+        	String message = TranslationUtil.i18n("controller.contact.not_saved", null, request);
+            modelAndView.addObject("toast", createToast(message, ToastType.danger));
+            String serializedErrors = Arrays.toString(bindingResult.getAllErrors().toArray());
+			LOGGER.debug("Cannot save contact!"+ contact.toString() + "\n resons:" + serializedErrors);			
         } else {
             Contact savedContact = contactService.save(contact);
             modelAndView = new ModelAndView("redirect:/contact/" + savedContact.getId());
-            attr.addFlashAttribute("toast", createToast("Instituția a fost salvată cu succes", ToastType.success));
+            String message = TranslationUtil.i18n("controller.contact.saved", null, request);
+            attr.addFlashAttribute("toast", createToast(message, ToastType.success));
         }
         return modelAndView;
     }

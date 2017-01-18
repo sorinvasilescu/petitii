@@ -68,4 +68,13 @@ public class Contact {
 	public void setEmail(String email) {
 		this.email = email;
 	}
+	
+	public String toString(){
+		StringBuilder builder = new StringBuilder();
+		builder.append("id:").append(getId());
+		builder.append("\nname:").append(getName());
+		builder.append("\nemail:").append(getEmail());
+		builder.append("\nphone:").append(getPhone());
+		return builder.toString();
+	};
 }

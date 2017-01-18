@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import ro.petitii.model.Contact;
 import ro.petitii.service.ContactService;
+import ro.petitii.util.TranslationUtil;
 
 @RestController
 public class ContactApiController {
@@ -34,6 +35,7 @@ public class ContactApiController {
     @JsonView(DataTablesOutput.View.class)
     @RequestMapping(value = "/api/contacts", method = RequestMethod.POST)
     public DataTablesOutput<Contact> getContacts(@Valid DataTablesInput input) {
+    	//TODO: catch exceptions, add  error/success message
         return contactService.findAll(input);
     }
     
@@ -42,12 +44,14 @@ public class ContactApiController {
     	Map<String, String> result = new HashMap<>(); 	
     	try{
     		contactService.delete(contactIds);
-    		 result.put("success", "true");
-             result.put("errorMsg", "Contactele au fost șterse.");
+    		result.put("success", "true");
+    		String message = TranslationUtil.i18n("api.controller.contact.delete_successful");
+            result.put("errorMsg", message);
     	}catch (Exception e){
     		LOGGER.info("Cannot delete contacts: " + Arrays.toString(contactIds), e);
-    		 result.put("success", "false");
-             result.put("errorMsg", "Contactele selectate nu au putut fi șterse.");
+    		result.put("success", "false");
+    		String message = TranslationUtil.i18n("api.controller.contact.delete_failed");
+            result.put("errorMsg", message);
     	}
     	return result;
 	}

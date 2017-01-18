@@ -1,5 +1,7 @@
 package ro.petitii.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -13,15 +15,19 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ro.petitii.config.DeadlineConfig;
 import ro.petitii.config.DefaultsConfig;
 import ro.petitii.config.SmtpConfig;
+import ro.petitii.controller.api.ContactApiController;
 import ro.petitii.model.*;
 import ro.petitii.service.*;
 import ro.petitii.service.email.SmtpService;
 import ro.petitii.util.DateUtil;
+import ro.petitii.util.TranslationUtil;
 import ro.petitii.util.ValidationStatus;
 
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -67,6 +73,8 @@ public class PetitionController extends ControllerBase {
     @Autowired
     private DeadlineConfig deadlineConfig;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(PetitionController.class);
+	
     @RequestMapping(path = "/petition", method = RequestMethod.GET)
     public ModelAndView addPetition() {
         Petitioner petitioner = new Petitioner();
@@ -91,6 +99,7 @@ public class PetitionController extends ControllerBase {
     public ModelAndView editPetition(@PathVariable("id") Long id) {
         ModelAndView modelAndView = new ModelAndView("petitions_crud");
 
+      //TODO: catch exceptions, add  error message
         Petition petition = petitionService.findById(id);
         modelAndView.addObject("petition", petition);
         modelAndView.addObject("commentsApiUrl", "/api/petitions/" + petition.getId() + "/comments");
@@ -107,14 +116,16 @@ public class PetitionController extends ControllerBase {
     @RequestMapping(path = "/petition/fromEmail/{id}", method = RequestMethod.GET)
     public ModelAndView createPetitionFromEmail(@PathVariable("id") Long id, HttpServletRequest request, final RedirectAttributes attr) {
         ModelAndView modelAndView = new ModelAndView();
+        //TODO: catch exceptions, add  error/success message
         Email email = emailService.searchById(id);
-
         if (email.getPetition()!=null) {
-            attr.addFlashAttribute("toast", createToast("Exista deja o petitie pentru acest email", ToastType.danger));
+        	String message = TranslationUtil.i18n("controller.petition.petition_exists_for_email");
+        	attr.addFlashAttribute("toast", createToast(message, ToastType.danger));
             modelAndView.setViewName("redirect:" + request.getHeader("referer"));
             return modelAndView;
         }
 
+        //TODO: catch exceptions, add  error message
         Petition petition = petitionService.createFromEmail(email);
         petitionCustomParamService.initDefaults(petition);
 
@@ -137,11 +148,15 @@ public class PetitionController extends ControllerBase {
             modelAndView.setViewName("petitions_crud");
             addCustomParams(modelAndView);
             modelAndView.addObject("petition", petition);
-            modelAndView.addObject("toast", createToast("Petiția nu a fost salvata", ToastType.danger));
+            String message = TranslationUtil.i18n("controller.petition.petition_not_saved");
+            modelAndView.addObject("toast", createToast(message, ToastType.danger));
+            String serializedErrors = Arrays.toString(bindingResult.getAllErrors().toArray());
+            LOGGER.debug(message + "\n" + serializedErrors);
         } else {
             petition = petitionService.save(petition);
             modelAndView.setViewName("redirect:/petition/" + petition.getId());
-            attr.addFlashAttribute("toast", createToast("Petiția a fost salvata cu succes", ToastType.success));
+            String message = TranslationUtil.i18n("controller.petition.petition_saved");
+            attr.addFlashAttribute("toast", createToast(message, ToastType.success));
         }
 
         return modelAndView;
@@ -164,6 +179,7 @@ public class PetitionController extends ControllerBase {
     @RequestMapping(value = "/petition/redirect/{id}", method = RequestMethod.GET)
     public ModelAndView redirectPetition(@PathVariable("id") long id) {
         ModelAndView modelAndView = new ModelAndView("petitions_redirect");
+        //TODO: catch exceptions, add  error message
         Petition petition = petitionService.findById(id);
         modelAndView.addObject("petition", petition);
         List<Contact> contactList = (List<Contact>) (contactService.getAllContacts());
@@ -184,6 +200,7 @@ public class PetitionController extends ControllerBase {
         ModelAndView modelAndView = new ModelAndView();
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        //TODO: catch exceptions, add  error message
         User user = userService.findUserByEmail(auth.getName()).get(0);
         Petition petition = petitionService.findById(id);
         modelAndView.setViewName("redirect:/petition/" + petition.getId());
@@ -192,9 +209,12 @@ public class PetitionController extends ControllerBase {
 
         try {
             smtpService.send(createEmail(subject, description, convertRecipients(recipients), attachments, petition));
-            attr.addFlashAttribute("toast", createToast("Petiția a fost redirecționata cu succes", ToastType.success));
+            String message = TranslationUtil.i18n("controller.petition.petition_redirected");
+        	attr.addFlashAttribute("toast", createToast(message, ToastType.success));
         } catch (MessagingException e) {
-            attr.addFlashAttribute("toast", createToast("Petiția nu a fost redirecționata: " + e.getMessage(), ToastType.danger));
+        	String message = TranslationUtil.i18n("controller.petition.petition_not_redirected");
+        	attr.addFlashAttribute("toast", createToast(message + ": " + e.getMessage(), ToastType.danger));
+        	LOGGER.debug(message, e);
         }
 
         return modelAndView;
@@ -216,11 +236,13 @@ public class PetitionController extends ControllerBase {
             modelAndView.addObject("attachmentApiUrl", "/api/petitions/" + pid + "/attachments");
             modelAndView.addObject("linkedPetitionsApiUrl", "/api/petitions/" + pid + "/linked");
             modelAndView.addObject("linkedPetitionerApiUrl", "/api/petitions/" + pid + "/by/petitioner");
+            //TODO: catch exceptions, add  error message
             modelAndView.addObject("templateList", emailTemplateService.findByCategory(EmailTemplate.Category.response));
             return modelAndView;
         } else {
             ModelAndView modelAndView = new ModelAndView("redirect:/petition/" + petition.getId());
-            attr.addFlashAttribute("toast", createToast("Doar petițiile în lucru se pot rezolva", ToastType.danger));
+            String message = TranslationUtil.i18n("controller.petition.resolve_work_not_started");
+        	attr.addFlashAttribute("toast", createToast(message, ToastType.danger));
             return modelAndView;
         }
     }
@@ -238,6 +260,7 @@ public class PetitionController extends ControllerBase {
         ModelAndView modelAndView = new ModelAndView();
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        //TODO: catch exceptions, add  error message
         User user = userService.findUserByEmail(auth.getName()).get(0);
         Petition petition = petitionService.findById(id);
         modelAndView.setViewName("redirect:/petition/" + petition.getId());
@@ -255,13 +278,19 @@ public class PetitionController extends ControllerBase {
                 try {
                     smtpService.send(createEmail("Soluționare petiție: " + resolution.viewName(), description,
                                                  petition.getPetitioner().getEmail(), attachments, petition));
-                    attr.addFlashAttribute("toast", createToast("Petiția a fost rezolvata cu succes", ToastType.success));
+                    String message = TranslationUtil.i18n("controller.petition.resolve_succesful");
+                	attr.addFlashAttribute("toast", createToast(message, ToastType.success));
                 } catch (MessagingException e) {
-                    attr.addFlashAttribute("toast", createToast("Petiția nu a fost rezolvata: " + e.getMessage(), ToastType.danger));
+                	String message = TranslationUtil.i18n("controller.petition.resolve_failed");
+                	attr.addFlashAttribute("toast", createToast(message + ": " + e.getMessage(), ToastType.danger));
+                    LOGGER.debug(message, e);
                 }
             } else {
-                commentService.createAndSave(user, petition, "Soluționare petiție: " + resolution.viewName() + " \n <br/> " + description);
-                attr.addFlashAttribute("toast", createToast("Petiția a fost rezolvata cu succes", ToastType.success));
+            	String message = TranslationUtil.i18n("controller.petition.resolve_resolution");
+            	//TODO: catch exceptions, add  error message
+            	commentService.createAndSave(user, petition, message + ": " + resolution.viewName() + " \n <br/> " + description);
+            	message = TranslationUtil.i18n("controller.petition.resolve_succesful");
+            	attr.addFlashAttribute("toast", createToast(message, ToastType.success));
             }
         }
 
@@ -272,7 +301,8 @@ public class PetitionController extends ControllerBase {
         modelAndView.addObject("user_list", userService.getAllUsers());
 
         for (PetitionCustomParam.Type type : PetitionCustomParam.Type.values()) {
-            PetitionCustomParam param = petitionCustomParamService.findByType(type);
+        	//TODO: catch exceptions, add  error message
+        	PetitionCustomParam param = petitionCustomParamService.findByType(type);
             modelAndView.addObject(type.name(), param);
         }
     }
@@ -280,15 +310,18 @@ public class PetitionController extends ControllerBase {
     private ValidationStatus validateSolutionParameters(Petition petition, PetitionStatus.Resolution resolution,
                                                         boolean sendEmail, String description) {
         if (petition.getCurrentStatus() != PetitionStatus.Status.IN_PROGRESS) {
-            return new ValidationStatus(false, "Doar petițiile în lucru se pot rezolva");
+        	String message = TranslationUtil.i18n("controller.petition.resolve_work_not_started");
+        	return new ValidationStatus(false, message);
         }
 
         if (sendEmail && (description == null || description.trim().isEmpty())) {
-            return new ValidationStatus(false, "Pentru a trimite o soluție petentului precizați un mesaj");
+        	String message = TranslationUtil.i18n("controller.petition.resolve_message_required");
+        	return new ValidationStatus(false, message);
         }
 
         if (Objects.equals(resolution, PetitionStatus.Resolution.duplicate) && petitionService.countLinkedPetitions(petition) == 0) {
-            return new ValidationStatus(false, "Pentru a închide o petiție duplicat precizați cel puțin o petiție conexată");
+        	String message = TranslationUtil.i18n("controller.petition.resolve_duplicate_petition");
+        	return new ValidationStatus(false, message);
         }
 
         return new ValidationStatus(true, null);
@@ -306,7 +339,8 @@ public class PetitionController extends ControllerBase {
         email.setAttachments(attachmentList);
         email.setPetition(petition);
         email.setType(Email.EmailType.Outbox);
-        return emailService.save(email);
+        //TODO: catch exceptions, add  error message
+    	return emailService.save(email);
     }
 
     private String convertRecipients(long[] recipients) {
