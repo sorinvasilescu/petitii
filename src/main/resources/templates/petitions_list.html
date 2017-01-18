@@ -161,7 +161,16 @@
                     'width': '80px',
                     searchable: false
                 }
-            ]
+            ],
+            rowCallback: function (row, data) {
+                if (data.alertStatus === "red") {
+                    $('td', row).css('background-color', '#ffb699');
+                }
+
+                if (data.alertStatus === "yellow") {
+                    $('td', row).css('background-color', '#FFFACD');
+                }
+            }
         });
 
         selectActions(petitionTable);

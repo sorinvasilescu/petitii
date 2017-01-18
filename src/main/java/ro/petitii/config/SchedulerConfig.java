@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "petitii.schedule")
 public class SchedulerConfig {
     private String email;
+    private String deadline;
 
     public void setEmail(String email) {
         this.email = email;
@@ -14,5 +15,13 @@ public class SchedulerConfig {
 
     public String emailCronPattern() {
         return email;
+    }
+
+    public String deadlineCronPattern() {
+        return deadline;
+    }
+
+    public void setDeadline(String deadline) {
+        this.deadline = deadline;
     }
 }

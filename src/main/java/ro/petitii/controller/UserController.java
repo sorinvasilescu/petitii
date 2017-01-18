@@ -14,12 +14,11 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ro.petitii.config.SmtpConfig;
 import ro.petitii.model.Email;
-import ro.petitii.model.EmailTemplate;
 import ro.petitii.model.User;
-import ro.petitii.service.EmailTemplateService;
 import ro.petitii.service.UserService;
 import ro.petitii.service.email.SmtpService;
 import ro.petitii.service.template.EmailTemplateProcessorService;
+import ro.petitii.util.Pair;
 
 import javax.mail.MessagingException;
 import javax.validation.Valid;
@@ -28,6 +27,9 @@ import java.util.*;
 @Controller
 @PreAuthorize("hasAuthority('ADMIN')")
 public class UserController extends ControllerBase {
+    private static final Pair<String, String> WELCOME = new Pair<>("welcome_user", "Utilizator nou - Bine ați venit");
+    private static final Pair<String, String> RESET = new Pair<>("reset_password", "Parola dumneavoastră a fost resetată cu success");
+
     private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
@@ -38,9 +40,6 @@ public class UserController extends ControllerBase {
 
     @Autowired
     private SmtpConfig config;
-
-    @Autowired
-    private EmailTemplateService emailTemplateService;
 
     @Autowired
     private EmailTemplateProcessorService emailTemplateProcessorService;
@@ -84,7 +83,7 @@ public class UserController extends ControllerBase {
         user.setPassword(passwordEncoder.encode(newPassword));
         userService.save(user);
 
-        List<Map<String, String>> toasts = sendUserPasswordReset(newPassword, user);
+        List<Map<String, String>> toasts = sendUserPasswordReset(RESET, newPassword, user);
         attr.addFlashAttribute("toasts", toasts);
         return new ModelAndView("redirect:/users");
     }
@@ -129,12 +128,13 @@ public class UserController extends ControllerBase {
         boolean newUser = user.getId() == null;
         String newPassword = setNewPassword(user);
 
-        if (newUser && userService.findUserByEmail(user.getEmail()) != null) {
+        List<User> existingUser = userService.findUserByEmail(user.getEmail());
+        if (newUser && existingUser != null && !existingUser.isEmpty()) {
             attr.addFlashAttribute("toast", createToast("Adresa de e-mail existenta", ToastType.danger));
         } else {
             userService.save(user);
             if (newUser) {
-                List<Map<String, String>> toasts = sendUserPasswordReset(newPassword, user);
+                List<Map<String, String>> toasts = sendUserPasswordReset(WELCOME, newPassword, user);
                 attr.addFlashAttribute("toasts", toasts);
             }
         }
@@ -142,43 +142,31 @@ public class UserController extends ControllerBase {
         return new ModelAndView("redirect:/users");
     }
 
-    private List<Map<String, String>> sendUserPasswordReset(String password, User user) {
+    private List<Map<String, String>> sendUserPasswordReset(Pair<String, String> template, String password, User user) {
         List<Map<String, String>> toasts = new LinkedList<>();
 
-        String emailBody;
-        EmailTemplate emailTemplate = emailTemplateService.findOneByCategory(EmailTemplate.Category.recover_password);
-        if (emailTemplate == null) {
-            LOGGER.error("Email template not found for start work, using standard text messages ...");
-            toasts.add(createToast("Template-urile pentru e-mail nu sunt configurate corect ...", ToastType.warning));
-            emailBody = createDefaultResetEmail(password);
+        Map<String, Object> vars = new HashMap<>();
+        vars.put("pass", password);
+        vars.put("user", user);
+        String emailBody = emailTemplateProcessorService.processStaticTemplate(template.getFirst(), vars);
+        if (emailBody == null) {
+            LOGGER.error("Could not compile the reset password for user = " + user.getEmail());
+            toasts.add(createToast("Emailul de resetare a parolei nu a fost trimis. Motiv: template compile failure", ToastType.danger));
         } else {
-            Map<String, Object> vars = new HashMap<>();
-            vars.put("pass", password);
-            vars.put("user", user);
-            emailBody = emailTemplateProcessorService.processTemplateWithId(emailTemplate.getId(), vars);
-            if (emailBody == null) {
-                emailBody = createDefaultResetEmail(password);
+            Email email = new Email();
+            email.setSender(config.getUsername());
+            email.setSubject(template.getSecond());
+            email.setRecipients(user.getEmail());
+            email.setBody(emailBody);
+            try {
+                LOGGER.info("Sending reset password email" + emailBody);
+                smtpService.send(email);
+                toasts.add(createToast("Emailul de resetare a parolei a fost trimis", ToastType.success));
+            } catch (MessagingException e) {
+                LOGGER.error("Could not send email with password reset for user = " + user.getEmail() + " Reason:" + e.getMessage());
+                toasts.add(createToast("Emailul de resetare a parolei nu a fost trimis. Motiv: " + e.getMessage(), ToastType.danger));
             }
         }
-
-        Email email = new Email();
-        email.setSender(config.getUsername());
-        email.setSubject("Parola dumneavoastră a fost resetată cu success");
-        email.setRecipients(user.getEmail());
-        email.setBody(emailBody);
-        try {
-            LOGGER.info("Sending reset password email" + emailBody);
-            smtpService.send(email);
-            toasts.add(createToast("Emailul de resetare a parolei a fost trimis", ToastType.success));
-        } catch (MessagingException e) {
-            LOGGER.error("Could not send email with password reset for user = " + user.getEmail() + " Reason:" + e.getMessage());
-            toasts.add(createToast("Emailul de resetare a parolei nu a fost trimis. Motiv: " + e.getMessage(), ToastType.danger));
-        }
         return toasts;
-    }
-
-    private String createDefaultResetEmail(String password) {
-        return "Un administrator a cerut resetarea parolei dumneavoastră. Noua parolă este: " + password + "\n " +
-                "Este recomandată schimbarea parolei imediat după primirea acestui e-mail.";
     }
 }

@@ -13,9 +13,7 @@ public class EmailTemplate {
     public enum Category {
         response,
         forward,
-        start_work,
-        recover_password,
-        reset_password;
+        start_work;
 
         public String viewName() {
             return categoryMsg(this);

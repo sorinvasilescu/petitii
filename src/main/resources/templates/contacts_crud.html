@@ -14,41 +14,44 @@
             <!-- /top navigation -->
             <!-- page content -->
             <div class="right_col" role="main">
-                <div class="">
-                    <h2>Editează contact</h2>
-                    <div class="clearfix"></div>
-                </div>
                 <div class="x_content">
                 	<form class="form-horizontal form-label-left input_mask" id="petition-form" th:object="${contact}" th:action="@{/contact}" method="post">
-                    <!-- hidden properties  -->
+                        <div class="form-group">
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <div class="buttons pull-right">
+                                    <a href="/contacts"><button type="button" class="btn btn-default"><i class="fa fa-arrow-left"></i> <span>Înapoi</span></button></a>
+                                    <button type="submit" class="btn btn-success"><i class="fa fa-paste"></i> <span>Salvează</span></button>
+                                </div>
+                            </div>
+                        </div>
+                    <div class="x_panel">
+                    <div class="x_title">
+                        <h2>Editează contact</h2>
+                        <div class="clearfix"></div>
+                    </div>
                     <input type="hidden" name="id" th:field="*{id}"/>
                       <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12">Instituție <span class="required">*</span></label>
-                        <div class="col-md-9 col-sm-9 col-xs-12">
-                          <input type="text" name="name" th:field="*{name}" class="form-control" required="required" placeholder="Instituție"/>
+                        <label class="control-label col-md-1 col-sm-1 col-xs-12">Instituție <span class="required">*</span></label>
+                        <div class="col-md-11 col-sm-11 col-xs-12">
+                          <input type="text" name="name" th:field="*{name}" class="form-control has-feedback-left" required="required" placeholder="Instituție"/>
+                          <span class="fa fa-university form-control-feedback left" aria-hidden="true"></span>
                         </div>
                       </div>
                       <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12">Email <span class="required">*</span></label>
-                        <div class="col-md-9 col-sm-9 col-xs-12">
-                          <input type="email" name="email" th:field="*{email}" class="form-control" required="required" placeholder="Adresa email"/>
+                        <label class="control-label col-md-1 col-sm-1 col-xs-12">Email <span class="required">*</span></label>
+                        <div class="col-md-11 col-sm-11 col-xs-12">
+                          <input type="text" name="email" th:field="*{email}" class="form-control has-feedback-left" required="required" placeholder="Adresa email"/>
+                          <span class="fa fa-envelope form-control-feedback left" aria-hidden="true"></span>
                         </div>
                       </div>
                       <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12">Telefon <span class="required">*</span></label>
-                        <div class="col-md-9 col-sm-9 col-xs-12">
-                          <input type="tel" name="phone" th:field="*{phone}" class="form-control" required="required" placeholder="021.450.40.31"/>
-                        </div>
+                        <label class="control-label col-md-1 col-sm-1 col-xs-12">Telefon <span class="required">*</span></label>
+                          <div class="col-md-11 col-sm-11 col-xs-12">
+                              <input type="text" name="phone" th:field="*{phone}" class="form-control has-feedback-left" required="required" placeholder="Nr. de telefon"/>
+                              <span class="fa fa-phone form-control-feedback left" aria-hidden="true"></span>
+                          </div>
                       </div>
-                      
-                      <div class="ln_solid"></div>
-                      
-                      <div class="form-group">
-                        <div class="col-md-9 col-sm-9 col-xs-12 col-md-offset-3">
-                          <a href="/contacts"><button type="button" class="btn btn-default"><i class="fa fa-arrow-left"></i> <span>Înapoi</span></button></a>
-                          <button type="submit" class="btn btn-success"><i class="fa fa-paste"></i> <span>Salvează</span></button>
-                        </div>
-                      </div>
+                    </div>
                     </form>
                 </div>
             </div>
@@ -64,14 +67,6 @@
         </div>
     </div>
     <div th:replace="fragments/main_head::includes"></div>
-    <!-- Datatables -->
-    <script>
-    $(document).ready(function() {
-        $('#datatable-responsive').DataTable();
-    });
-    </script>
-    <!-- /Datatables -->
-
     <div th:replace="fragments/main_head::toast"></div>
 </body>
 
