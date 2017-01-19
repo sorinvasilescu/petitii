@@ -9,9 +9,6 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.LocaleResolver;
 
-import ro.petitii.model.EmailTemplate;
-import ro.petitii.model.PetitionStatus;
-
 @Component(value = "i18n")
 public class TranslationUtil {
     public static final Locale ro = new Locale("ro");

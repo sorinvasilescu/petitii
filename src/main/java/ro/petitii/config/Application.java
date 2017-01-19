@@ -21,7 +21,6 @@ import ro.petitii.tasks.CronScheduler;
 import ro.petitii.util.TranslationUtil;
 
 import javax.mail.MessagingException;
-import java.util.Locale;
 
 @SpringBootApplication(scanBasePackages = "ro.petitii")
 @EnableJpaRepositories(basePackages = {"ro.petitii"}, repositoryFactoryBeanClass = DataTablesRepositoryFactoryBean.class)

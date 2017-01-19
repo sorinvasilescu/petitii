@@ -4,7 +4,6 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import ro.petitii.model.Petitioner;
 
-import java.util.Collection;
 import java.util.List;
 
 @Repository
