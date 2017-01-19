@@ -3,8 +3,6 @@ package ro.petitii.model;
 import javax.persistence.*;
 import java.util.Date;
 
-import static ro.petitii.util.TranslationUtil.resolutionMsg;
-
 @Entity
 public class PetitionStatus {
     public enum Status {
@@ -22,10 +20,6 @@ public class PetitionStatus {
 
         public Status getStatus() {
             return status;
-        }
-
-        public String viewName() {
-            return resolutionMsg(this);
         }
     }
 

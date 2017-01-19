@@ -23,7 +23,7 @@ import javax.mail.MessagingException;
 import java.util.*;
 
 @Controller
-public class UserManagementController extends ControllerBase {
+public class UserManagementController extends ViewController {
     private static final Logger logger = LoggerFactory.getLogger(UserManagementController.class);
 
     @Autowired
@@ -56,18 +56,19 @@ public class UserManagementController extends ControllerBase {
             if (Objects.equals(newPassword, duplicate)) {
                 // just to be safe if Parsley fails to check this
                 if (Objects.equals(currentPassword, newPassword)) {
-                    view.addObject("toast", createToast("Parola nouă e identică cu cea curentă", ControllerBase.ToastType.danger));
+                    view.addObject("toast", i18nToast("controller.user.invalid_new_password", ViewController.ToastType.danger));
                 } else {
                     User user = userService.findById(((UserDetail) auth.getPrincipal()).getUserId());
                     user.setPassword(passwordEncoder.encode(newPassword));
+                    // todo; catch any save error
                     userService.save(user);
-                    view.addObject("toast", createToast("Parola salvata cu success", ToastType.success));
+                    view.addObject("toast", i18nToast("controller.user.password_saved", ToastType.success));
                 }
             } else {
-                view.addObject("toast", createToast("Parola nouă nu e identică cu cea repetată", ControllerBase.ToastType.danger));
+                view.addObject("toast", i18nToast("controller.user.invalid_repeat_password", ViewController.ToastType.danger));
             }
         } else {
-            view.addObject("toast", createToast("Parola curentă invalidă", ControllerBase.ToastType.danger));
+            view.addObject("toast", i18nToast("controller.user.invalid_password", ViewController.ToastType.danger));
         }
 
         return view;
@@ -83,7 +84,7 @@ public class UserManagementController extends ControllerBase {
         ModelAndView view = new ModelAndView("reset_password");
         List<User> users = userService.findUserByEmail(username);
         if (users.isEmpty()) {
-            view.addObject("toast", createToast("Utilizator invalid", ControllerBase.ToastType.danger));
+            view.addObject("toast", i18nToast("controller.user.invalid_user", ViewController.ToastType.danger));
         } else {
             for (User user : users) {
                 String newPassword = UUID.randomUUID().toString();
@@ -104,20 +105,19 @@ public class UserManagementController extends ControllerBase {
         String emailBody = emailTemplateProcessorService.processStaticTemplate("recover_password", vars);
         if (emailBody == null) {
             logger.error("Could not compile the reset password for user = " + user.getEmail());
-            toasts.add(createToast("Emailul de resetare a parolei nu a fost trimis. Motiv: template compile failure", ToastType.danger));
+            toasts.add(i18nToast("controller.user.reset_password_email_failed", ToastType.danger));
         } else {
             Email email = new Email();
             email.setSender(config.getUsername());
-            email.setSubject("Parola dumneavoastră a fost resetată cu success");
+            email.setSubject(i18n("controller.user.password_reset_success"));
             email.setRecipients(user.getEmail());
             email.setBody(emailBody);
             try {
                 smtpService.send(email);
-                toasts.add(createToast("Emailul de resetare a parolei a fost trimis", ToastType.success));
+                toasts.add(i18nToast("controller.user.reset_password_email_sent", ToastType.success));
             } catch (MessagingException e) {
-                logger.error("Could not send email with password reset for user = " + user.getEmail() + " Reason:" + e.getMessage());
-                logger.debug("Could not send email with password reset for user = " + user.getEmail() + " Reason:" + e.getMessage(), e);
-                toasts.add(createToast("Emailul de resetare a parolei nu a fost trimis. Motiv: SMTP Error", ToastType.danger));
+                logger.error("Could not send email with password reset for user = " + user.getEmail() + " Reason:" + e.getMessage(), e);
+                toasts.add(i18nToast("controller.user.reset_password_email_failed_smtp_error", ToastType.danger));
             }
         }
         return toasts;

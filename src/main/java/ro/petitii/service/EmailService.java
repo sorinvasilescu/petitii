@@ -6,8 +6,6 @@ import ro.petitii.model.Email;
 import ro.petitii.model.Petition;
 import ro.petitii.model.datatables.EmailResponse;
 
-import java.util.List;
-
 public interface EmailService {
     Email save(Email e);
     long count();

@@ -5,6 +5,7 @@
 
 <!--/*@thymesVar id="emailTemplate" type="ro.petitii.model.EmailTemplate"*/-->
 <!--/*@thymesVar id="categories" type="java.util.List<ro.petitii.model.EmailTemplate.Category>"*/-->
+<!--/*@thymesVar id="i18n" type="ro.petitii.util.TranslationUtil"*/-->
 
 <body class="nav-md">
 <div class="container body">
@@ -49,7 +50,7 @@
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <select class="form-control" name="category" id="category" tabindex="-1" required="" th:field="*{category}">
                                                 <option value=""></option>
-                                                <option th:each="cat : ${categories}" th:value="${cat.name()}" th:text="${cat.viewName()}"></option>
+                                                <option th:each="cat : ${categories}" th:value="${cat.name()}" th:text="#{__${'emailTemplate.category.'+cat}__}"></option>
                                             </select>
                                         </div>
                                     </div>

@@ -15,7 +15,7 @@ import javax.validation.Valid;
 
 @Controller
 @PreAuthorize("hasAuthority('ADMIN')")
-public class EmailTemplateController extends ControllerBase {
+public class EmailTemplateController extends ViewController {
     @Autowired
     private EmailTemplateService emailTemplateService;
 
@@ -49,12 +49,14 @@ public class EmailTemplateController extends ControllerBase {
     @RequestMapping(path = "/emailTemplate/{id}/delete", method = RequestMethod.GET)
     public ModelAndView deleteEmailTemplates(@PathVariable("id") Long id) {
         emailTemplateService.delete(id);
+        //TODO: catch exceptions, add  error/success message 
         return new ModelAndView("redirect:/emailTemplates");
     }
 
     @RequestMapping(path = "/emailTemplate", method = RequestMethod.POST)
     public ModelAndView saveEmailTemplate(@Valid EmailTemplate emailTemplate) {
         emailTemplateService.save(emailTemplate);
+        //TODO: catch exceptions, add error/success message 
         return new ModelAndView("redirect:/emailTemplates");
     }
 }
