@@ -28,6 +28,7 @@ import ro.petitii.model.User;
 import ro.petitii.service.UserService;
 import ro.petitii.service.email.SmtpService;
 import ro.petitii.service.template.EmailTemplateProcessorService;
+import ro.petitii.util.ToastMaster;
 
 @Controller
 @PreAuthorize("hasAuthority('ADMIN')")
@@ -76,7 +77,7 @@ public class UserController extends ViewController {
         user.setRole(User.UserRole.SUSPENDED);
         //TODO: catch exceptions, add  error/success message
         userService.save(user);
-        attr.addFlashAttribute("toast", i18nToast("controller.user.account_disabled", ToastType.success));
+        attr.addFlashAttribute("toast", i18nToast("controller.user.account_disabled", ToastMaster.ToastType.success));
         return new ModelAndView("redirect:/users");
     }
 
@@ -140,7 +141,7 @@ public class UserController extends ViewController {
         //TODO: catch exceptions, add  error/success message
         List<User> existingUser = userService.findUserByEmail(user.getEmail());
         if (newUser && existingUser != null && !existingUser.isEmpty()) {
-            attr.addFlashAttribute("toast", i18nToast("controller.user.email_address_exists", ToastType.danger));
+            attr.addFlashAttribute("toast", i18nToast("controller.user.email_address_exists", ToastMaster.ToastType.danger));
         } else {
         	//TODO: catch exceptions, add  error/success message
             userService.save(user);
@@ -163,7 +164,7 @@ public class UserController extends ViewController {
         String emailBody = emailTemplateProcessorService.processStaticTemplate(template, vars);
         if (emailBody == null) {
             LOGGER.error("Could not compile the reset password for user = " + user.getEmail());
-            toasts.add(i18nToast("controller.user.reset_password_email_failed", ToastType.danger));
+            toasts.add(i18nToast("controller.user.reset_password_email_failed", ToastMaster.ToastType.danger));
         } else {
             Email email = new Email();
             email.setSender(config.getUsername());
@@ -173,10 +174,10 @@ public class UserController extends ViewController {
             try {
                 LOGGER.info("Sending reset password email" + emailBody);
                 smtpService.send(email);
-                toasts.add(i18nToast("controller.user.reset_password_email_sent", ToastType.success));
+                toasts.add(i18nToast("controller.user.reset_password_email_sent", ToastMaster.ToastType.success));
             } catch (MessagingException e) {
                 LOGGER.error("Could not send email with password reset for user = " + user.getEmail(), e);
-                toasts.add(i18nToast("controller.user.reset_password_email_failed_with_error" , ToastType.danger, e.getMessage()));
+                toasts.add(i18nToast("controller.user.reset_password_email_failed_with_error" , ToastMaster.ToastType.danger, e.getMessage()));
             }
         }
         return toasts;

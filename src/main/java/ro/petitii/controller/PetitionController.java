@@ -19,12 +19,12 @@ import ro.petitii.model.*;
 import ro.petitii.service.*;
 import ro.petitii.service.email.SmtpService;
 import ro.petitii.util.DateUtil;
-import ro.petitii.util.ValidationStatus;
+import ro.petitii.util.ToastMaster;
+import ro.petitii.validation.ValidationStatus;
 
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -116,8 +116,8 @@ public class PetitionController extends ViewController {
         ModelAndView modelAndView = new ModelAndView();
         //TODO: catch exceptions, add  error/success message
         Email email = emailService.searchById(id);
-        if (email.getPetition()!=null) {
-        	attr.addFlashAttribute("toast", i18nToast("controller.petition.petition_exists_for_email", ToastType.danger));
+        if (email.getPetition() != null) {
+            attr.addFlashAttribute("toast", i18nToast("controller.petition.petition_exists_for_email", ToastMaster.ToastType.danger));
             modelAndView.setViewName("redirect:" + request.getHeader("referer"));
             return modelAndView;
         }
@@ -145,13 +145,13 @@ public class PetitionController extends ViewController {
             modelAndView.setViewName("petitions_crud");
             addCustomParams(modelAndView);
             modelAndView.addObject("petition", petition);
-            modelAndView.addObject("toast", i18nToast("controller.petition.petition_not_saved", ToastType.danger));
+            modelAndView.addObject("toast", i18nToast("controller.petition.petition_not_saved", ToastMaster.ToastType.danger));
             String serializedErrors = Arrays.toString(bindingResult.getAllErrors().toArray());
             LOGGER.debug(i18n("controller.petition.petition_not_saved") + "\n" + serializedErrors);
         } else {
             petition = petitionService.save(petition);
             modelAndView.setViewName("redirect:/petition/" + petition.getId());
-            attr.addFlashAttribute("toast", i18nToast("controller.petition.petition_saved", ToastType.success));
+            attr.addFlashAttribute("toast", i18nToast("controller.petition.petition_saved", ToastMaster.ToastType.success));
         }
 
         return modelAndView;
@@ -204,9 +204,9 @@ public class PetitionController extends ViewController {
 
         try {
             smtpService.send(createEmail(subject, description, convertRecipients(recipients), attachments, petition));
-        	attr.addFlashAttribute("toast", i18nToast("controller.petition.petition_redirected", ToastType.success));
+        	attr.addFlashAttribute("toast", i18nToast("controller.petition.petition_redirected", ToastMaster.ToastType.success));
         } catch (MessagingException e) {
-        	attr.addFlashAttribute("toast", i18nToast("controller.petition.petition_not_redirected", ToastType.danger, e.getMessage()));
+        	attr.addFlashAttribute("toast", i18nToast("controller.petition.petition_not_redirected", ToastMaster.ToastType.danger, e.getMessage()));
         	LOGGER.error(i18n("controller.petition.petition_not_redirected"), e);
         }
 
@@ -234,7 +234,7 @@ public class PetitionController extends ViewController {
             return modelAndView;
         } else {
             ModelAndView modelAndView = new ModelAndView("redirect:/petition/" + petition.getId());
-        	attr.addFlashAttribute("toast", i18nToast("controller.petition.resolve_work_not_started", ToastType.danger));
+        	attr.addFlashAttribute("toast", i18nToast("controller.petition.resolve_work_not_started", ToastMaster.ToastType.danger));
             return modelAndView;
         }
     }
@@ -260,7 +260,7 @@ public class PetitionController extends ViewController {
         ValidationStatus validationStatus = validateSolutionParameters(petition, resolution, sendEmail, description);
 
         if (!validationStatus.isValid()) {
-            attr.addFlashAttribute("toast", i18nToast(validationStatus.getMsg(), ToastType.danger));
+            attr.addFlashAttribute("toast", i18nToast(validationStatus.getMsg(), ToastMaster.ToastType.danger));
             modelAndView.setViewName("redirect:/petition/" + id + "/resolve/" + action);
         } else {
             PetitionStatus.Status status = resolution.getStatus();
@@ -270,16 +270,16 @@ public class PetitionController extends ViewController {
                 try {
                     smtpService.send(createEmail("Soluționare petiție: " + i18n(resolution), description,
                                                  petition.getPetitioner().getEmail(), attachments, petition));
-                	attr.addFlashAttribute("toast", i18nToast("controller.petition.resolve_successful", ToastType.success));
+                	attr.addFlashAttribute("toast", i18nToast("controller.petition.resolve_successful", ToastMaster.ToastType.success));
                 } catch (MessagingException e) {
-                	attr.addFlashAttribute("toast", i18nToast("controller.petition.resolve_failed", ToastType.danger, e.getMessage()));
+                	attr.addFlashAttribute("toast", i18nToast("controller.petition.resolve_failed", ToastMaster.ToastType.danger, e.getMessage()));
                     LOGGER.debug(i18n("controller.petition.resolve_failed"), e);
                 }
             } else {
             	String message = i18n("controller.petition.resolve_resolution") + ": " + i18n(resolution) + " \n <br/> " + description;
             	//TODO: catch exceptions, add  error message
             	commentService.createAndSave(user, petition, message );
-            	attr.addFlashAttribute("toast", i18nToast("controller.petition.resolve_successful", ToastType.success));
+            	attr.addFlashAttribute("toast", i18nToast("controller.petition.resolve_successful", ToastMaster.ToastType.success));
             }
         }
 
@@ -299,18 +299,18 @@ public class PetitionController extends ViewController {
     private ValidationStatus validateSolutionParameters(Petition petition, PetitionStatus.Resolution resolution,
                                                         boolean sendEmail, String description) {
         if (petition.getCurrentStatus() != PetitionStatus.Status.IN_PROGRESS) {
-        	return new ValidationStatus(false, "controller.petition.resolve_work_not_started");
+        	return new ValidationStatus("controller.petition.resolve_work_not_started");
         }
 
         if (sendEmail && (description == null || description.trim().isEmpty())) {
-        	return new ValidationStatus(false, "controller.petition.resolve_message_required");
+        	return new ValidationStatus("controller.petition.resolve_message_required");
         }
 
         if (Objects.equals(resolution, PetitionStatus.Resolution.duplicate) && petitionService.countLinkedPetitions(petition) == 0) {
-        	return new ValidationStatus(false, "controller.petition.resolve_duplicate_petition");
+        	return new ValidationStatus("controller.petition.resolve_duplicate_petition");
         }
 
-        return new ValidationStatus(true, null);
+        return new ValidationStatus();
     }
 
     private Email createEmail(String subject, String description, String recipients, Long[] attachments, Petition petition) {

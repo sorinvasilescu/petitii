@@ -31,7 +31,6 @@ import ro.petitii.util.ZipUtils;
 
 import javax.mail.MessagingException;
 import javax.persistence.EntityNotFoundException;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
@@ -50,7 +49,6 @@ import static ro.petitii.controller.api.DatatableUtils.pageRequest;
 import static ro.petitii.util.StringUtil.cleanHtml;
 
 @Controller
-@ControllerAdvice
 // url base for all class methods
 @RequestMapping("/api/petitions")
 public class PetitionApiController extends BaseController{
@@ -198,9 +196,7 @@ public class PetitionApiController extends BaseController{
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     @ResponseStatus(value = HttpStatus.PRECONDITION_FAILED)
     @ResponseBody
-    protected ResponseEntity<String> handleMaxUploadSizeExceededException(HttpServletRequest request,
-                                                                          HttpServletResponse response,
-                                                                          Throwable e) throws IOException {
+    protected ResponseEntity<String> handleMaxUploadSizeExceededException(Throwable e) throws IOException {
         LOGGER.warn("Max upload size exceeded", e);
         String message = i18n("api.controller.petition.attachment_size_exceeded");
         return ResponseEntity.unprocessableEntity().body(message);
@@ -209,9 +205,7 @@ public class PetitionApiController extends BaseController{
     @ExceptionHandler(MultipartException.class)
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
-    protected ResponseEntity<String> handleGenericMultipartException(final HttpServletRequest request,
-                                                                     final HttpServletResponse response,
-                                                                     final Throwable e) throws IOException {
+    protected ResponseEntity<String> handleGenericMultipartException(final Throwable e) throws IOException {
         Throwable rootCause = e;
         Throwable cause = e.getCause();
         while (cause != null && !cause.equals(rootCause)) {
@@ -219,7 +213,6 @@ public class PetitionApiController extends BaseController{
             cause = cause.getCause();
         }
         LOGGER.error(rootCause.getMessage(), e);
-        //TODO: verify if appropriate message
         String message = i18n("api.controller.petition.attachment_size_exceeded");
         return ResponseEntity.unprocessableEntity().body(message);
     }

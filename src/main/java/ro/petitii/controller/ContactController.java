@@ -18,6 +18,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import ro.petitii.model.Contact;
 import ro.petitii.service.ContactService;
+import ro.petitii.util.ToastMaster;
 
 @Controller
 public class ContactController extends ViewController {
@@ -57,13 +58,13 @@ public class ContactController extends ViewController {
 		
 		if (bindingResult.hasErrors()) {
 			modelAndView = editContact(contact);
-            modelAndView.addObject("toast", i18nToast("controller.contact.not_saved", request, ToastType.danger));
+            modelAndView.addObject("toast", i18nToast("controller.contact.not_saved", request, ToastMaster.ToastType.danger));
             String serializedErrors = Arrays.toString(bindingResult.getAllErrors().toArray());
 			LOGGER.debug("Cannot save contact!"+ contact.toString() + "\n reasons:" + serializedErrors);
         } else {
             Contact savedContact = contactService.save(contact);
             modelAndView = new ModelAndView("redirect:/contact/" + savedContact.getId());
-            attr.addFlashAttribute("toast", i18nToast("controller.contact.saved", request, ToastType.success));
+            attr.addFlashAttribute("toast", i18nToast("controller.contact.saved", request, ToastMaster.ToastType.success));
         }
         return modelAndView;
     }

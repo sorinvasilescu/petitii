@@ -18,13 +18,18 @@ import ro.petitii.model.UserDetail;
 import ro.petitii.service.UserService;
 import ro.petitii.service.email.SmtpService;
 import ro.petitii.service.template.EmailTemplateProcessorService;
+import ro.petitii.validation.ValidationUtil;
 
 import javax.mail.MessagingException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Controller
 public class UserManagementController extends ViewController {
     private static final Logger logger = LoggerFactory.getLogger(UserManagementController.class);
+    private static final ValidationUtil v = new ValidationUtil(logger);
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -52,26 +57,18 @@ public class UserManagementController extends ViewController {
                                        @RequestParam("duplicate") String duplicate) {
         ModelAndView view = new ModelAndView("change_password");
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (passwordEncoder.matches(currentPassword, ((UserDetail) auth.getPrincipal()).getPassword())) {
-            if (Objects.equals(newPassword, duplicate)) {
-                // just to be safe if Parsley fails to check this
-                if (Objects.equals(currentPassword, newPassword)) {
-                    view.addObject("toast", i18nToast("controller.user.invalid_new_password", ViewController.ToastType.danger));
-                } else {
-                    User user = userService.findById(((UserDetail) auth.getPrincipal()).getUserId());
-                    user.setPassword(passwordEncoder.encode(newPassword));
-                    // todo; catch any save error
-                    userService.save(user);
-                    view.addObject("toast", i18nToast("controller.user.password_saved", ToastType.success));
-                }
-            } else {
-                view.addObject("toast", i18nToast("controller.user.invalid_repeat_password", ViewController.ToastType.danger));
-            }
-        } else {
-            view.addObject("toast", i18nToast("controller.user.invalid_password", ViewController.ToastType.danger));
-        }
+        String currentHash = ((UserDetail) auth.getPrincipal()).getPassword();
 
-        return view;
+        v.failIfFalse(passwordEncoder.matches(currentPassword, currentHash), i18n("controller.user.invalid_password"), view);
+        v.failIfNotEquals(newPassword, duplicate, i18n("controller.user.invalid_repeat_password"), view);
+        v.failIfEquals(currentPassword, newPassword, i18n("controller.user.invalid_new_password"), view);
+
+        User user = userService.findById(((UserDetail) auth.getPrincipal()).getUserId());
+        user.setPassword(passwordEncoder.encode(newPassword));
+
+        v.failOnException(() -> userService.save(user), i18n("controller.user.password_reset_failure"), view);
+
+        return v.success(i18n("controller.user.password_saved"), view);
     }
 
     @RequestMapping(value = "/reset_password", method = RequestMethod.GET)
@@ -83,43 +80,37 @@ public class UserManagementController extends ViewController {
     public ModelAndView resetPassword(@RequestParam("username") String username) {
         ModelAndView view = new ModelAndView("reset_password");
         List<User> users = userService.findUserByEmail(username);
-        if (users.isEmpty()) {
-            view.addObject("toast", i18nToast("controller.user.invalid_user", ViewController.ToastType.danger));
-        } else {
-            for (User user : users) {
-                String newPassword = UUID.randomUUID().toString();
-                user.setPassword(passwordEncoder.encode(newPassword));
-                userService.save(user);
-                view.addObject("toasts", sendUserPasswordReset(newPassword, user));
-            }
+
+        v.failIfTrue(users.isEmpty(), i18n("controller.user.invalid_user"), view);
+
+        for (User user : users) {
+            String newPassword = UUID.randomUUID().toString();
+            user.setPassword(passwordEncoder.encode(newPassword));
+            userService.save(user);
+            sendUserPasswordReset(newPassword, user, view);
         }
-        return view;
+
+        return v.success(i18n("controller.user.reset_password_email_sent"), view);
     }
 
-    private List<Map<String, String>> sendUserPasswordReset(String password, User user) {
-        List<Map<String, String>> toasts = new LinkedList<>();
-
+    private void sendUserPasswordReset(String password, User user, ModelAndView view) {
         Map<String, Object> vars = new HashMap<>();
         vars.put("pass", password);
         vars.put("user", user);
         String emailBody = emailTemplateProcessorService.processStaticTemplate("recover_password", vars);
-        if (emailBody == null) {
-            logger.error("Could not compile the reset password for user = " + user.getEmail());
-            toasts.add(i18nToast("controller.user.reset_password_email_failed", ToastType.danger));
-        } else {
-            Email email = new Email();
-            email.setSender(config.getUsername());
-            email.setSubject(i18n("controller.user.password_reset_success"));
-            email.setRecipients(user.getEmail());
-            email.setBody(emailBody);
-            try {
-                smtpService.send(email);
-                toasts.add(i18nToast("controller.user.reset_password_email_sent", ToastType.success));
-            } catch (MessagingException e) {
-                logger.error("Could not send email with password reset for user = " + user.getEmail() + " Reason:" + e.getMessage(), e);
-                toasts.add(i18nToast("controller.user.reset_password_email_failed_smtp_error", ToastType.danger));
-            }
+        v.failIfNull(emailBody, i18n("controller.user.reset_password_email_failed"), view,
+                     "Could not compile the reset password for user = " + user.getEmail());
+
+        Email email = new Email();
+        email.setSender(config.getUsername());
+        email.setSubject(i18n("controller.user.password_reset_success"));
+        email.setRecipients(user.getEmail());
+        email.setBody(emailBody);
+        try {
+            smtpService.send(email);
+        } catch (MessagingException e) {
+            v.fail(i18n("controller.user.reset_password_email_failed_smtp_error"), view,
+                   "Could not send email with password reset for user = " + user.getEmail() + " Reason:" + e.getMessage(), e);
         }
-        return toasts;
     }
 }
