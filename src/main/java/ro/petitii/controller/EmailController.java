@@ -10,6 +10,7 @@ import org.springframework.web.servlet.ModelAndView;
 import ro.petitii.config.ImapConfig;
 import ro.petitii.model.Email;
 import ro.petitii.service.EmailService;
+import ro.petitii.util.StringUtil;
 import ro.petitii.validation.ValidationUtil;
 
 import javax.servlet.http.HttpServletRequest;
@@ -51,15 +52,8 @@ public class EmailController extends ViewController {
     public ModelAndView emailDetails(@PathVariable("id") Long id, HttpServletRequest request) {
         Email email = emailService.searchById(id);
 
-        String referer = request.getHeader("referer");
-        String path = "";
-        try {
-            path = referer.split("//")[1].substring(referer.split("//")[1].indexOf("/") + 1);
-        } catch (NullPointerException e) {
-            // no biggie, the visit was by typing the url directly
-        }
-        if (path.length() < 1) path = "inbox";
-        v.failIfNull(email, i18n("controller.email.invalid_id"), redirect(path));
+        String referer = StringUtil.toRelativeURL(request.getHeader("referer"),"inbox)");
+        v.failIfNull(email, i18n("controller.email.invalid_id"), redirect(referer));
 
         ModelAndView modelAndView = new ModelAndView("email_detail");
         modelAndView.addObject("title", i18n("controller.email.received_emails"));

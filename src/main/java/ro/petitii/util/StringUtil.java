@@ -20,4 +20,15 @@ public class StringUtil {
     public static String prepareForView(String string, int length) {
         return WordUtils.wrap(string, length, "<br />", true);
     }
+
+    public static String toRelativeURL(String url, String defaultValue) {
+        String path = "";
+        try {
+            path = url.split("//")[1].substring(url.split("//")[1].indexOf("/") + 1);
+        } catch (NullPointerException e) {
+            // no biggie, the visit was by typing the url directly
+        }
+        if (path.length() < 1) path = defaultValue;
+        return path;
+    }
 }
