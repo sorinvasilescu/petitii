@@ -29,13 +29,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private UserDetailsService userDetailsService;
 
     @Autowired
-    DataSource dataSource;
+    private DataSource dataSource;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
             .authorizeRequests()
-                .antMatchers("/css/**","/js/**","/img/**","/webjars/**","/vendors/**")
+                .antMatchers("/css/**", "/js/**", "/img/**", "/webjars/**", "/vendors/**", "/reset_password")
                     .permitAll()
                 .anyRequest()
                     .authenticated()
@@ -43,7 +43,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin()
                     .loginPage("/login")
                     .permitAll()
-                    .failureUrl("/login")
+                    .failureUrl("/login?error=true")
                     .defaultSuccessUrl("/")
             .and()
                 .logout()
@@ -68,8 +68,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        PasswordEncoder encoder = new BCryptPasswordEncoder(4);
-        return encoder;
+        return new BCryptPasswordEncoder(4);
     }
 
     @Bean

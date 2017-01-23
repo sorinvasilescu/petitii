@@ -89,8 +89,10 @@
                 addWarning("#error-messages", "Pentru suspendare selectați cel puțin un user");
                 this.blur()
             } else {
-                customAlert("Sunteți sigur că doriți suspendarea utilizatorului?", function () {
-                    window.location.href = '/user/' + selectedRows[0].id + '/suspend';
+                customAlert("Sunteți sigur că doriți suspendarea utilizatorului?", function (confirm) {
+                    if (confirm) {
+                        window.location.href = '/user/' + selectedRows[0].id + '/suspend';
+                    }
                 });
             }
         });
@@ -101,8 +103,10 @@
                 addWarning("#error-messages", "Pentru resetare selectați cel puțin un user");
                 this.blur()
             } else {
-                customAlert("Sunteți sigur că doriți resetarea parolei utilizatorului?", function () {
-                    window.location.href = '/user/' + selectedRows[0].id + '/reset';
+                customAlert("Sunteți sigur că doriți resetarea parolei utilizatorului?", function (confirm) {
+                    if (confirm) {
+                        window.location.href = '/user/' + selectedRows[0].id + '/reset';
+                    }
                 });
             }
         });

@@ -1,5 +1,14 @@
 package ro.petitii.controller;
 
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.mail.MessagingException;
+import javax.validation.Valid;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,26 +21,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import ro.petitii.config.SmtpConfig;
 import ro.petitii.model.Email;
 import ro.petitii.model.User;
 import ro.petitii.service.UserService;
 import ro.petitii.service.email.SmtpService;
 import ro.petitii.service.template.EmailTemplateProcessorService;
-import ro.petitii.util.Pair;
-
-import javax.mail.MessagingException;
-import javax.validation.Valid;
-import java.util.*;
 
 @Controller
 @PreAuthorize("hasAuthority('ADMIN')")
-public class UserController extends ControllerBase {
-    private static final Pair<String, String> WELCOME = new Pair<>("welcome_user", "Utilizator nou - Bine ați venit");
-    private static final Pair<String, String> RESET = new Pair<>("reset_password", "Parola dumneavoastră a fost resetată cu success");
-
+public class UserController extends ViewController {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
-
 
 
     @Autowired
@@ -53,7 +54,7 @@ public class UserController extends ControllerBase {
     public ModelAndView users() {
         ModelAndView modelAndView = new ModelAndView("users_list");
         modelAndView.addObject("page", "inbox");
-        modelAndView.addObject("title", "Useri");
+        modelAndView.addObject("title", i18n("controller.user.title_users"));
         modelAndView.addObject("apiUrl", "/api/users");
         return modelAndView;
     }
@@ -61,7 +62,7 @@ public class UserController extends ControllerBase {
     @RequestMapping(path = "/user/{id}/edit", method = RequestMethod.GET)
     public ModelAndView editUser(@PathVariable("id") Long id) {
         ModelAndView modelAndView = new ModelAndView("users_crud");
-
+        //TODO: catch exceptions, add  error/success message
         User user = userService.findById(id);
         modelAndView.addObject("user", user);
 
@@ -73,19 +74,24 @@ public class UserController extends ControllerBase {
         User user = userService.findById(id);
         user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
         user.setRole(User.UserRole.SUSPENDED);
+        //TODO: catch exceptions, add  error/success message
         userService.save(user);
-        attr.addFlashAttribute("toast", createToast("Contul a fost suspendat", ToastType.success));
+        attr.addFlashAttribute("toast", i18nToast("controller.user.account_disabled", ToastType.success));
         return new ModelAndView("redirect:/users");
     }
 
     @RequestMapping(path = "/user/{id}/reset", method = RequestMethod.GET)
     public ModelAndView resetPasswordUser(@PathVariable("id") Long id, final RedirectAttributes attr) {
+    	//TODO: catch exceptions, add  error/success message
         User user = userService.findById(id);
         String newPassword = UUID.randomUUID().toString();
         user.setPassword(passwordEncoder.encode(newPassword));
+        //TODO: catch exceptions, add  error/success message
         userService.save(user);
 
-        List<Map<String, String>> toasts = sendUserPasswordReset(RESET, newPassword, user);
+        //TODO: catch exceptions, add  error/success message
+        String subject = i18n("controller.user.password_reset_success");
+        List<Map<String, String>> toasts = sendUserPasswordReset("reset_password", subject, newPassword, user);
         attr.addFlashAttribute("toasts", toasts);
         return new ModelAndView("redirect:/users");
     }
@@ -119,6 +125,7 @@ public class UserController extends ControllerBase {
                 user.setPassword(passwordEncoder.encode(newPassword));
             } else {
                 //set the previous password
+            	//TODO: catch exceptions, add  error/success message
                 user.setPassword(userService.findById(user.getId()).getPassword());
             }
         }
@@ -130,13 +137,16 @@ public class UserController extends ControllerBase {
         boolean newUser = user.getId() == null;
         String newPassword = setNewPassword(user);
 
+        //TODO: catch exceptions, add  error/success message
         List<User> existingUser = userService.findUserByEmail(user.getEmail());
         if (newUser && existingUser != null && !existingUser.isEmpty()) {
-            attr.addFlashAttribute("toast", createToast("Adresa de e-mail existenta", ToastType.danger));
+            attr.addFlashAttribute("toast", i18nToast("controller.user.email_address_exists", ToastType.danger));
         } else {
+        	//TODO: catch exceptions, add  error/success message
             userService.save(user);
             if (newUser) {
-                List<Map<String, String>> toasts = sendUserPasswordReset(WELCOME, newPassword, user);
+                String subject = i18n("controller.user.welcome");
+                List<Map<String, String>> toasts = sendUserPasswordReset("welcome_user", subject, newPassword, user);
                 attr.addFlashAttribute("toasts", toasts);
             }
         }
@@ -144,29 +154,29 @@ public class UserController extends ControllerBase {
         return new ModelAndView("redirect:/users");
     }
 
-    private List<Map<String, String>> sendUserPasswordReset(Pair<String, String> template, String password, User user) {
+    private List<Map<String, String>> sendUserPasswordReset(String template, String subject, String password, User user) {
         List<Map<String, String>> toasts = new LinkedList<>();
 
         Map<String, Object> vars = new HashMap<>();
         vars.put("pass", password);
         vars.put("user", user);
-        String emailBody = emailTemplateProcessorService.processStaticTemplate(template.getFirst(), vars);
+        String emailBody = emailTemplateProcessorService.processStaticTemplate(template, vars);
         if (emailBody == null) {
             LOGGER.error("Could not compile the reset password for user = " + user.getEmail());
-            toasts.add(createToast("Emailul de resetare a parolei nu a fost trimis. Motiv: template compile failure", ToastType.danger));
+            toasts.add(i18nToast("controller.user.reset_password_email_failed", ToastType.danger));
         } else {
             Email email = new Email();
             email.setSender(config.getUsername());
-            email.setSubject(template.getSecond());
+            email.setSubject(subject);
             email.setRecipients(user.getEmail());
             email.setBody(emailBody);
             try {
                 LOGGER.info("Sending reset password email" + emailBody);
                 smtpService.send(email);
-                toasts.add(createToast("Emailul de resetare a parolei a fost trimis", ToastType.success));
+                toasts.add(i18nToast("controller.user.reset_password_email_sent", ToastType.success));
             } catch (MessagingException e) {
-                LOGGER.error("Could not send email with password reset for user = " + user.getEmail() + " Reason:" + e.getMessage());
-                toasts.add(createToast("Emailul de resetare a parolei nu a fost trimis. Motiv: " + e.getMessage(), ToastType.danger));
+                LOGGER.error("Could not send email with password reset for user = " + user.getEmail(), e);
+                toasts.add(i18nToast("controller.user.reset_password_email_failed_with_error" , ToastType.danger, e.getMessage()));
             }
         }
         return toasts;
