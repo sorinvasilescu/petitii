@@ -12,6 +12,8 @@ import ro.petitii.model.Email;
 import ro.petitii.service.EmailService;
 import ro.petitii.validation.ValidationUtil;
 
+import javax.servlet.http.HttpServletRequest;
+
 import static ro.petitii.validation.ValidationUtil.redirect;
 
 @Controller
@@ -46,10 +48,13 @@ public class EmailController extends ViewController {
     }
 
     @RequestMapping("/email/{id}")
-    public ModelAndView emailDetails(@PathVariable("id") Long id) {
+    public ModelAndView emailDetails(@PathVariable("id") Long id, HttpServletRequest request) {
         Email email = emailService.searchById(id);
 
-        v.failIfNull(email, i18n("controller.email.invalid_id"), redirect("inbox"));
+        String referer = request.getHeader("referer");
+        String path = referer.split("//")[1].substring(referer.split("//")[1].indexOf("/")+1);
+        if (path.length()<1) path = "inbox";
+        v.failIfNull(email, i18n("controller.email.invalid_id"), redirect(path));
 
         ModelAndView modelAndView = new ModelAndView("email_detail");
         modelAndView.addObject("title", i18n("controller.email.received_emails"));
