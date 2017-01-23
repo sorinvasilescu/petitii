@@ -52,8 +52,13 @@ public class EmailController extends ViewController {
         Email email = emailService.searchById(id);
 
         String referer = request.getHeader("referer");
-        String path = referer.split("//")[1].substring(referer.split("//")[1].indexOf("/")+1);
-        if (path.length()<1) path = "inbox";
+        String path = "";
+        try {
+            path = referer.split("//")[1].substring(referer.split("//")[1].indexOf("/") + 1);
+        } catch (NullPointerException e) {
+            // no biggie, the visit was by typing the url directly
+        }
+        if (path.length() < 1) path = "inbox";
         v.failIfNull(email, i18n("controller.email.invalid_id"), redirect(path));
 
         ModelAndView modelAndView = new ModelAndView("email_detail");
