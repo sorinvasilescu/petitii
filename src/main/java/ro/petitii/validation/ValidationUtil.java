@@ -3,6 +3,7 @@ package ro.petitii.validation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ro.petitii.util.ToastMaster;
 
 import java.util.*;
@@ -11,88 +12,58 @@ import static ro.petitii.util.ToastMaster.TOASTS_FIELD;
 import static ro.petitii.util.ToastMaster.createToast;
 
 public class ValidationUtil {
+    private static final ValidationStatus emptyValidStatus = new ValidationStatus();
+
     private static final Logger vlogger = LoggerFactory.getLogger(ValidationUtil.class);
 
     public interface GenericMethod {
         void doSomething();
     }
 
-    private final Logger classLogger;
-
-    public ValidationUtil(Logger classLogger) {
-        this.classLogger = classLogger;
+    public static void check(ValidationStatus status, Logger logger, ModelAndView view) {
+        status.logMessages(logger).failIfInvalid(view);
     }
 
-    public void failIfNull(Object object, String message, ModelAndView view) {
-        if (Objects.isNull(object)) {
-            throw new ValidationException(new ValidationStatus(message), view);
-        }
+    public static ValidationStatus assertNotNull(Object object, String message) {
+        return assertFalse(Objects.isNull(object), message);
     }
 
-    public void failIfNull(Object object, String message, ModelAndView view, String logMessage) {
-        if (Objects.isNull(object)) {
-
-            throw new ValidationException(new ValidationStatus(message), view);
-        }
+    public static ValidationStatus assertNull(Object object, String message) {
+        return assertFalse(Objects.nonNull(object), message);
     }
 
-    public void failIfNotNull(Object object, String message, ModelAndView view) {
-        if (!Objects.isNull(object)) {
-            throw new ValidationException(new ValidationStatus(message), view);
-        }
+    public static ValidationStatus assertNotEquals(Object object, Object value, String message) {
+        return assertFalse(Objects.equals(object, value), message);
     }
 
-    public void failIfEquals(Object object, Object value, String message, ModelAndView view) {
-        if (Objects.equals(object, value)) {
-            throw new ValidationException(new ValidationStatus(message), view);
-        }
+    public static ValidationStatus assertEquals(Object object, Object value, String message) {
+        return assertTrue(Objects.equals(object, value), message);
     }
 
-    public void failIfNotEquals(Object object, Object value, String message, ModelAndView view) {
-        if (!Objects.equals(object, value)) {
-            throw new ValidationException(new ValidationStatus(message), view);
-        }
-    }
-
-    public void failIfTrue(boolean flag, String message, ModelAndView view) {
+    public static ValidationStatus assertFalse(boolean flag, String message) {
         if (flag) {
-            throw new ValidationException(new ValidationStatus(message), view);
+            return new ValidationStatus(message);
+        } else {
+            return emptyValidStatus;
         }
     }
 
-    public void failIfFalse(boolean flag, String message, ModelAndView view) {
-        if (!flag) {
-            throw new ValidationException(new ValidationStatus(message), view);
-        }
+    public static ValidationStatus assertTrue(boolean flag, String message) {
+        return assertFalse(!flag, message);
     }
 
-    public void fail(String message, ModelAndView view) {
-        fail(message, view, null,  null);
+    public static ValidationStatus fail(String message) {
+        return new ValidationStatus(message);
     }
 
-    public void fail(String message, ModelAndView view, String logMessage, Exception e) {
-        if (logMessage != null) {
-            classLogger.error(logMessage, e);
-        }
-        throw new ValidationException(new ValidationStatus(message), view);
-    }
-
-    public void fail(String message, ModelAndView view, String logMessage) {
-        fail(message, view, logMessage, null);
-    }
-
-    public void failOnException(GenericMethod method, String message, ModelAndView view) {
+    public static ValidationStatus failOnException(GenericMethod method, String message) {
         try {
             method.doSomething();
+            return emptyValidStatus;
         } catch (Exception e) {
             vlogger.error("Method execution failed with exception: " + e.getMessage(), e);
-            throw new ValidationException(new ValidationStatus(message), view);
+            return new ValidationStatus(message);
         }
-    }
-
-    public ModelAndView success(String message, ModelAndView view) {
-        view.addObject(TOASTS_FIELD, Collections.singletonList(createToast(message, ToastMaster.ToastType.success)));
-        return view;
     }
 
     public static List<Map<String, String>> convert(ValidationStatus status) {
@@ -102,6 +73,16 @@ public class ValidationUtil {
         }
 
         return result;
+    }
+
+    public static ModelAndView success(String message, ModelAndView view) {
+        view.addObject(TOASTS_FIELD, Collections.singletonList(createToast(message, ToastMaster.ToastType.success)));
+        return view;
+    }
+
+    public static ModelAndView success(String message, ModelAndView view, RedirectAttributes attributes) {
+        attributes.addFlashAttribute(TOASTS_FIELD, Collections.singletonList(createToast(message, ToastMaster.ToastType.success)));
+        return view;
     }
 
     public static ModelAndView redirect(String view) {

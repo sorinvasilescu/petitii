@@ -29,12 +29,14 @@ import ro.petitii.service.UserService;
 import ro.petitii.service.email.SmtpService;
 import ro.petitii.service.template.EmailTemplateProcessorService;
 import ro.petitii.util.ToastMaster;
+import ro.petitii.validation.ValidationUtil;
+
+import static ro.petitii.validation.ValidationUtil.*;
 
 @Controller
 @PreAuthorize("hasAuthority('ADMIN')")
 public class UserController extends ViewController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
-
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
     private UserService userService;
@@ -63,10 +65,11 @@ public class UserController extends ViewController {
     @RequestMapping(path = "/user/{id}/edit", method = RequestMethod.GET)
     public ModelAndView editUser(@PathVariable("id") Long id) {
         ModelAndView modelAndView = new ModelAndView("users_crud");
-        //TODO: catch exceptions, add  error/success message
-        User user = userService.findById(id);
-        modelAndView.addObject("user", user);
 
+        User user = userService.findById(id);
+        assertNotNull(user, i18n("controller.user.invalid_user")).logMessages(logger).failIfInvalid(redirect("users"));
+
+        modelAndView.addObject("user", user);
         return modelAndView;
     }
 
@@ -75,10 +78,12 @@ public class UserController extends ViewController {
         User user = userService.findById(id);
         user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
         user.setRole(User.UserRole.SUSPENDED);
-        //TODO: catch exceptions, add  error/success message
-        userService.save(user);
-        attr.addFlashAttribute("toast", i18nToast("controller.user.account_disabled", ToastMaster.ToastType.success));
-        return new ModelAndView("redirect:/users");
+
+        failOnException(() -> userService.save(user), i18n("controller.user.account_disabled_failed"))
+                .logMessages(logger, "Failed to save suspended user = " + id).failIfInvalid(redirect("users"));
+                                   ;
+
+        return success(i18n("controller.user.account_disabled_success"), redirect("users"), attr);
     }
 
     @RequestMapping(path = "/user/{id}/reset", method = RequestMethod.GET)
@@ -163,7 +168,7 @@ public class UserController extends ViewController {
         vars.put("user", user);
         String emailBody = emailTemplateProcessorService.processStaticTemplate(template, vars);
         if (emailBody == null) {
-            LOGGER.error("Could not compile the reset password for user = " + user.getEmail());
+            logger.error("Could not compile the reset password for user = " + user.getEmail());
             toasts.add(i18nToast("controller.user.reset_password_email_failed", ToastMaster.ToastType.danger));
         } else {
             Email email = new Email();
@@ -172,11 +177,11 @@ public class UserController extends ViewController {
             email.setRecipients(user.getEmail());
             email.setBody(emailBody);
             try {
-                LOGGER.info("Sending reset password email" + emailBody);
+                logger.info("Sending reset password email" + emailBody);
                 smtpService.send(email);
                 toasts.add(i18nToast("controller.user.reset_password_email_sent", ToastMaster.ToastType.success));
             } catch (MessagingException e) {
-                LOGGER.error("Could not send email with password reset for user = " + user.getEmail(), e);
+                logger.error("Could not send email with password reset for user = " + user.getEmail(), e);
                 toasts.add(i18nToast("controller.user.reset_password_email_failed_with_error" , ToastMaster.ToastType.danger, e.getMessage()));
             }
         }

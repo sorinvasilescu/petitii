@@ -22,13 +22,16 @@ public class StringUtil {
     }
 
     public static String toRelativeURL(String url, String defaultValue) {
-        String path = "";
         try {
-            path = url.split("//")[1].substring(url.split("//")[1].indexOf("/") + 1);
+            String path = url.split("//")[1].substring(url.split("//")[1].indexOf("/") + 1);
+            if (path.isEmpty()) {
+                return defaultValue;
+            } else {
+                return path;
+            }
         } catch (NullPointerException e) {
             // no biggie, the visit was by typing the url directly
         }
-        if (path.length() < 1) path = defaultValue;
-        return path;
+        return defaultValue;
     }
 }

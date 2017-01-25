@@ -95,7 +95,6 @@ public class PetitionApiController extends BaseController{
         int sequenceNo = input.getDraw();
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        //TODO: catch exceptions, add  error/success message
         User user = userService.findUserByEmail(auth.getName()).get(0);
 
         List<PetitionStatus.Status> pStatus = parseStatus(status);
@@ -111,7 +110,6 @@ public class PetitionApiController extends BaseController{
     public DataTablesOutput<PetitionResponse> getAllPetitions(@Valid DataTablesInput input, String status) {
         int sequenceNo = input.getDraw();
         List<PetitionStatus.Status> pStatus = parseStatus(status);
-        //TODO: catch exceptions, add  error/success message
         DataTablesOutput<PetitionResponse> response = petitionService.getTableContent(null, pStatus, pageRequest(input, PetitionResponse.sortMapping));
         response.setDraw(sequenceNo);
         return response;
@@ -122,13 +120,11 @@ public class PetitionApiController extends BaseController{
     public DataTablesOutput<PetitionResponse> getPetitionsByPetitioner(@Valid DataTablesInput input,
                                                                        @PathVariable("id") long id) {
         int sequenceNo = input.getDraw();
-        //TODO: catch exceptions, add  error/success message
         Petition petition = petitionService.findById(id);
         if (petition == null) {
-            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+            return new DataTablesOutput<>();
         }
 
-        //TODO: catch exceptions, add  error/success message
         DataTablesOutput<PetitionResponse> response = petitionService
                 .getTableContent(petition, petition.getPetitioner(), pageRequest(input, PetitionResponse.sortMapping));
         response.setDraw(sequenceNo);
@@ -140,12 +136,10 @@ public class PetitionApiController extends BaseController{
     public DataTablesOutput<PetitionResponse> getLinkedPetitions(@Valid DataTablesInput input,
                                                                  @PathVariable("id") long id) {
         int sequenceNo = input.getDraw();
-        //TODO: catch exceptions, add  error/success message
         Petition petition = petitionService.findById(id);
         if (petition == null) {
-            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+            return new DataTablesOutput<>();
         }
-        //TODO: catch exceptions, add  error/success message
         DataTablesOutput<PetitionResponse> response = petitionService
                 .getTableLinkedPetitions(petition, pageRequest(input, PetitionResponse.sortMapping));
         response.setDraw(sequenceNo);
@@ -156,12 +150,10 @@ public class PetitionApiController extends BaseController{
     @ResponseBody
     public DataTablesOutput<EmailResponse> getEmails(@Valid DataTablesInput input, @PathVariable("id") long id) {
         int sequenceNo = input.getDraw();
-        //TODO: catch exceptions, add  error/success message
         Petition petition = petitionService.findById(id);
         if (petition == null) {
-            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+            return new DataTablesOutput<>();
         }
-        //TODO: catch exceptions, add  error/success message
         DataTablesOutput<EmailResponse> response = emailService.getTableContent(petition, pageRequest(input));
         response.setDraw(sequenceNo);
         return response;
@@ -172,10 +164,9 @@ public class PetitionApiController extends BaseController{
     public DataTablesOutput<AttachmentResponse> getAllAttachments(@PathVariable("id") Long id,
                                                                   @Valid DataTablesInput input) {
         int sequenceNo = input.getDraw();
-        //TODO: catch exceptions, add  error/success message
         Petition petition = petitionService.findById(id);
         if (petition == null) {
-            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+            return new DataTablesOutput<>();
         }
 
         DataTablesOutput<AttachmentResponse> response = attachmentService
@@ -268,12 +259,10 @@ public class PetitionApiController extends BaseController{
     @ResponseBody
     public DataTablesOutput<CommentResponse> getAllComments(@PathVariable("id") Long id, @Valid DataTablesInput input) {
         int sequenceNo = input.getDraw();
-        //TODO: catch exceptions, add  error/success message
         Petition petition = petitionService.findById(id);
         if (petition == null) {
-            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+            return new DataTablesOutput<>();
         }
-        //TODO: catch exceptions, add  error/success message
         DataTablesOutput<CommentResponse> response = commentService.getTableContent(petition, pageRequest(input));
         response.setDraw(sequenceNo);
         return response;

@@ -18,7 +18,6 @@ import ro.petitii.model.UserDetail;
 import ro.petitii.service.UserService;
 import ro.petitii.service.email.SmtpService;
 import ro.petitii.service.template.EmailTemplateProcessorService;
-import ro.petitii.validation.ValidationUtil;
 
 import javax.mail.MessagingException;
 import java.util.HashMap;
@@ -26,10 +25,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static ro.petitii.validation.ValidationUtil.*;
+
 @Controller
 public class UserManagementController extends ViewController {
     private static final Logger logger = LoggerFactory.getLogger(UserManagementController.class);
-    private static final ValidationUtil v = new ValidationUtil(logger);
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -59,16 +59,16 @@ public class UserManagementController extends ViewController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String currentHash = ((UserDetail) auth.getPrincipal()).getPassword();
 
-        v.failIfFalse(passwordEncoder.matches(currentPassword, currentHash), i18n("controller.user.invalid_password"), view);
-        v.failIfNotEquals(newPassword, duplicate, i18n("controller.user.invalid_repeat_password"), view);
-        v.failIfEquals(currentPassword, newPassword, i18n("controller.user.invalid_new_password"), view);
+        check(assertTrue(passwordEncoder.matches(currentPassword, currentHash), i18n("controller.user.invalid_password")), logger, view);
+        check(assertEquals(newPassword, duplicate, i18n("controller.user.invalid_repeat_password")), logger, view);
+        check(assertNotEquals(currentPassword, newPassword, i18n("controller.user.invalid_new_password")), logger, view);
 
         User user = userService.findById(((UserDetail) auth.getPrincipal()).getUserId());
         user.setPassword(passwordEncoder.encode(newPassword));
 
-        v.failOnException(() -> userService.save(user), i18n("controller.user.password_reset_failure"), view);
+        check(failOnException(() -> userService.save(user), i18n("controller.user.password_reset_failure")), logger, view);
 
-        return v.success(i18n("controller.user.password_saved"), view);
+        return success(i18n("controller.user.password_saved"), view);
     }
 
     @RequestMapping(value = "/reset_password", method = RequestMethod.GET)
@@ -81,7 +81,7 @@ public class UserManagementController extends ViewController {
         ModelAndView view = new ModelAndView("reset_password");
         List<User> users = userService.findUserByEmail(username);
 
-        v.failIfTrue(users.isEmpty(), i18n("controller.user.invalid_user"), view);
+        check(assertFalse(users.isEmpty(), i18n("controller.user.invalid_user")), logger, view);
 
         for (User user : users) {
             String newPassword = UUID.randomUUID().toString();
@@ -90,7 +90,7 @@ public class UserManagementController extends ViewController {
             sendUserPasswordReset(newPassword, user, view);
         }
 
-        return v.success(i18n("controller.user.reset_password_email_sent"), view);
+        return success(i18n("controller.user.reset_password_email_sent"), view);
     }
 
     private void sendUserPasswordReset(String password, User user, ModelAndView view) {
@@ -98,8 +98,8 @@ public class UserManagementController extends ViewController {
         vars.put("pass", password);
         vars.put("user", user);
         String emailBody = emailTemplateProcessorService.processStaticTemplate("recover_password", vars);
-        v.failIfNull(emailBody, i18n("controller.user.reset_password_email_failed"), view,
-                     "Could not compile the reset password for user = " + user.getEmail());
+        assertNotNull(emailBody, i18n("controller.user.reset_password_email_failed"))
+                .logMessages(logger, "Could not compile the reset password for user = " + user.getEmail()).failIfInvalid(view);
 
         Email email = new Email();
         email.setSender(config.getUsername());
@@ -109,8 +109,9 @@ public class UserManagementController extends ViewController {
         try {
             smtpService.send(email);
         } catch (MessagingException e) {
-            v.fail(i18n("controller.user.reset_password_email_failed_smtp_error"), view,
-                   "Could not send email with password reset for user = " + user.getEmail() + " Reason:" + e.getMessage(), e);
+            fail(i18n("controller.user.reset_password_email_failed_smtp_error"))
+                    .logMessages(logger, "Could not send email with password reset for user = " + user.getEmail() + " Reason:" + e.getMessage(), e)
+                    .failIfInvalid(view);
         }
     }
 }

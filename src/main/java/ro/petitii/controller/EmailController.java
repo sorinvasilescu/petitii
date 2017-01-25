@@ -11,16 +11,15 @@ import ro.petitii.config.ImapConfig;
 import ro.petitii.model.Email;
 import ro.petitii.service.EmailService;
 import ro.petitii.util.StringUtil;
-import ro.petitii.validation.ValidationUtil;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static ro.petitii.validation.ValidationUtil.assertNotNull;
 import static ro.petitii.validation.ValidationUtil.redirect;
 
 @Controller
 public class EmailController extends ViewController {
     private static final Logger logger = LoggerFactory.getLogger(EmailController.class);
-    private static final ValidationUtil v = new ValidationUtil(logger);
 
     @Autowired
     private ImapConfig config;
@@ -52,8 +51,8 @@ public class EmailController extends ViewController {
     public ModelAndView emailDetails(@PathVariable("id") Long id, HttpServletRequest request) {
         Email email = emailService.searchById(id);
 
-        String referer = StringUtil.toRelativeURL(request.getHeader("referer"),"inbox)");
-        v.failIfNull(email, i18n("controller.email.invalid_id"), redirect(referer));
+        String url = StringUtil.toRelativeURL(request.getHeader("referer"), "inbox)");
+        assertNotNull(email, i18n("controller.email.invalid_id")).logMessages(logger).failIfInvalid(redirect(url));
 
         ModelAndView modelAndView = new ModelAndView("email_detail");
         modelAndView.addObject("title", i18n("controller.email.received_emails"));

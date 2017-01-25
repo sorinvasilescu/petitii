@@ -24,7 +24,6 @@ public class UserApiController extends BaseController{
     @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping(value = "/api/users", method = {RequestMethod.GET, RequestMethod.POST})
     public DataTablesOutput<User> getUsers(@Valid DataTablesInput input) {
-    	//TODO: catch exceptions, add  error/success message
         return userService.findAll(input);
     }
 }

@@ -48,7 +48,6 @@ public class EmailApiController extends BaseController{
     @ResponseBody
     public DataTablesOutput<EmailResponse> getInbox(@Valid DataTablesInput input) {
         int sequenceNo = input.getDraw();
-        //TODO: catch exceptions, add  error/success message
         DataTablesOutput<EmailResponse> response = emailService.getTableContent(Email.EmailType.Inbox, pageRequest(input));
         response.setDraw(sequenceNo);
         return response;
@@ -58,8 +57,6 @@ public class EmailApiController extends BaseController{
     @ResponseBody
     public DataTablesOutput<EmailResponse> getSpam(@Valid DataTablesInput input) {
         int sequenceNo = input.getDraw();
-
-        //TODO: catch exceptions, add  error/success message
         DataTablesOutput<EmailResponse> response = emailService.getTableContent(Email.EmailType.Spam, pageRequest(input));
         response.setDraw(sequenceNo);
         return response;
