@@ -194,7 +194,6 @@ public class PetitionServiceImpl implements PetitionService {
     @Override
     public DataTablesOutput<PetitionResponse> getTableContent(DataTablesInput input, User user, List<PetitionStatus.Status> statuses) {
         DataTablesOutput<Petition> petitions;
-        Long count;
         Specification<Petition> spec = null;
         if (user != null) {
             if (statuses == null) {
@@ -215,12 +214,11 @@ public class PetitionServiceImpl implements PetitionService {
         }
 
         petitions = petitionRepository.findAll(input, spec);
-        count = petitionRepository.count(spec);
 
         DataTablesOutput<PetitionResponse> response = new DataTablesOutput<>();
         response.setData(convert(petitions.getData()));
-        response.setRecordsTotal(count);
-        response.setRecordsFiltered(count);
+        response.setRecordsTotal(petitions.getRecordsTotal());
+        response.setRecordsFiltered(petitions.getRecordsFiltered());
 
         return response;
     }
@@ -284,7 +282,7 @@ public class PetitionServiceImpl implements PetitionService {
     private PetitionResponse convert(Petition petition) {
         PetitionResponse element = new PetitionResponse();
         element.setId(petition.getId());
-        element.set_abstract(prepareForView(petition.getSubject(), 100));
+        element.setSubject(prepareForView(petition.getSubject(), 100));
         element.setPetitionerEmail(petition.getPetitioner().getEmail());
         element.setPetitionerName(prepareForView(petition.getPetitioner().getFullName(), 30));
         element.setUser(petition.getResponsible().getFullName());

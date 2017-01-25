@@ -122,7 +122,7 @@
                     render: function (data) {
                         return strLimit(data, 30);
                     },
-                    searchable: true
+                    searchable: false
                 },
                 {
                     name: 'petitionerEmail',
@@ -131,8 +131,8 @@
                     searchable: false
                 },
                 {
-                    name: '_abstract',
-                    data: '_abstract',
+                    name: 'subject',
+                    data: 'subject',
                     title: 'Rezumat petiție',
                     render: function (data) {
                         return strLimit(data, 70);
