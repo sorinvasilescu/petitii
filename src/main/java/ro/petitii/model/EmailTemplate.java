@@ -1,11 +1,11 @@
 package ro.petitii.model;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
+import ro.petitii.model.serializers.JsonCategorySerializer;
 
 import javax.persistence.*;
-
-import static ro.petitii.util.TranslationUtil.categoryMsg;
 
 @Entity
 @Table(name = "email_templates")
@@ -13,15 +13,7 @@ public class EmailTemplate {
     public enum Category {
         response,
         forward,
-        start_work;
-
-        public String viewName() {
-            return categoryMsg(this);
-        }
-
-        public String toString() {
-            return viewName();
-        }
+        start_work
      }
 
     @Id
@@ -34,6 +26,7 @@ public class EmailTemplate {
 
     @JsonView(DataTablesOutput.View.class)
     @Enumerated(EnumType.STRING)
+    @JsonSerialize(using = JsonCategorySerializer.class)
     private Category category;
 
     @Lob

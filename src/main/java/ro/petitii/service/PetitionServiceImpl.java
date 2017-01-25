@@ -187,6 +187,11 @@ public class PetitionServiceImpl implements PetitionService {
     }
 
     @Override
+    public List<Petition> findAllByResponsible(User responsible) {
+        return petitionRepository.findByResponsible(responsible);
+    }
+
+    @Override
     public DataTablesOutput<PetitionResponse> getTableContent(DataTablesInput input, User user, List<PetitionStatus.Status> statuses) {
         DataTablesOutput<Petition> petitions;
         Long count;

@@ -18,9 +18,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import ro.petitii.service.email.SmtpService;
 import ro.petitii.tasks.CronScheduler;
+import ro.petitii.util.TranslationUtil;
 
 import javax.mail.MessagingException;
-import java.util.Locale;
 
 @SpringBootApplication(scanBasePackages = "ro.petitii")
 @EnableJpaRepositories(basePackages = {"ro.petitii"}, repositoryFactoryBeanClass = DataTablesRepositoryFactoryBean.class)
@@ -41,10 +41,10 @@ public class Application extends WebMvcConfigurerAdapter {
     @Bean
     public LocaleResolver localeResolver() {
         SessionLocaleResolver slr = new SessionLocaleResolver();
-        slr.setDefaultLocale(new Locale("ro"));
+        slr.setDefaultLocale(TranslationUtil.ro);
         return slr;
     }
-
+    
     @Bean
     public MessageSource messageSource() {
         ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();

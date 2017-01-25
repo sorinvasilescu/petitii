@@ -15,6 +15,8 @@ public interface PetitionService {
 
     Petition findById(Long id);
 
+    List<Petition> findAllByResponsible(User responsible);
+
     DataTablesOutput<PetitionResponse> getTableContent(DataTablesInput input, User user, List<PetitionStatus.Status> statuses);
 
     DataTablesOutput<PetitionResponse> getTableContent(Petition petition, Petitioner petitioner, PageRequest p);
