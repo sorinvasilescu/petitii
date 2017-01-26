@@ -3,7 +3,6 @@ package ro.petitii.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
@@ -16,6 +15,7 @@ import ro.petitii.config.DeadlineConfig;
 import ro.petitii.config.DefaultsConfig;
 import ro.petitii.model.*;
 import ro.petitii.model.Petition_;
+import ro.petitii.model.datatables.PetitionConverter;
 import ro.petitii.model.datatables.PetitionResponse;
 import ro.petitii.repository.PetitionRepository;
 import ro.petitii.service.email.ImapService;
@@ -23,24 +23,17 @@ import ro.petitii.util.DateUtil;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static ro.petitii.util.DateUtil.alertStatus;
-import static ro.petitii.util.StringUtil.prepareForView;
 
 @Service
 public class PetitionServiceImpl implements PetitionService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ImapService.class);
-    private static final DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
 
     @Autowired
     private PetitionRepository petitionRepository;
@@ -61,9 +54,6 @@ public class PetitionServiceImpl implements PetitionService {
     private PetitionStatusService psService;
 
     @Autowired
-    private MessageSource messageSource;
-
-    @Autowired
     private AttachmentService attachmentService;
 
     @Autowired
@@ -72,8 +62,8 @@ public class PetitionServiceImpl implements PetitionService {
     @Autowired
     private DeadlineConfig deadlineConfig;
 
-    @PersistenceContext
-    private EntityManager em;
+    @Autowired
+    private PetitionConverter converter;
 
     @Override
     public Petition save(Petition petition) {
@@ -193,7 +183,7 @@ public class PetitionServiceImpl implements PetitionService {
 
     @Override
     public DataTablesOutput<PetitionResponse> getTableContent(DataTablesInput input, User user, List<PetitionStatus.Status> statuses) {
-        DataTablesOutput<Petition> petitions;
+        DataTablesOutput<PetitionResponse> petitions;
         Specification<Petition> spec = null;
         if (user != null) {
             if (statuses == null) {
@@ -213,14 +203,9 @@ public class PetitionServiceImpl implements PetitionService {
             }
         }
 
-        petitions = petitionRepository.findAll(input, spec);
+        petitions = petitionRepository.findAll(input, spec, null, converter);
 
-        DataTablesOutput<PetitionResponse> response = new DataTablesOutput<>();
-        response.setData(convert(petitions.getData()));
-        response.setRecordsTotal(petitions.getRecordsTotal());
-        response.setRecordsFiltered(petitions.getRecordsFiltered());
-
-        return response;
+        return petitions;
     }
 
     @Override
@@ -270,29 +255,12 @@ public class PetitionServiceImpl implements PetitionService {
         return petitions.getContent().stream().map(this::convert).collect(Collectors.toList());
     }
 
-    private List<PetitionResponse> convert(List<Petition> petitions) {
-        return petitions.stream().map(this::convert).collect(Collectors.toList());
-    }
-
     private List<PetitionResponse> convertAndFilter(Page<Petition> petitions, Long filterPetitionId) {
         return petitions.getContent().stream().filter(p -> !Objects.equals(filterPetitionId, p.getId()))
                         .map(this::convert).collect(Collectors.toList());
     }
 
     private PetitionResponse convert(Petition petition) {
-        PetitionResponse element = new PetitionResponse();
-        element.setId(petition.getId());
-        element.setSubject(prepareForView(petition.getSubject(), 100));
-        element.setPetitionerEmail(petition.getPetitioner().getEmail());
-        element.setPetitionerName(prepareForView(petition.getPetitioner().getFullName(), 30));
-        element.setUser(petition.getResponsible().getFullName());
-        element.setReceivedDate(df.format(petition.getReceivedDate()));
-        element.setLastUpdateDate(df.format(petition.getLastUpdateDate()));
-        element.setRegNo(petition.getRegNo().getNumber());
-        element.setStatus(messageSource.getMessage(petition.statusString(), null, new Locale("ro")));
-        DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
-        element.setDeadline(df.format(petition.getDeadline()));
-        element.setAlertStatus(alertStatus(new Date(), petition.getDeadline(), deadlineConfig));
-        return element;
+        return converter.convert(petition);
     }
 }
