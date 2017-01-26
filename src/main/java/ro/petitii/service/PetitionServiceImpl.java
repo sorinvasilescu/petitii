@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.datatables.mapping.Column;
 import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.data.jpa.domain.Specification;
@@ -185,6 +186,21 @@ public class PetitionServiceImpl implements PetitionService {
     public DataTablesOutput<PetitionResponse> getTableContent(DataTablesInput input, User user, List<PetitionStatus.Status> statuses) {
         DataTablesOutput<PetitionResponse> petitions;
         Specification<Petition> spec = null;
+
+        input.getColumns().replaceAll(column -> {
+            switch (column.getData()) {
+                case "regNo":
+                    column.setData("regNo.number");
+                    break;
+                case "petitionerEmail":
+                    column.setData("petitioner.email");
+                    break;
+                case "petitionerName":
+                    column.setData("petitioner.lastName");
+            }
+            return column;
+        });
+
         if (user != null) {
             if (statuses == null) {
                 spec = (Root<Petition> root, CriteriaQuery<?> q, CriteriaBuilder cb) -> cb.equal(root.get(Petition_.responsible),user);
@@ -203,7 +219,7 @@ public class PetitionServiceImpl implements PetitionService {
             }
         }
 
-        petitions = petitionRepository.findAll(input, spec, null, converter);
+        petitions = petitionRepository.findAll(input, null, spec, converter);
 
         return petitions;
     }

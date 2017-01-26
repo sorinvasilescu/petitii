@@ -104,7 +104,7 @@
                     searchable: false
                 },
                 {
-                    name: 'regNo',
+                    name: 'regNo.number',
                     data: 'regNo',
                     title: 'Număr înregistrare',
                     searchable: true
@@ -116,19 +116,19 @@
                     searchable: false
                 },
                 {
-                    name: 'petitioner.lastName',
+                    name: 'petitionerName',
                     data: 'petitionerName',
                     title: 'Nume petent',
                     render: function (data) {
                         return strLimit(data, 30);
                     },
-                    searchable: false
+                    searchable: true
                 },
                 {
                     name: 'petitionerEmail',
                     data: 'petitionerEmail',
                     title: 'Email petent',
-                    searchable: false
+                    searchable: true
                 },
                 {
                     name: 'subject',
