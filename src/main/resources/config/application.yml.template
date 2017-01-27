@@ -23,6 +23,7 @@ petitii:
     server: [[ SERVER ex:imap.gmail.com ]]
     port: 993
     ssl: true
+    forceTrust: true
     username: [[ EMAIL ADDRESS ]]
     password: [[ PASSWORD ]]
     startDate: [[ START DATE ex:06.12.2016 ]]
@@ -35,6 +36,7 @@ petitii:
     server: [[ SERVER ex:smtp.gmail.com ]]
     port: 587
     ssl: true
+    forceTrust: true
     username: [[ EMAIL ADDRESS ]]
     password: [[ PASSWORD ]]
   defaultValues:
