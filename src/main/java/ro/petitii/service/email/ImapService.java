@@ -188,6 +188,7 @@ public class ImapService {
         properties.put(String.format("mail.%s.port", protocol), imapConfig.getPort());
         // SSL setting
         properties.setProperty(String.format("mail.%s.ssl.enable", protocol), imapConfig.getSsl().toString());
+        if (imapConfig.getForceTrust()) properties.setProperty(String.format("mail.%s.ssl.trust", protocol), imapConfig.getServer());
         return properties;
     }
 
