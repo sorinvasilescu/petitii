@@ -1,10 +1,9 @@
-package ro.petitii.config;
+package ro.petitii;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -22,9 +21,8 @@ import ro.petitii.util.TranslationUtil;
 
 import javax.mail.MessagingException;
 
-@SpringBootApplication(scanBasePackages = "ro.petitii")
-@EnableJpaRepositories(basePackages = {"ro.petitii"}, repositoryFactoryBeanClass = DataTablesRepositoryFactoryBean.class)
-@EntityScan(basePackages = {"ro.petitii.model"})
+@SpringBootApplication
+@EnableJpaRepositories(repositoryFactoryBeanClass = DataTablesRepositoryFactoryBean.class)
 public class Application extends WebMvcConfigurerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
 
