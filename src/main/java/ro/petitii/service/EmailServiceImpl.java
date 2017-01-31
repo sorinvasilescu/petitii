@@ -4,26 +4,29 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import ro.petitii.model.Email;
 import ro.petitii.model.Attachment;
+import ro.petitii.model.Email_;
 import ro.petitii.model.Petition;
+import ro.petitii.model.datatables.EmailConverter;
 import ro.petitii.model.datatables.EmailResponse;
 import ro.petitii.repository.EmailRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class EmailServiceImpl implements EmailService {
-    private static final SimpleDateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm");
-
     @Autowired
     private EmailRepository emailRepository;
 
@@ -73,37 +76,28 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public DataTablesOutput<EmailResponse> getTableContent(Email.EmailType type, PageRequest p) {
-        List<Email> result = emailRepository.findByType(type, p).getContent();
-        List<EmailResponse> data = result.stream().map(this::convert).collect(Collectors.toList());
-        DataTablesOutput<EmailResponse> response = new DataTablesOutput<>();
-        response.setData(data);
-        Long count = emailRepository.countByType(type);
-        response.setRecordsFiltered(count);
-        response.setRecordsTotal(count);
-        return response;
+    public DataTablesOutput<EmailResponse> getTableContent(DataTablesInput input, Email.EmailType type) {
+        DataTablesOutput<EmailResponse> emails;
+        Specification<Email> spec = null;
+
+        if(type!=null) {
+            spec = (Root<Email> root, CriteriaQuery<?> q, CriteriaBuilder cb) -> cb.equal(root.get(Email_.type),type);
+        }
+
+        emails = emailRepository.findAll(input,null,spec, new EmailConverter());
+        return emails;
     }
 
     @Override
-    public DataTablesOutput<EmailResponse> getTableContent(Petition petition, PageRequest pageRequest) {
-        List<Email> result = emailRepository.findByPetition(petition, pageRequest).getContent();
-        List<EmailResponse> data = result.stream().map(this::convert).collect(Collectors.toList());
-        DataTablesOutput<EmailResponse> response = new DataTablesOutput<>();
-        response.setData(data);
-        Long count = emailRepository.countByPetition(petition);
-        response.setRecordsFiltered(count);
-        response.setRecordsTotal(count);
-        return response;
-    }
+    public DataTablesOutput<EmailResponse> getTableContent(DataTablesInput input, Petition petition) {
+        DataTablesOutput<EmailResponse> emails;
+        Specification<Email> spec = null;
 
-    private EmailResponse convert(Email e) {
-        EmailResponse re = new EmailResponse();
-        re.setId(e.getId());
-        re.setSender(e.getSender());
-        re.setRecipients(e.getRecipients());
-        re.setSubject(e.getSubject());
-        re.setDate(df.format(e.getDate()));
-        if (e.getPetition() != null) re.setPetition_id(e.getPetition().getId());
-        return re;
+        if(petition!=null) {
+            spec = (Root<Email> root, CriteriaQuery<?> q, CriteriaBuilder cb) -> cb.equal(root.get(Email_.petition),petition);
+        }
+
+        emails = emailRepository.findAll(input,null,spec, new EmailConverter());
+        return emails;
     }
 }

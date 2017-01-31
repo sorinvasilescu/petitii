@@ -81,6 +81,7 @@ public class SmtpService {
             props.put("mail.smtp.sendpartial", true);
             props.put("mail.smtp.host",config.getServer());
             props.put("mail.smtp.port",config.getPort());
+            if (config.getForceTrust()) props.put("mail.smtp.ssl.trust",config.getServer());
         }
         if (session == null) {
             session = Session.getInstance(props, new Authenticator() {

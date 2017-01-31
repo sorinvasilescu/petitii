@@ -11,6 +11,7 @@ public class SmtpConfig {
     private String server;
     private Number port;
     private Boolean ssl;
+    private Boolean forceTrust;
     private String username;
     private String password;
     private static final Logger LOGGER = LoggerFactory.getLogger(SmtpConfig.class);
@@ -41,6 +42,14 @@ public class SmtpConfig {
 
     public void setSsl(Boolean ssl) {
         this.ssl = ssl;
+    }
+
+    public Boolean getForceTrust() {
+        return forceTrust;
+    }
+
+    public void setForceTrust(Boolean forceTrust) {
+        this.forceTrust = forceTrust;
     }
 
     public String getUsername() {
