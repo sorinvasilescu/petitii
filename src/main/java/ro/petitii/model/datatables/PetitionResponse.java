@@ -17,7 +17,7 @@ public class PetitionResponse {
     private String lastUpdateDate;
     private String user;
     private String petitionerEmail;
-    private String _abstract;
+    private String subject;
     private String status;
     private String deadline;
     private String alertStatus;
@@ -78,12 +78,12 @@ public class PetitionResponse {
         this.petitionerEmail = petitionerEmail;
     }
 
-    public String get_abstract() {
-        return _abstract;
+    public String getSubject() {
+        return subject;
     }
 
-    public void set_abstract(String _abstract) {
-        this._abstract = _abstract;
+    public void setSubject(String subject) {
+        this.subject = subject;
     }
 
     public String getStatus() {

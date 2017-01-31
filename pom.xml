@@ -161,6 +161,9 @@
                     <source>1.8</source>
                     <target>1.8</target>
                     <compilerArgument>-proc:none</compilerArgument>
+                    <compilerArguments>
+                        <processor>org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor</processor>
+                    </compilerArguments>
                 </configuration>
             </plugin>
         </plugins>

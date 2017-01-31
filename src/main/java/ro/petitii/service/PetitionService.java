@@ -1,6 +1,7 @@
 package ro.petitii.service;
 
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import ro.petitii.model.*;
 import ro.petitii.model.datatables.PetitionResponse;
@@ -14,9 +15,9 @@ public interface PetitionService {
 
     Petition findById(Long id);
 
-    List<Petition> findAllByResponsible(User user);
+    List<Petition> findAllByResponsible(User responsible);
 
-    DataTablesOutput<PetitionResponse> getTableContent(User user, List<PetitionStatus.Status> statuses, PageRequest p);
+    DataTablesOutput<PetitionResponse> getTableContent(DataTablesInput input, User user, List<PetitionStatus.Status> statuses);
 
     DataTablesOutput<PetitionResponse> getTableContent(Petition petition, Petitioner petitioner, PageRequest p);
 

@@ -89,7 +89,7 @@ public class PetitionApiController extends BaseController{
 
     @Autowired
     private SmtpService smtpService;
-    
+
 	// will answer to compounded URL /api/petitions/user
     @RequestMapping(value = "/user", method = RequestMethod.POST)
     @ResponseBody
@@ -102,7 +102,7 @@ public class PetitionApiController extends BaseController{
 
         List<PetitionStatus.Status> pStatus = parseStatus(status);
 
-        DataTablesOutput<PetitionResponse> response = petitionService.getTableContent(user, pStatus, pageRequest(input, PetitionResponse.sortMapping));
+        DataTablesOutput<PetitionResponse> response = petitionService.getTableContent(input, user, pStatus);
         response.setDraw(sequenceNo);
 
         return response;
@@ -114,7 +114,7 @@ public class PetitionApiController extends BaseController{
         int sequenceNo = input.getDraw();
         List<PetitionStatus.Status> pStatus = parseStatus(status);
         //TODO: catch exceptions, add  error/success message
-        DataTablesOutput<PetitionResponse> response = petitionService.getTableContent(null, pStatus, pageRequest(input, PetitionResponse.sortMapping));
+        DataTablesOutput<PetitionResponse> response = petitionService.getTableContent(input, null, pStatus);
         response.setDraw(sequenceNo);
         return response;
     }
@@ -164,7 +164,7 @@ public class PetitionApiController extends BaseController{
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
         }
         //TODO: catch exceptions, add  error/success message
-        DataTablesOutput<EmailResponse> response = emailService.getTableContent(petition, pageRequest(input));
+        DataTablesOutput<EmailResponse> response = emailService.getTableContent(input, petition);
         response.setDraw(sequenceNo);
         return response;
     }
@@ -302,7 +302,7 @@ public class PetitionApiController extends BaseController{
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
         }
         User user = users.get(0);
-        
+
         //TODO: catch exceptions, add  error/success message
         commentService.createAndSave(user, petition, cleanHtml(commentBody));
         return "done";
@@ -348,7 +348,7 @@ public class PetitionApiController extends BaseController{
         if (vassal == null) {
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
         }
-        
+
         //TODO: catch exceptions, add  error/success message
         connectionService.unlink(petition, vassal);
         return "done";
@@ -422,9 +422,8 @@ public class PetitionApiController extends BaseController{
         DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
         String recDate = df.format(petition.getReceivedDate());
         String deadline = df.format(petition.getDeadline());
-        
+
         String[] params = new String[]{petition.getRegNo().getNumber(), recDate, deadline};
         return i18n("api.controller.petition.registered", params);
     }
-	
 }
