@@ -31,8 +31,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static ro.petitii.controller.api.DatatableUtils.pageRequest;
-
 @RestController
 public class EmailApiController extends BaseController{
     @Autowired
@@ -49,7 +47,7 @@ public class EmailApiController extends BaseController{
     public DataTablesOutput<EmailResponse> getInbox(@Valid DataTablesInput input) {
         int sequenceNo = input.getDraw();
         //TODO: catch exceptions, add  error/success message
-        DataTablesOutput<EmailResponse> response = emailService.getTableContent(Email.EmailType.Inbox, pageRequest(input));
+        DataTablesOutput<EmailResponse> response = emailService.getTableContent(input, Email.EmailType.Inbox);
         response.setDraw(sequenceNo);
         return response;
     }
@@ -60,7 +58,7 @@ public class EmailApiController extends BaseController{
         int sequenceNo = input.getDraw();
 
         //TODO: catch exceptions, add  error/success message
-        DataTablesOutput<EmailResponse> response = emailService.getTableContent(Email.EmailType.Spam, pageRequest(input));
+        DataTablesOutput<EmailResponse> response = emailService.getTableContent(input, Email.EmailType.Spam);
         response.setDraw(sequenceNo);
         return response;
     }

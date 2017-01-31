@@ -123,20 +123,21 @@ public class ImapService {
         email.setType(Email.EmailType.Inbox);
         emailService.save(email);
         // print out details of each message
-        LOGGER.info("Message #" + uid + ":");
-        LOGGER.info("\t From: " + from);
-        LOGGER.info("\t To: " + toList);
-        LOGGER.info("\t CC: " + ccList);
-        LOGGER.info("\t Subject: " + subject);
-        LOGGER.info("\t Sent Date: " + sentDate);
-        LOGGER.info("\t Message: " + email.getBody());
+        String details = "Message #" + uid + ":";
+        details += "\n\t From: " + from;
+        details += "\n\t To: " + toList;
+        details += "\n\t CC: " + ccList;
+        details += "\n\t Subject: " + subject;
+        details += "\n\t Sent Date: " + sentDate;
+        //details += "\n\t Message: " + email.getBody();
         String att = "";
         for (Attachment a : attachments) {
             if (att.length() > 0) att += ",";
             att += a.getOriginalFilename();
         }
-        LOGGER.info("\t Attachments: " + att);
-        LOGGER.info("\t Size: " + msg.getSize());
+        details += "\n\t Attachments: " + att;
+        details += "\n\t Size: " + msg.getSize();
+        LOGGER.info(details);
     }
 
     private String parseBody(Object content, Collection<Attachment> attachments) throws IOException, MessagingException {

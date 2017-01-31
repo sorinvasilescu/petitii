@@ -164,7 +164,7 @@ public class PetitionApiController extends BaseController{
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
         }
         //TODO: catch exceptions, add  error/success message
-        DataTablesOutput<EmailResponse> response = emailService.getTableContent(petition, pageRequest(input));
+        DataTablesOutput<EmailResponse> response = emailService.getTableContent(input, petition);
         response.setDraw(sequenceNo);
         return response;
     }
