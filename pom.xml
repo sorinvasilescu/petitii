@@ -5,7 +5,7 @@
 
     <groupId>org.springframework</groupId>
     <artifactId>petitii</artifactId>
-    <version>0.11-SNAPSHOT</version>
+    <version>0.11</version>
     
     <parent>
         <groupId>org.springframework.boot</groupId>
