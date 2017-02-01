@@ -2,6 +2,7 @@ package ro.petitii.util;
 
 import org.junit.Test;
 import ro.petitii.config.DeadlineConfig;
+import ro.petitii.model.PetitionStatus;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -27,31 +28,39 @@ public class DateUtilTest {
     public void testRed() throws ParseException {
         Date current = df.parse("14.01.2017");
         Date deadline = df.parse("17.01.2017");
-        assertEquals("red", alertStatus(current, deadline, config));
+        assertEquals("red", alertStatus(PetitionStatus.Status.IN_PROGRESS, current, deadline, config));
     }
 
     @Test
     public void testYellow() throws ParseException {
         Date current = df.parse("14.01.2017");
         Date deadline = df.parse("18.01.2017");
-        assertEquals("yellow", alertStatus(current, deadline, config));
+        assertEquals("yellow", alertStatus(PetitionStatus.Status.IN_PROGRESS, current, deadline, config));
 
         current = df.parse("14.01.2017");
         deadline = df.parse("22.01.2017");
-        assertEquals("yellow", alertStatus(current, deadline, config));
+        assertEquals("yellow", alertStatus(PetitionStatus.Status.IN_PROGRESS, current, deadline, config));
     }
 
     @Test
     public void testNone() throws ParseException {
         Date current = df.parse("14.01.2017");
         Date deadline = df.parse("23.01.2017");
-        assertEquals("", alertStatus(current, deadline, config));
+        assertEquals("", alertStatus(PetitionStatus.Status.IN_PROGRESS, current, deadline, config));
     }
 
     @Test
     public void testOverdue() throws ParseException {
         Date current = df.parse("14.01.2017");
         Date deadline = df.parse("10.01.2017");
-        assertEquals("red", alertStatus(current, deadline, config));
+        assertEquals("red", alertStatus(PetitionStatus.Status.IN_PROGRESS, current, deadline, config));
+    }
+
+    @Test
+    public void testGreen() throws ParseException {
+        Date current = df.parse("14.01.2017");
+        Date deadline = df.parse("10.01.2017");
+        assertEquals("green", alertStatus(PetitionStatus.Status.SOLVED, current, deadline, config));
+        assertEquals("green", alertStatus(PetitionStatus.Status.CLOSED, current, deadline, config));
     }
 }

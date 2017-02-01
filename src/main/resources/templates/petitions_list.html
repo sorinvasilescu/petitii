@@ -164,11 +164,15 @@
             ],
             rowCallback: function (row, data) {
                 if (data.alertStatus === "red") {
-                    $('td', row).css('background-color', '#ffb699');
+                    $('td', row).css('background-color', '#FFB699');
                 }
 
                 if (data.alertStatus === "yellow") {
                     $('td', row).css('background-color', '#FFFACD');
+                }
+
+                if (data.alertStatus === "green") {
+                    $('td', row).css('background-color', '#DAF7A6');
                 }
             }
         });

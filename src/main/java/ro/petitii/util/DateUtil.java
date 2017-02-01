@@ -1,6 +1,7 @@
 package ro.petitii.util;
 
 import ro.petitii.config.DeadlineConfig;
+import ro.petitii.model.PetitionStatus;
 
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
@@ -20,17 +21,21 @@ public class DateUtil {
         return cal.getTime();
     }
 
-    public static String alertStatus(Date currentDate, Date deadline, DeadlineConfig deadlineConfig) {
-        long days = days(currentDate, deadline);
-        if (days <= deadlineConfig.redAlert()) {
-            return "red";
-        }
+    public static String alertStatus(PetitionStatus.Status status, Date currentDate, Date deadline, DeadlineConfig deadlineConfig) {
+        if (status == PetitionStatus.Status.CLOSED || status == PetitionStatus.Status.SOLVED) {
+            return "green";
+        } else {
+            long days = days(currentDate, deadline);
+            if (days <= deadlineConfig.redAlert()) {
+                return "red";
+            }
 
-        if (days <= deadlineConfig.yellowAlert()) {
-            return "yellow";
-        }
+            if (days <= deadlineConfig.yellowAlert()) {
+                return "yellow";
+            }
 
-        return "";
+            return "";
+        }
     }
 
     private static long days(Date d1, Date d2) {

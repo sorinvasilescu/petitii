@@ -40,7 +40,7 @@ public class PetitionConverter implements Converter<Petition,PetitionResponse> {
         element.setStatus(messageSource.getMessage(petition.statusString(), null, new Locale("ro")));
         DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
         element.setDeadline(df.format(petition.getDeadline()));
-        element.setAlertStatus(alertStatus(new Date(), petition.getDeadline(), deadlineConfig));
+        element.setAlertStatus(alertStatus(petition.getCurrentStatus(), new Date(), petition.getDeadline(), deadlineConfig));
         return element;
     }
 }

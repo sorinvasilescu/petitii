@@ -18,7 +18,7 @@ import ro.petitii.service.template.EmailTemplateProcessorService;
 
 @Component
 public class CronScheduler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CronScheduler.class);
+    private static final Logger logger = LoggerFactory.getLogger(CronScheduler.class);
 
     @Autowired
     private TaskScheduler scheduler;
@@ -52,19 +52,23 @@ public class CronScheduler {
 
     public void setupScheduledTasks() {
         if (schedulerConfig.emailCronPattern() != null) {
-            LOGGER.info("Successfully scheduled the email checker: " + schedulerConfig.emailCronPattern());
+            logger.info("Successfully scheduled the email checker: " + schedulerConfig.emailCronPattern());
             scheduler.schedule(new EmailChecker(imapService), new CronTrigger(schedulerConfig.emailCronPattern()));
         } else {
-            LOGGER.info("The email checker is not running ...");
+            logger.info("The email checker is not running ...");
         }
 
         if (schedulerConfig.deadlineCronPattern() != null) {
-            LOGGER.info("Successfully scheduled the deadline checker: " + schedulerConfig.deadlineCronPattern());
-            scheduler.schedule(new DeadlineChecker(userService, petitionService, smtpService,
-                                                   processorService, smtpConfig, deadlineConfig, config.serverUrl()),
-                               new CronTrigger(schedulerConfig.deadlineCronPattern()));
+            if (config.serverUrl() == null) {
+                logger.error("Invalid base server url, the deadline checker is not running ...");
+            } else {
+                logger.info("Successfully scheduled the deadline checker: " + schedulerConfig.deadlineCronPattern());
+                scheduler.schedule(new DeadlineChecker(userService, petitionService, smtpService, processorService,
+                                                       smtpConfig, deadlineConfig, config.serverUrl()),
+                                   new CronTrigger(schedulerConfig.deadlineCronPattern()));
+            }
         } else {
-            LOGGER.info("The deadline checker is not running ...");
+            logger.info("The deadline checker is not running ...");
         }
     }
 }

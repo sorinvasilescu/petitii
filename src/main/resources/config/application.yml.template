@@ -48,6 +48,8 @@ petitii:
     days: 30
     yellowAlert: 0.75
     redAlert: 0.90
+  baseUrl:
+    url: [[ Base URL, including port and protocol ]]
 
 ---
 spring:
