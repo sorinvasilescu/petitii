@@ -47,8 +47,8 @@ public class ImapConfig {
         this.ssl = ssl;
     }
 
-    public Boolean getForceTrust() {
-        return forceTrust;
+    public boolean getForceTrust() {
+        return forceTrust == null ? false : forceTrust;
     }
 
     public void setForceTrust(Boolean forceTrust) {

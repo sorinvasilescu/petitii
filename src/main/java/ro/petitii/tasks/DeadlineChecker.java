@@ -65,8 +65,8 @@ public class DeadlineChecker implements Runnable {
         Map<String, List<Petition>> result = new HashMap<>();
         Date today = new Date();
         for (Petition petition : petitions) {
-            String alert = alertStatus(today, petition.getDeadline(), deadlineConfig);
-            if (!alert.isEmpty()) {
+            String alert = alertStatus(petition.getCurrentStatus(), today, petition.getDeadline(), deadlineConfig);
+            if (!alert.isEmpty() && !alert.equalsIgnoreCase("green")) {
                 List<Petition> alertList = result.computeIfAbsent(alert, k -> new LinkedList<>());
                 alertList.add(petition);
             }
