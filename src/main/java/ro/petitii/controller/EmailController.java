@@ -15,6 +15,7 @@ import ro.petitii.util.StringUtil;
 import javax.servlet.http.HttpServletRequest;
 
 import static ro.petitii.validation.ValidationUtil.assertNotNull;
+import static ro.petitii.validation.ValidationUtil.check;
 import static ro.petitii.validation.ValidationUtil.redirect;
 
 @Controller
@@ -52,7 +53,7 @@ public class EmailController extends ViewController {
         Email email = emailService.searchById(id);
 
         String url = StringUtil.toRelativeURL(request.getHeader("referer"), "inbox)");
-        assertNotNull(email, i18n("controller.email.invalid_id")).logMessages(logger).failIfInvalid(redirect(url));
+        check(assertNotNull(email, i18n("controller.email.invalid_id")), logger, redirect(url));
 
         ModelAndView modelAndView = new ModelAndView("email_detail");
         modelAndView.addObject("title", i18n("controller.email.received_emails"));

@@ -17,8 +17,8 @@ public class ContactServiceImpl implements ContactService {
 	private ContactRepository contactRepository;
 
 	@Override
-	public Iterable<Contact> getAllContacts() {
-		return contactRepository.findAll();
+	public List<Contact> getAllContacts() {
+		return (List<Contact>) contactRepository.findAll();
 	}
 
 	@Override
@@ -48,7 +48,7 @@ public class ContactServiceImpl implements ContactService {
 		for (long id : contactIds) {
 			contactList.add(new Contact(id));
 		}
-		
+
 		contactRepository.delete(contactList);
 	}
 }

@@ -45,7 +45,12 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
     }
 
     @Override
-    public void delete(long id) {
-        emailTemplateRepository.delete(id);
+    public boolean delete(long id) {
+        if (emailTemplateRepository.exists(id)) {
+            emailTemplateRepository.delete(id);
+            return true;
+        } else {
+            return false;
+        }
     }
 }

@@ -93,7 +93,6 @@
             },
             processing: true,
             serverSide: true,
-            sDom: 'lrtip ',
             rowId: "id",
             order: [[3, 'desc']],
             ajax: {
@@ -114,7 +113,8 @@
                     title: '<input type="checkbox" id="check-all" class="flat"/>',
                     sortable: false,
                     'className': 'text-center',
-                    'width': '15px'
+                    'width': '15px',
+                    searchable: false
                 },
                 {
                     name: 'sender',
@@ -124,7 +124,8 @@
                         return strLimit(data, 70);
                     },
                     'className': 'text-center',
-                    'width': '180px'
+                    'width': '180px',
+                    searchable: true
                 },
                 {
                     name: 'subject',
@@ -135,14 +136,16 @@
                     	return strLimit(data, 120);
                     },
                     'className': "elipsis-subiect",
-                    'width': '900px'
+                    'width': '900px',
+                    searchable: true
                 },
                 {
                     name: 'date',
                     data: 'date',
                     title: 'Data',
                     'className': 'text-center',
-                    'width': '120px'
+                    'width': '120px',
+                    searchable: true
                 },
                 {
                     name: 'petition_id',
@@ -154,7 +157,8 @@
                     },
                     sortable: false,
                     'className': 'text-center',
-                    'width': '115px'
+                    'width': '115px',
+                    searchable: false
                 },
                 {
                     data: null,
@@ -168,7 +172,8 @@
                     },
                     sortable: false,
                     'className': 'text-center',
-                    'width': '80px'
+                    'width': '80px',
+                    searchable: false
                 }
             ]
         });
@@ -202,26 +207,26 @@
                 addWarning("#error-messages", "Selectați cel puțin un e-mail");
                 this.blur()
             } else {
-                markAsSpam(e, selectedRows[0].id);
+                markAsSpam(e, selectedRows[0].id, emailTable);
             }
         });
     });
 
     function refreshMail(e) {
-        //console.log('refreshing inbox');
         $(e.target).attr('data-loading-text', '<i class="fa fa-circle-o-notch fa-spin"></i> Se incarca');
         $(e.target).button('loading');
         $.ajax({
             url: "/api/refresh",
             method: 'POST'
         }).done(function (data) {
-            //console.log('success');
-            if (data.success == 'true') {
-                emailTable.ajax.reload();
+            if (data.success) {
+                addSuccess('#error-messages', data.message);
+            } else {
+                addError('#error-messages', data.message);
             }
+            emailTable.ajax.reload();
             $(e.target).button('reset');
         }).fail(function () {
-            //console.log('failed');
             $(e.target).button('reset');
         });
     }
@@ -234,7 +239,7 @@
                 addWarning("#error-messages", "Selectați cel puțin un e-mail");
                 this.blur()
             } else {
-                markAsEmail(e, selectedRows[0].id)
+                markAsEmail(e, selectedRows[0].id, emailTable)
             }
         });
     });

@@ -4,12 +4,8 @@ import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
-
-import ro.petitii.controller.BaseController;
 import ro.petitii.model.EmailTemplate;
 import ro.petitii.model.Petition;
 import ro.petitii.service.EmailTemplateService;
@@ -21,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-public class EmailTemplateApiController extends BaseController{
+public class EmailTemplateApiController extends ApiController {
     @Autowired
     private EmailTemplateService emailTemplateService;
 

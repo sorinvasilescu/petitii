@@ -13,6 +13,7 @@ public class ImapConfig {
     private String server;
     private Number port;
     private Boolean ssl;
+    private Boolean forceTrust;
     private String username;
     private String password;
     private String startDate;
@@ -44,6 +45,14 @@ public class ImapConfig {
 
     public void setSsl(Boolean ssl) {
         this.ssl = ssl;
+    }
+
+    public boolean getForceTrust() {
+        return forceTrust == null ? false : forceTrust;
+    }
+
+    public void setForceTrust(Boolean forceTrust) {
+        this.forceTrust = forceTrust;
     }
 
     public String getUsername() {

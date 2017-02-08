@@ -51,9 +51,9 @@
                                 <div class="col-md-6 col-xs-12">
                                     <div class="x_content">
                                         <div class="item form-group" th:classappend="${#fields.hasErrors('responsible')} ? bad">
-                                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="responsible">Responsabil</label>
+                                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="responsible">Responsabil <span class="required">*</span></label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <select class="form-control" name="responsible" id="responsible" th:field="*{responsible}">
+                                                <select class="form-control" name="responsible" id="responsible" th:field="*{responsible}" required="required">
                                                     <option value="" selected="selected">Selectează responsabilul</option>
                                                     <option th:each="user : ${user_list}" th:value="${user.getId()}" th:text="${user.getFullName()}">Responsabil</option>
                                                 </select>
@@ -87,7 +87,7 @@
                                             </div>
                                         </div>
                                         <div class="item form-group" th:classappend="${#fields.hasErrors('relation')} ? bad">
-                                            <label for="relation" class="control-label col-md-3 col-sm-3 col-xs-12" th:text="${information.getFriendlyName()}">Tip relatie</label>
+                                            <label for="relation" class="control-label col-md-3 col-sm-3 col-xs-12" th:text="${information.getFriendlyName()}">Tip relatie <span class="required">*</span></label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <select class="form-control" name="relation" id="relation" th:field="*{relation}">
                                                     <option th:if="!${information.hasDefault()}" value="">Selectează opțiunea</option>
@@ -106,7 +106,7 @@
                                         <div class="item form-group" th:classappend="${#fields.hasErrors('petitioner.entity_type')} ? bad">
                                             <label for="entity-type" class="control-label col-md-3 col-sm-3 col-xs-12" th:text="${entity.getFriendlyName()}">Tip entitate</label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <select class="form-control" name="type" id="entity-type" th:field="*{petitioner.entity_type}">
+                                                <select class="form-control" name="type" id="entity-type" th:field="*{petitioner.entity_type}" required="required">
                                                     <option th:if="!${entity.hasDefault()}" value="">Selectează opțiunea</option>
                                                     <option th:each="et : ${entity.getParamValues()}" th:value="${et.value}" th:text="${et.label}">label</option>
                                                 </select>
@@ -145,9 +145,9 @@
                                 <div class="col-md-6 col-xs-12">
                                     <div class="x_content">
                                         <div class="item form-group" th:classappend="${#fields.hasErrors('petitioner.title')} ? bad">
-                                            <label for="title" class="control-label col-md-3 col-sm-3 col-xs-12" th:text="${title.getFriendlyName()}">Adresare</label>
+                                            <label for="title" class="control-label col-md-3 col-sm-3 col-xs-12" th:text="${title.getFriendlyName()}">Adresare <span class="required">*</span></label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <select class="form-control" name="title" id="title" th:field="*{petitioner.title}">
+                                                <select class="form-control" name="title" id="title" th:field="*{petitioner.title}" required="required">
                                                     <option th:if="!${title.hasDefault()}" value="">Selectează opțiunea</option>
                                                     <option th:each="et : ${title.getParamValues()}" th:value="${et.value}" th:text="${et.label}">label</option>
                                                 </select>
@@ -155,14 +155,15 @@
                                             <div class="alert" th:if="${#fields.hasErrors('petitioner.title')}">Câmpul nu poate fi gol</div>
                                         </div>
                                         <div class="item form-group" th:classappend="${#fields.hasErrors('petitioner.firstName')} ? bad">
-                                            <label for="petitioner-firstname" class="control-label col-md-3 col-sm-3 col-xs-12">Nume</label>
+                                            <label for="petitioner-firstname" class="control-label col-md-3 col-sm-3 col-xs-12">Nume <span class="required">*</span></label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <input id="petitioner-firstname" type="text" name="first_name" placeholder="Numele de familie" class="form-control col-md-10" required="required" th:field="*{petitioner.firstName}" />
+                                                <input id="petitioner-firstname" type="text" name="first_name" placeholder="Numele de familie" class="form-control col-md-10"
+                                                       required="required" th:field="*{petitioner.firstName}"/>
                                             </div>
                                             <div class="alert" th:if="${#fields.hasErrors('petitioner.firstName')}">Câmpul nu poate fi gol</div>
                                         </div>
                                         <div class="item form-group" th:classappend="${#fields.hasErrors('petitioner.lastName')} ? bad">
-                                            <label for="petitioner-lastname" class="control-label col-md-3 col-sm-3 col-xs-12">Prenume</label>
+                                            <label for="petitioner-lastname" class="control-label col-md-3 col-sm-3 col-xs-12">Prenume <span class="required">*</span></label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <input id="petitioner-lastname" type="text" name="last_name" placeholder="Prenumele" class="form-control col-md-10" required="required" th:field="*{petitioner.lastName}" />
                                             </div>
@@ -213,9 +214,9 @@
                                             <div class="alert" th:if="${#fields.hasErrors('petitioner.phone')}">Câmpul nu poate fi gol</div>
                                         </div>
                                         <div class="item form-group has-feedback" th:classappend="${#fields.hasErrors('petitioner.email')} ? bad">
-                                            <label for="email" class="control-label col-md-3 col-sm-3 col-xs-12">Email</label>
+                                            <label for="email" class="control-label col-md-3 col-sm-3 col-xs-12">Email <span class="required">*</span></label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <input type="text" class="form-control has-feedback-left" id="email" name="email" placeholder="Adresa de email" required="required" th:field="*{petitioner.email}" />
+                                                <input type="email" class="form-control has-feedback-left" id="email" name="email" placeholder="Adresa de email" required="required" th:field="*{petitioner.email}" />
                                                 <span class="fa fa-envelope form-control-feedback left" aria-hidden="true"></span>
                                             </div>
                                             <div class="alert" th:if="${#fields.hasErrors('petitioner.email')}">Câmpul nu poate fi gol</div>
@@ -247,10 +248,11 @@
                                 <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="home-tab">
                                     <div class="item form-group"  th:classappend="${#fields.hasErrors('subject')} ? bad">
                                         <div>
-                                            <label for="subject" class="control-label col-md-2 col-sm-2 col-xs-12">Rezumat</label>
+                                            <label for="subject" class="control-label col-md-2 col-sm-2 col-xs-12">Rezumat <span class="required">*</span></label>
                                         </div>
                                         <div class="col-md-8 col-sm-8 col-xs-12">
-                                            <input id="subject" type="text" name="abstract" placeholder="Descrierea pe scurt" class="form-control col-md-10" th:field="*{subject}" />
+                                            <input id="subject" type="text" name="abstract" placeholder="Descrierea pe scurt" class="form-control col-md-10" th:field="*{subject}"
+                                                   required="required" data-parsley-minlength="5"/>
                                         </div>
                                         <div class="alert" th:if="${#fields.hasErrors('subject')}">Minim 5 caractere</div>
                                     </div>
@@ -422,14 +424,14 @@
                 data: {'petitions':selectedRows},
                 method: 'post'
             }).done(function(data){
-                if (data.success=='true') {
-                    addSuccess('#error-messages', data.errorMsg);
+                if (data.success) {
+                    addSuccess('#error-messages', data.message);
                     $('#status').val(inLucru);
                 } else {
-                    addError('#error-messages', data.errorMsg);
+                    addError('#error-messages', data.message);
                 }
-                if (data.warnMsg != undefined) {
-                    addWarning('#error-messages', data.warnMsg)
+                if (data.warning != undefined) {
+                    addWarning('#error-messages', data.warning)
                 }
             }).fail(function(reason){
                 addError('#error-messages', reason);
@@ -503,7 +505,10 @@
                         contentType: 'text/plain',
                         processData: false,
                         data: result
-                    }).done(function () {
+                    }).done(function (data) {
+                        if (!data.success) {
+                            addError('#error-messages', data.message);
+                        }
                         observationsTable.ajax.reload();
                     }).fail(function (reason) {
                         console.log(reason);
@@ -520,7 +525,10 @@
                         url: "/api/petitions/" + pid + "/comment/" + selectedRows[0].id + "/delete",
                         method: 'POST',
                         processData: false
-                    }).done(function () {
+                    }).done(function (data) {
+                        if (!data.success) {
+                            addError('#error-messages', data.message);
+                        }
                         observationsTable.ajax.reload();
                     }).fail(function (reason) {
                         console.log(reason);
@@ -606,7 +614,10 @@
                         data: data,
                         contentType: false,
                         processData: false
-                    }).done(function () {
+                    }).done(function (data) {
+                        if (!data.success) {
+                            addError('#error-messages', data.message);
+                        }
                         attachmentTable.ajax.reload();
                     }).fail(function (reason) {
                         if (reason.status == 422) {
@@ -628,7 +639,10 @@
                             $.ajax({
                                 url: "/api/petitions/" + pid + "/attachment/" + selectedRows[0].id + "/delete/",
                                 method: 'POST'
-                            }).done(function () {
+                            }).done(function (data) {
+                                if (!data.success) {
+                                    addError('#error-messages', data.message);
+                                }
                                 attachmentTable.ajax.reload();
                             }).fail(function (reason) {
                                 console.log(reason);
@@ -720,7 +734,10 @@
                     $.ajax({
                         url: "/api/petitions/" + pid + "/link/" + result[0].id,
                         method: 'POST'
-                    }).done(function () {
+                    }).done(function (data) {
+                        if (!data.success) {
+                            addError('#error-messages', data.message);
+                        }
                         linkedTable.ajax.reload();
                     }).fail(function (reason) {
                         console.log(reason);
@@ -738,7 +755,10 @@
                             $.ajax({
                                 url: "/api/petitions/" + pid + "/unlink/" + selectedRows[0].id,
                                 method: 'POST'
-                            }).done(function () {
+                            }).done(function (data) {
+                                if (!data.success) {
+                                    addError('#error-messages', data.message);
+                                }
                                 linkedTable.ajax.reload();
                             }).fail(function (reason) {
                                 console.log(reason);
@@ -831,6 +851,14 @@
             parserRules:  wysihtml5ParserRules
         });
     </script>
+
+    <script type="text/javascript" th:inline="none">
+        $(document).ready(function () {
+            var form = $('#petition-form');
+            form.parsley();
+        });
+    </script>
+
     <div th:replace="fragments/main_head::toast"></div>
 </body>
 

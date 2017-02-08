@@ -109,9 +109,4 @@ public class ValidationStatus {
             logger.warn(message.getMessage());
         }
     }
-
-    //todo; remove this
-    public String getMsg() {
-        return messageList.get(0).getMessage();
-    }
 }
