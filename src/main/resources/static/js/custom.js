@@ -6,15 +6,15 @@ function strLimit(data, limit) {
     return data;
 }
 
-function markAsSpam(clickEvent, msgId) {
-    markAs(clickEvent, msgId, 'spam', 'Sunteți sigur că doriți să marcați ca Spam?');
+function markAsSpam(clickEvent, msgId, table) {
+    markAs(clickEvent, msgId, 'spam', 'Sunteți sigur că doriți să marcați ca Spam?', table);
 }
 
-function markAsEmail(clickEvent, msgId) {
-    markAs(clickEvent, msgId, 'email', 'Sunteți sigur că doriți să mutați înapoi în Email?');
+function markAsEmail(clickEvent, msgId, table) {
+    markAs(clickEvent, msgId, 'email', 'Sunteți sigur că doriți să mutați înapoi în Email?', table);
 }
 
-function markAs(clickEvent, msgId, actionType, message) {
+function markAs(clickEvent, msgId, actionType, message, table) {
     customAlert(message, function (result) {
         if (result) {
             /*<![CDATA[*/
@@ -28,12 +28,19 @@ function markAs(clickEvent, msgId, actionType, message) {
             $.ajax({
                 url: actionUrl,
                 method: 'POST'
-            }).done(function () {
-                location.reload();
+            }).done(function (data) {
+                if (data.success) {
+                    addSuccess('#error-messages', data.message);
+                } else {
+                    addError('#error-messages', data.message);
+                }
+                if (table == null) {
+                    location.reload();
+                } else {
+                    table.ajax.reload();
+                }
                 $(clickEvent.target).button('reset');
             }).fail(function (e) {
-                console.log("Action failed: ");
-                console.log(e);
                 $(clickEvent.target).button('reset');
             });
         }

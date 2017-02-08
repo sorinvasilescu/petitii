@@ -123,7 +123,6 @@
                     selectedRows.push(row.id);
                 });
             	
-                var alertMsg; 
                 if (selectedRows.length == 0){
                 	//must select at least one
                 	addWarning("#error-messages", "Pentru ștergere selectați cel puțin un contact");
@@ -136,30 +135,31 @@
         });
         
         function handleDelete(selectedRows){
-        	if (selectedRows.length == 1) {
-            	alertMsg = "Sunteți sigur că doriți ștergerea contactului selectat?";
+            var alertMsg;
+            if (selectedRows.length == 1) {
+                alertMsg = "Sunteți sigur că doriți ștergerea contactului selectat?";
             } else {
-            	alertMsg = "Sunteți sigur că doriți ștergerea contactelor selectate ("+selectedRows.length+")?"
+                alertMsg = "Sunteți sigur că doriți ștergerea contactelor selectate (" + selectedRows.length + ")?"
             }
         
         	customAlert(alertMsg, function (confirmed) {
-            	if(confirmed){
-	            	$.ajax({
-	                     url: '/api/contacts/delete',
-	                     data: {'contacts':selectedRows},
-	                     method: 'post'
-	                 }).done(function(data){
-	                     if (data.success=='true') {
-	                         addSuccess('#error-messages', data.errorMsg);
-	                         contactTable.ajax.reload();
-	                     } else {
-	                         addError('#error-messages', data.errorMsg);
-	                         contactTable.ajax.reload();
-	                     }
-	                 }).fail(function(reason){
-	                     addError('#error-messages', reason);
-	                     });
-            	}
+                if (confirmed) {
+                    $.ajax({
+                        url: '/api/contacts/delete',
+                        data: {'contacts': selectedRows},
+                        method: 'post'
+                    }).done(function (data) {
+                        if (data.success) {
+                            addSuccess('#error-messages', data.message);
+                            contactTable.ajax.reload();
+                        } else {
+                            addError('#error-messages', data.message);
+                            contactTable.ajax.reload();
+                        }
+                    }).fail(function (reason) {
+                        addError('#error-messages', reason);
+                    });
+                }
             });
         }
     </script>

@@ -217,15 +217,14 @@
                     data: {'petitions': selectedRows},
                     method: 'post'
                 }).done(function (data) {
-                    if (data.success == "true") {
-                        addSuccess("#error-messages", data.errorMsg);
-                        petitionTable.ajax.reload();
+                    if (data.success) {
+                        addSuccess("#error-messages", data.message);
                     } else {
-                        addError("#error-messages", data.errorMsg);
-                        petitionTable.ajax.reload();
+                        addError("#error-messages", data.message);
                     }
-                    if (data.warnMsg != undefined) {
-                        addWarning('#error-messages', data.warnMsg)
+                    petitionTable.ajax.reload();
+                    if (data.warning != undefined) {
+                        addWarning('#error-messages', data.warning)
                     }
                 }).fail(function (result) {
                     console.log(result)

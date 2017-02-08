@@ -424,14 +424,14 @@
                 data: {'petitions':selectedRows},
                 method: 'post'
             }).done(function(data){
-                if (data.success=='true') {
-                    addSuccess('#error-messages', data.errorMsg);
+                if (data.success) {
+                    addSuccess('#error-messages', data.message);
                     $('#status').val(inLucru);
                 } else {
-                    addError('#error-messages', data.errorMsg);
+                    addError('#error-messages', data.message);
                 }
-                if (data.warnMsg != undefined) {
-                    addWarning('#error-messages', data.warnMsg)
+                if (data.warning != undefined) {
+                    addWarning('#error-messages', data.warning)
                 }
             }).fail(function(reason){
                 addError('#error-messages', reason);
@@ -505,7 +505,10 @@
                         contentType: 'text/plain',
                         processData: false,
                         data: result
-                    }).done(function () {
+                    }).done(function (data) {
+                        if (!data.success) {
+                            addError('#error-messages', data.message);
+                        }
                         observationsTable.ajax.reload();
                     }).fail(function (reason) {
                         console.log(reason);
@@ -522,7 +525,10 @@
                         url: "/api/petitions/" + pid + "/comment/" + selectedRows[0].id + "/delete",
                         method: 'POST',
                         processData: false
-                    }).done(function () {
+                    }).done(function (data) {
+                        if (!data.success) {
+                            addError('#error-messages', data.message);
+                        }
                         observationsTable.ajax.reload();
                     }).fail(function (reason) {
                         console.log(reason);
@@ -608,7 +614,10 @@
                         data: data,
                         contentType: false,
                         processData: false
-                    }).done(function () {
+                    }).done(function (data) {
+                        if (!data.success) {
+                            addError('#error-messages', data.message);
+                        }
                         attachmentTable.ajax.reload();
                     }).fail(function (reason) {
                         if (reason.status == 422) {
@@ -630,7 +639,10 @@
                             $.ajax({
                                 url: "/api/petitions/" + pid + "/attachment/" + selectedRows[0].id + "/delete/",
                                 method: 'POST'
-                            }).done(function () {
+                            }).done(function (data) {
+                                if (!data.success) {
+                                    addError('#error-messages', data.message);
+                                }
                                 attachmentTable.ajax.reload();
                             }).fail(function (reason) {
                                 console.log(reason);
@@ -722,7 +734,10 @@
                     $.ajax({
                         url: "/api/petitions/" + pid + "/link/" + result[0].id,
                         method: 'POST'
-                    }).done(function () {
+                    }).done(function (data) {
+                        if (!data.success) {
+                            addError('#error-messages', data.message);
+                        }
                         linkedTable.ajax.reload();
                     }).fail(function (reason) {
                         console.log(reason);
@@ -740,7 +755,10 @@
                             $.ajax({
                                 url: "/api/petitions/" + pid + "/unlink/" + selectedRows[0].id,
                                 method: 'POST'
-                            }).done(function () {
+                            }).done(function (data) {
+                                if (!data.success) {
+                                    addError('#error-messages', data.message);
+                                }
                                 linkedTable.ajax.reload();
                             }).fail(function (reason) {
                                 console.log(reason);

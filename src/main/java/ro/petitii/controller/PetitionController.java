@@ -3,13 +3,11 @@ package ro.petitii.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ro.petitii.config.DeadlineConfig;
@@ -19,19 +17,22 @@ import ro.petitii.model.*;
 import ro.petitii.service.*;
 import ro.petitii.service.email.SmtpService;
 import ro.petitii.util.DateUtil;
+import ro.petitii.util.StringUtil;
 import ro.petitii.util.ToastMaster;
 import ro.petitii.validation.ValidationStatus;
 
-import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+import static ro.petitii.validation.ValidationUtil.*;
+
 @Controller
 public class PetitionController extends ViewController {
+    private static final Logger logger = LoggerFactory.getLogger(PetitionController.class);
+
     @Autowired
     private UserService userService;
 
@@ -71,92 +72,6 @@ public class PetitionController extends ViewController {
     @Autowired
     private DeadlineConfig deadlineConfig;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PetitionController.class);
-	
-    @RequestMapping(path = "/petition", method = RequestMethod.GET)
-    public ModelAndView addPetition() {
-        Petitioner petitioner = new Petitioner();
-        petitioner.setCountry(defaultsConfig.getCountry());
-
-        Petition petition = new Petition();
-        petition.setReceivedDate(new Date());
-        petition.setDeadline(DateUtil.deadline(new Date(), deadlineConfig.getDays()));
-        petition.setPetitioner(petitioner);
-
-        petitionCustomParamService.initDefaults(petition);
-
-        ModelAndView modelAndView = new ModelAndView("petitions_crud");
-        modelAndView.addObject("petition", petition);
-
-        addCustomParams(modelAndView);
-
-        return modelAndView;
-    }
-
-    @RequestMapping(path = "/petition/{id}", method = RequestMethod.GET)
-    public ModelAndView editPetition(@PathVariable("id") Long id) {
-        ModelAndView modelAndView = new ModelAndView("petitions_crud");
-
-      //TODO: catch exceptions, add  error message
-        Petition petition = petitionService.findById(id);
-        modelAndView.addObject("petition", petition);
-        modelAndView.addObject("commentsApiUrl", "/api/petitions/" + petition.getId() + "/comments");
-        modelAndView.addObject("attachmentApiUrl", "/api/petitions/" + petition.getId() + "/attachments");
-        modelAndView.addObject("linkedPetitionsApiUrl", "/api/petitions/" + petition.getId() + "/linked");
-        modelAndView.addObject("linkedPetitionerApiUrl", "/api/petitions/" + petition.getId() + "/by/petitioner");
-        modelAndView.addObject("emailsApiUrl", "/api/petitions/" + petition.getId() + "/emails");
-
-        addCustomParams(modelAndView);
-
-        return modelAndView;
-    }
-
-    @RequestMapping(path = "/petition/fromEmail/{id}", method = RequestMethod.GET)
-    public ModelAndView createPetitionFromEmail(@PathVariable("id") Long id, HttpServletRequest request, final RedirectAttributes attr) {
-        ModelAndView modelAndView = new ModelAndView();
-        //TODO: catch exceptions, add  error/success message
-        Email email = emailService.searchById(id);
-        if (email.getPetition() != null) {
-            attr.addFlashAttribute("toast", i18nToast("controller.petition.petition_exists_for_email", ToastMaster.ToastType.danger));
-            modelAndView.setViewName("redirect:" + request.getHeader("referer"));
-            return modelAndView;
-        }
-
-        //TODO: catch exceptions, add  error message
-        Petition petition = petitionService.createFromEmail(email);
-        petitionCustomParamService.initDefaults(petition);
-
-        modelAndView.setViewName("petitions_crud");
-        modelAndView.addObject("petition", petition);
-
-        addCustomParams(modelAndView);
-
-        return modelAndView;
-    }
-
-    @RequestMapping(path = "/petition", method = RequestMethod.POST)
-    public ModelAndView savePetition(@Valid Petition petition, BindingResult bindingResult,
-                                     final RedirectAttributes attr) {
-        ModelAndView modelAndView = new ModelAndView();
-
-        petitionCustomParamService.validate(petition, bindingResult);
-
-        if (bindingResult.hasErrors()) {
-            modelAndView.setViewName("petitions_crud");
-            addCustomParams(modelAndView);
-            modelAndView.addObject("petition", petition);
-            modelAndView.addObject("toast", i18nToast("controller.petition.petition_not_saved", ToastMaster.ToastType.danger));
-            String serializedErrors = Arrays.toString(bindingResult.getAllErrors().toArray());
-            LOGGER.debug(i18n("controller.petition.petition_not_saved") + "\n" + serializedErrors);
-        } else {
-            petition = petitionService.save(petition);
-            modelAndView.setViewName("redirect:/petition/" + petition.getId());
-            attr.addFlashAttribute("toast", i18nToast("controller.petition.petition_saved", ToastMaster.ToastType.success));
-        }
-
-        return modelAndView;
-    }
-
     @RequestMapping("/petitions")
     public ModelAndView listUserPetitions() {
         ModelAndView modelAndView = new ModelAndView("petitions_list");
@@ -171,14 +86,78 @@ public class PetitionController extends ViewController {
         return modelAndView;
     }
 
-    @RequestMapping(value = "/petition/redirect/{id}", method = RequestMethod.GET)
-    public ModelAndView redirectPetition(@PathVariable("id") long id) {
-        ModelAndView modelAndView = new ModelAndView("petitions_redirect");
-        //TODO: catch exceptions, add  error message
-        Petition petition = petitionService.findById(id);
+    private ModelAndView editPetition(Petition petition) {
+        ModelAndView modelAndView = new ModelAndView("petitions_crud");
         modelAndView.addObject("petition", petition);
-        List<Contact> contactList = (List<Contact>) (contactService.getAllContacts());
-        modelAndView.addObject("contacts", contactList);
+        if (petition.getId() != null) {
+            modelAndView.addObject("commentsApiUrl", "/api/petitions/" + petition.getId() + "/comments");
+            modelAndView.addObject("attachmentApiUrl", "/api/petitions/" + petition.getId() + "/attachments");
+            modelAndView.addObject("linkedPetitionsApiUrl", "/api/petitions/" + petition.getId() + "/linked");
+            modelAndView.addObject("linkedPetitionerApiUrl", "/api/petitions/" + petition.getId() + "/by/petitioner");
+            modelAndView.addObject("emailsApiUrl", "/api/petitions/" + petition.getId() + "/emails");
+        }
+        addCustomParams(modelAndView);
+        return modelAndView;
+    }
+
+    @RequestMapping(path = "/petition", method = RequestMethod.GET)
+    public ModelAndView addPetition() {
+        Petitioner petitioner = new Petitioner();
+        petitioner.setCountry(defaultsConfig.getCountry());
+
+        Petition petition = new Petition();
+        petition.setReceivedDate(new Date());
+        petition.setDeadline(DateUtil.deadline(new Date(), deadlineConfig.getDays()));
+        petition.setPetitioner(petitioner);
+
+        petitionCustomParamService.initDefaults(petition);
+
+        return editPetition(petition);
+    }
+
+    @RequestMapping(path = "/petition/{id}", method = RequestMethod.GET)
+    public ModelAndView editPetition(@PathVariable("id") Long id, HttpServletRequest request) {
+        String url = StringUtil.toRelativeURL(request.getHeader("referer"), "petitions)");
+
+        Petition petition = petitionService.findById(id);
+        check(assertNotNull(petition, i18n("controller.petition.invalid_id")), logger, redirect(url));
+
+        return editPetition(petition);
+    }
+
+    @RequestMapping(path = "/petition/fromEmail/{id}", method = RequestMethod.GET)
+    public ModelAndView createPetitionFromEmail(@PathVariable("id") Long id, HttpServletRequest request) {
+        String url = StringUtil.toRelativeURL(request.getHeader("referer"), "petitions)");
+
+        Email email = emailService.searchById(id);
+        check(assertNull(email.getPetition(), i18n("controller.petition.petition_exists_for_email")), logger, redirect(url));
+
+        Petition petition = petitionService.createFromEmail(email);
+        check(assertNotNull(petition, i18n("controller.petition.invalid_email")), logger, redirect(url));
+
+        petitionCustomParamService.initDefaults(petition);
+        return editPetition(petition);
+    }
+
+    @RequestMapping(path = "/petition", method = RequestMethod.POST)
+    public ModelAndView savePetition(@Valid Petition petition, BindingResult bindingResult, final RedirectAttributes attr) {
+        petitionCustomParamService.validate(petition, bindingResult);
+
+        check(bindingResult, i18n("controller.petition.petition_not_saved"), logger, editPetition(petition));
+        petition = petitionService.save(petition);
+        return successAndRedirect(i18n("controller.petition.petition_saved"), "petition/" + petition.getId(), attr);
+    }
+
+    @RequestMapping(value = "/petition/redirect/{id}", method = RequestMethod.GET)
+    public ModelAndView redirectPetition(@PathVariable("id") long id, HttpServletRequest request) {
+        String url = StringUtil.toRelativeURL(request.getHeader("referer"), "petitions)");
+
+        Petition petition = petitionService.findById(id);
+        check(assertNotNull(petition, i18n("controller.petition.invalid_id")), logger, redirect(url));
+
+        ModelAndView modelAndView = new ModelAndView("petitions_redirect");
+        modelAndView.addObject("petition", petition);
+        modelAndView.addObject("contacts", contactService.getAllContacts());
         modelAndView.addObject("templateList", emailTemplateService.findByCategory(EmailTemplate.Category.forward));
         return modelAndView;
     }
@@ -190,53 +169,44 @@ public class PetitionController extends ViewController {
                                          @RequestParam("recipients") long[] recipients,
                                          @RequestParam(value = "attachments[]", required = false) Long[] attachments,
                                          @RequestParam("description") String description,
-                                         final RedirectAttributes attr) {
-
-        ModelAndView modelAndView = new ModelAndView();
+                                         final RedirectAttributes attr, HttpServletRequest request) {
+        String url = StringUtil.toRelativeURL(request.getHeader("referer"), "petitions)");
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        //TODO: catch exceptions, add  error message
         User user = userService.findUserByEmail(auth.getName()).get(0);
+        check(assertNotNull(user, i18n("controller.petition.invalid_user")), logger, redirect(url));
         Petition petition = petitionService.findById(id);
-        modelAndView.setViewName("redirect:/petition/" + petition.getId());
+        check(assertNotNull(petition, i18n("controller.petition.invalid_id")), logger, redirect(url));
 
         statusService.create(PetitionStatus.Status.REDIRECTED, petition, user);
 
         try {
             smtpService.send(createEmail(subject, description, convertRecipients(recipients), attachments, petition));
-        	attr.addFlashAttribute("toast", i18nToast("controller.petition.petition_redirected", ToastMaster.ToastType.success));
-        } catch (MessagingException e) {
-        	attr.addFlashAttribute("toast", i18nToast("controller.petition.petition_not_redirected", ToastMaster.ToastType.danger, e.getMessage()));
-        	LOGGER.error(i18n("controller.petition.petition_not_redirected"), e);
+        } catch (Exception e) {
+            check(fail(i18n("controller.petition.petition_not_redirected")), logger, redirect("petition/" + petition.getId()));
+        	logger.error(i18n("controller.petition.petition_not_redirected"), e);
         }
 
-        return modelAndView;
+        return successAndRedirect(i18n("controller.petition.petition_redirected"), "petition/" + petition.getId(), attr);
     }
 
     @RequestMapping(value = "/petition/{pid}/resolve/{action}", method = RequestMethod.GET)
-    public ModelAndView resolve(@PathVariable("pid") Long pid, @PathVariable("action") String action,
-                                final RedirectAttributes attr) {
+    public ModelAndView resolve(@PathVariable("pid") Long pid, @PathVariable("action") String action, HttpServletRequest request) {
+        String url = StringUtil.toRelativeURL(request.getHeader("referer"), "petitions)");
         Petition petition = petitionService.findById(pid);
-        if (petition == null) {
-            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
-        }
+        check(assertNotNull(petition, i18n("controller.petition.invalid_id")), logger, redirect(url));
 
-        if (petition.getCurrentStatus() == PetitionStatus.Status.IN_PROGRESS) {
-            ModelAndView modelAndView = new ModelAndView("petitions_resolve");
-            modelAndView.addObject("action", action);
-            modelAndView.addObject("pid", pid);
-            modelAndView.addObject("pEmail", petition.getPetitioner().getEmail());
-            modelAndView.addObject("attachmentApiUrl", "/api/petitions/" + pid + "/attachments");
-            modelAndView.addObject("linkedPetitionsApiUrl", "/api/petitions/" + pid + "/linked");
-            modelAndView.addObject("linkedPetitionerApiUrl", "/api/petitions/" + pid + "/by/petitioner");
-            //TODO: catch exceptions, add  error message
-            modelAndView.addObject("templateList", emailTemplateService.findByCategory(EmailTemplate.Category.response));
-            return modelAndView;
-        } else {
-            ModelAndView modelAndView = new ModelAndView("redirect:/petition/" + petition.getId());
-        	attr.addFlashAttribute("toast", i18nToast("controller.petition.resolve_work_not_started", ToastMaster.ToastType.danger));
-            return modelAndView;
-        }
+        check(assertEquals(petition.getCurrentStatus(), PetitionStatus.Status.IN_PROGRESS, i18n("controller.petition.resolve_work_not_started")), logger, redirect(url));
+
+        ModelAndView modelAndView = new ModelAndView("petitions_resolve");
+        modelAndView.addObject("action", action);
+        modelAndView.addObject("pid", pid);
+        modelAndView.addObject("pEmail", petition.getPetitioner().getEmail());
+        modelAndView.addObject("attachmentApiUrl", "/api/petitions/" + pid + "/attachments");
+        modelAndView.addObject("linkedPetitionsApiUrl", "/api/petitions/" + pid + "/linked");
+        modelAndView.addObject("linkedPetitionerApiUrl", "/api/petitions/" + pid + "/by/petitioner");
+        modelAndView.addObject("templateList", emailTemplateService.findByCategory(EmailTemplate.Category.response));
+        return modelAndView;
     }
 
     @RequestMapping(value = "/petition/{pid}/resolve/{action}", method = RequestMethod.POST)
@@ -247,52 +217,47 @@ public class PetitionController extends ViewController {
                                         @RequestParam("email") boolean sendEmail,
                                         @RequestParam(value = "attachments[]", required = false) Long[] attachments,
                                         @RequestParam("description") String description,
-                                        final RedirectAttributes attr) {
-
-        ModelAndView modelAndView = new ModelAndView();
+                                        final RedirectAttributes attr, HttpServletRequest request) {
+        String url = StringUtil.toRelativeURL(request.getHeader("referer"), "petitions)");
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        //TODO: catch exceptions, add  error message
         User user = userService.findUserByEmail(auth.getName()).get(0);
+        check(assertNotNull(user, i18n("controller.petition.invalid_user")), logger, redirect(url));
         Petition petition = petitionService.findById(id);
-        modelAndView.setViewName("redirect:/petition/" + petition.getId());
+        check(assertNotNull(petition, i18n("controller.petition.invalid_id")), logger, redirect(url));
 
-        ValidationStatus validationStatus = validateSolutionParameters(petition, resolution, sendEmail, description);
+        check(validateSolutionParameters(petition, resolution, sendEmail, description), logger, redirect("petition/" + id + "/resolve/" + action));
 
-        if (!validationStatus.isValid()) {
-            attr.addFlashAttribute("toast", i18nToast(validationStatus.getMsg(), ToastMaster.ToastType.danger));
-            modelAndView.setViewName("redirect:/petition/" + id + "/resolve/" + action);
-        } else {
-            PetitionStatus.Status status = resolution.getStatus();
-            statusService.create(status, petition, user);
+        PetitionStatus.Status status = resolution.getStatus();
+        statusService.create(status, petition, user);
 
-            if (sendEmail) {
-                try {
-                    smtpService.send(createEmail("Soluționare petiție: " + i18n(resolution), description,
-                                                 petition.getPetitioner().getEmail(), attachments, petition));
-                	attr.addFlashAttribute("toast", i18nToast("controller.petition.resolve_successful", ToastMaster.ToastType.success));
-                } catch (MessagingException e) {
-                	attr.addFlashAttribute("toast", i18nToast("controller.petition.resolve_failed", ToastMaster.ToastType.danger, e.getMessage()));
-                    LOGGER.debug(i18n("controller.petition.resolve_failed"), e);
-                }
-            } else {
-            	String message = i18n("controller.petition.resolve_resolution") + ": " + i18n(resolution) + " \n <br/> " + description;
-            	//TODO: catch exceptions, add  error message
-            	commentService.createAndSave(user, petition, message );
-            	attr.addFlashAttribute("toast", i18nToast("controller.petition.resolve_successful", ToastMaster.ToastType.success));
+        if (sendEmail) {
+            try {
+                String subject = i18n("controller.petition.resolve_resolution") + ": " + i18n(resolution);
+                smtpService.send(createEmail(subject, description, petition.getPetitioner().getEmail(), attachments, petition));
+            } catch (Exception e) {
+                logger.error(i18n("controller.petition.resolve_failed"), e);
+                check(fail(i18n("controller.petition.resolve_failed")), logger, redirect("petition/" + petition.getId()));
             }
+        } else {
+            String message = i18n("controller.petition.resolve_resolution") + ": " + i18n(resolution) + " \n <br/> " + description;
+            check(failOnException(() -> commentService.createAndSave(user, petition, message), i18n("controller.petition.resolve_failed")),
+                  logger, redirect("petition/" + petition.getId()));
         }
 
-        return modelAndView;
+        return successAndRedirect(i18n("controller.petition.resolve_successful"), "petition/" + petition.getId(), attr);
     }
 
     private void addCustomParams(ModelAndView modelAndView) {
         modelAndView.addObject("user_list", userService.getAllUsers());
 
         for (PetitionCustomParam.Type type : PetitionCustomParam.Type.values()) {
-        	//TODO: catch exceptions, add  error message
         	PetitionCustomParam param = petitionCustomParamService.findByType(type);
-            modelAndView.addObject(type.name(), param);
+        	if (param == null) {
+        	    logger.error("Custom param missing for type = " + type);
+            } else {
+                modelAndView.addObject(type.name(), param);
+            }
         }
     }
 
@@ -325,7 +290,6 @@ public class PetitionController extends ViewController {
         email.setAttachments(attachmentList);
         email.setPetition(petition);
         email.setType(Email.EmailType.Outbox);
-        //TODO: catch exceptions, add  error message
     	return emailService.save(email);
     }
 

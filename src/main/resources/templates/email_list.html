@@ -207,26 +207,26 @@
                 addWarning("#error-messages", "Selectați cel puțin un e-mail");
                 this.blur()
             } else {
-                markAsSpam(e, selectedRows[0].id);
+                markAsSpam(e, selectedRows[0].id, emailTable);
             }
         });
     });
 
     function refreshMail(e) {
-        //console.log('refreshing inbox');
         $(e.target).attr('data-loading-text', '<i class="fa fa-circle-o-notch fa-spin"></i> Se incarca');
         $(e.target).button('loading');
         $.ajax({
             url: "/api/refresh",
             method: 'POST'
         }).done(function (data) {
-            //console.log('success');
-            if (data.success == 'true') {
-                emailTable.ajax.reload();
+            if (data.success) {
+                addSuccess('#error-messages', data.message);
+            } else {
+                addError('#error-messages', data.message);
             }
+            emailTable.ajax.reload();
             $(e.target).button('reset');
         }).fail(function () {
-            //console.log('failed');
             $(e.target).button('reset');
         });
     }
@@ -239,7 +239,7 @@
                 addWarning("#error-messages", "Selectați cel puțin un e-mail");
                 this.blur()
             } else {
-                markAsEmail(e, selectedRows[0].id)
+                markAsEmail(e, selectedRows[0].id, emailTable)
             }
         });
     });

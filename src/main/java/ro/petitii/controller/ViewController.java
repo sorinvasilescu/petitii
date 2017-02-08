@@ -13,19 +13,11 @@ public abstract class ViewController extends BaseController {
         return i18n("petition.resolution." + resolution.name().toLowerCase());
     }
 
-    Map<String, String> i18nToast(String key, ToastMaster.ToastType type, String... args) {
+    ToastMaster.Toast i18nToast(String key, ToastMaster.ToastType type, String... args) {
         return createToast(i18n.i18n(key, args), type);
     }
 
-    Map<String, String> i18nToast(String key, String[] args, ToastMaster.ToastType type) {
-        return createToast(i18n.i18n(key, args), type);
-    }
-
-    Map<String, String> i18nToast(String key, HttpServletRequest request, ToastMaster.ToastType type) {
-        return createToast(i18n.i18n(key, request), type);
-    }
-
-    Map<String, String> i18nToast(String key, ToastMaster.ToastType type) {
+    ToastMaster.Toast i18nToast(String key, ToastMaster.ToastType type) {
         return createToast(i18n.i18n(key), type);
     }
 }

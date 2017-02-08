@@ -40,7 +40,7 @@ public class ExceptionHandlingController extends BaseController {
             logger.error("Something went wrong! Received a validation exception, but the data is valid", ex);
             return handleError(req, ex);
         } else {
-            List<Map<String, String>> toasts = convert(ex.getValidationStatus());
+            List<ToastMaster.Toast> toasts = convert(ex.getValidationStatus());
             ModelAndView view = ex.getModelAndView();
             if (isRedirect(view)) {
                 att.addFlashAttribute(ToastMaster.TOASTS_FIELD, toasts);

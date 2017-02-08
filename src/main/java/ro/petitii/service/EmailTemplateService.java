@@ -17,5 +17,5 @@ public interface EmailTemplateService {
 
     EmailTemplate findOneByCategory(EmailTemplate.Category category);
 
-    void delete(long id);
+    boolean delete(long id);
 }

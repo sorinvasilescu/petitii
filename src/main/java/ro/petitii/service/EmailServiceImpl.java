@@ -8,8 +8,8 @@ import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import ro.petitii.model.Email;
 import ro.petitii.model.Attachment;
+import ro.petitii.model.Email;
 import ro.petitii.model.Email_;
 import ro.petitii.model.Petition;
 import ro.petitii.model.datatables.EmailConverter;
@@ -39,7 +39,7 @@ public class EmailServiceImpl implements EmailService {
     @Override
     @Transactional
     public Email save(Email e) {
-        if (e.getId()==null) {
+        if (e.getId() == null) {
             em.persist(e);
             em.flush();
         }
@@ -50,7 +50,7 @@ public class EmailServiceImpl implements EmailService {
                 emails.add(e);
                 attachment.setEmails(emails);
             }
-            if (attachment.getBodyPart()!=null) attachmentService.saveFromEmail(attachment);
+            if (attachment.getBodyPart() != null) attachmentService.saveFromEmail(attachment);
             else attachmentService.save(attachment);
         }
         e = emailRepository.save(e);
@@ -80,11 +80,11 @@ public class EmailServiceImpl implements EmailService {
         DataTablesOutput<EmailResponse> emails;
         Specification<Email> spec = null;
 
-        if(type!=null) {
-            spec = (Root<Email> root, CriteriaQuery<?> q, CriteriaBuilder cb) -> cb.equal(root.get(Email_.type),type);
+        if (type != null) {
+            spec = (Root<Email> root, CriteriaQuery<?> q, CriteriaBuilder cb) -> cb.equal(root.get(Email_.type), type);
         }
 
-        emails = emailRepository.findAll(input,null,spec, new EmailConverter());
+        emails = emailRepository.findAll(input, null, spec, new EmailConverter());
         return emails;
     }
 
@@ -93,11 +93,12 @@ public class EmailServiceImpl implements EmailService {
         DataTablesOutput<EmailResponse> emails;
         Specification<Email> spec = null;
 
-        if(petition!=null) {
-            spec = (Root<Email> root, CriteriaQuery<?> q, CriteriaBuilder cb) -> cb.equal(root.get(Email_.petition),petition);
+        if (petition != null) {
+            spec = (Root<Email> root, CriteriaQuery<?> q, CriteriaBuilder cb) -> cb
+                    .equal(root.get(Email_.petition), petition);
         }
 
-        emails = emailRepository.findAll(input,null,spec, new EmailConverter());
+        emails = emailRepository.findAll(input, null, spec, new EmailConverter());
         return emails;
     }
 }

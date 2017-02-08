@@ -2,14 +2,15 @@ package ro.petitii.validation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ro.petitii.util.ToastMaster;
 
 import java.util.*;
 
-import static ro.petitii.util.ToastMaster.TOASTS_FIELD;
-import static ro.petitii.util.ToastMaster.createToast;
+import static java.util.Collections.singletonList;
+import static ro.petitii.util.ToastMaster.*;
 
 public class ValidationUtil {
     private static final ValidationStatus emptyValidStatus = new ValidationStatus();
@@ -22,6 +23,24 @@ public class ValidationUtil {
 
     public static void check(ValidationStatus status, Logger logger, ModelAndView view) {
         status.logMessages(logger).failIfInvalid(view);
+    }
+
+    public static void check(BindingResult result, String message, Logger logger, ModelAndView view) {
+        ValidationStatus status = assertFalse(result.hasErrors(), message);
+        if (!status.isValid()) {
+            String serializedErrors = Arrays.toString(result.getAllErrors().toArray());
+            status.logMessages(logger, "Serialization errors: " + serializedErrors);
+            status.failIfInvalid(view);
+        }
+    }
+
+    public static void check(List<ToastMaster.Toast> toasts, Logger logger, ModelAndView view) {
+        if (anyError(toasts)) {
+            ValidationStatus status = new ValidationStatus();
+            toasts.stream().filter(t -> t.getType().isError())
+                  .forEach(t -> status.addMessage(t.getMessage()));
+            status.logMessages(logger).failIfInvalid(view);
+        }
     }
 
     public static ValidationStatus assertNotNull(Object object, String message) {
@@ -66,8 +85,8 @@ public class ValidationUtil {
         }
     }
 
-    public static List<Map<String, String>> convert(ValidationStatus status) {
-        List<Map<String, String>> result = new LinkedList<>();
+    public static List<ToastMaster.Toast> convert(ValidationStatus status) {
+        List<ToastMaster.Toast> result = new LinkedList<>();
         for (ValidationMessage msg : status.getMessages()) {
             result.add(createToast(msg.getMessage(), msg.getLevel().getToastType()));
         }
@@ -76,13 +95,21 @@ public class ValidationUtil {
     }
 
     public static ModelAndView success(String message, ModelAndView view) {
-        view.addObject(TOASTS_FIELD, Collections.singletonList(createToast(message, ToastMaster.ToastType.success)));
+        return success(singletonList(createToast(message, ToastMaster.ToastType.success)), view);
+    }
+
+    public static ModelAndView success(List<Toast> toasts, ModelAndView view) {
+        view.addObject(TOASTS_FIELD, toasts);
         return view;
     }
 
-    public static ModelAndView success(String message, ModelAndView view, RedirectAttributes attributes) {
-        attributes.addFlashAttribute(TOASTS_FIELD, Collections.singletonList(createToast(message, ToastMaster.ToastType.success)));
-        return view;
+    public static ModelAndView successAndRedirect(String message, String view, RedirectAttributes attributes) {
+        return successAndRedirect(singletonList(createToast(message, ToastMaster.ToastType.success)), view, attributes);
+    }
+
+    public static ModelAndView successAndRedirect(List<Toast> toasts, String view, RedirectAttributes attributes) {
+        attributes.addFlashAttribute(TOASTS_FIELD, toasts);
+        return redirect(view);
     }
 
     public static ModelAndView redirect(String view) {
