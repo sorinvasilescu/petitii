@@ -9,7 +9,6 @@ import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
-
 import ro.petitii.controller.BaseController;
 import ro.petitii.model.Attachment;
 import ro.petitii.model.Email;
@@ -31,10 +30,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static ro.petitii.controller.api.DatatableUtils.pageRequest;
-
 @RestController
-public class EmailApiController extends BaseController{
+public class EmailApiController extends BaseController {
     @Autowired
     private EmailService emailService;
 
@@ -48,7 +45,8 @@ public class EmailApiController extends BaseController{
     @ResponseBody
     public DataTablesOutput<EmailResponse> getInbox(@Valid DataTablesInput input) {
         int sequenceNo = input.getDraw();
-        DataTablesOutput<EmailResponse> response = emailService.getTableContent(Email.EmailType.Inbox, pageRequest(input));
+        //TODO: catch exceptions, add  error/success message
+        DataTablesOutput<EmailResponse> response = emailService.getTableContent(input, Email.EmailType.Inbox);
         response.setDraw(sequenceNo);
         return response;
     }
@@ -57,7 +55,8 @@ public class EmailApiController extends BaseController{
     @ResponseBody
     public DataTablesOutput<EmailResponse> getSpam(@Valid DataTablesInput input) {
         int sequenceNo = input.getDraw();
-        DataTablesOutput<EmailResponse> response = emailService.getTableContent(Email.EmailType.Spam, pageRequest(input));
+        //TODO: catch exceptions, add  error/success message
+        DataTablesOutput<EmailResponse> response = emailService.getTableContent(input, Email.EmailType.Spam);
         response.setDraw(sequenceNo);
         return response;
     }
@@ -93,7 +92,7 @@ public class EmailApiController extends BaseController{
         try {
             imapService.getMail();
         } catch (Exception e) {
-        	LOGGER.error("Cannot read from inbox:", e);
+            LOGGER.error("Cannot read from inbox:", e);
             result.put("error", e.getClass().getName());
             result.put("errorMsg", e.getMessage());
         }
@@ -108,7 +107,7 @@ public class EmailApiController extends BaseController{
     @RequestMapping("/api/email/{id}/attachments/zip")
     public void downloadAllFromEmail(@PathVariable("id") Long id, HttpServletResponse response) {
         try {
-        	Email email = emailService.searchById(id);
+            Email email = emailService.searchById(id);
             if (email == null) {
                 throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
             }
@@ -134,6 +133,6 @@ public class EmailApiController extends BaseController{
             LOGGER.error("Could not download attachment with id " + id, e);
             throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        
+
     }
 }

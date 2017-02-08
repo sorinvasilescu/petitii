@@ -5,7 +5,7 @@
 
     <groupId>org.springframework</groupId>
     <artifactId>petitii</artifactId>
-    <version>0.10-SNAPSHOT</version>
+    <version>0.12-SNAPSHOT</version>
     
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -160,7 +160,9 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
-                    <compilerArgument>-proc:none</compilerArgument>
+                    <compilerArguments>
+                        <processor>org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor</processor>
+                    </compilerArguments>
                 </configuration>
             </plugin>
         </plugins>

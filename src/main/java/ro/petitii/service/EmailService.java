@@ -1,6 +1,6 @@
 package ro.petitii.service;
 
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import ro.petitii.model.Email;
 import ro.petitii.model.Petition;
@@ -11,6 +11,6 @@ public interface EmailService {
     long count();
     long lastUid();
     Email searchById(long emailId);
-    DataTablesOutput<EmailResponse> getTableContent(Email.EmailType type, PageRequest pageRequest);
-    DataTablesOutput<EmailResponse> getTableContent(Petition petition, PageRequest pageRequest);
+    DataTablesOutput<EmailResponse> getTableContent(DataTablesInput input, Email.EmailType type);
+    DataTablesOutput<EmailResponse> getTableContent(DataTablesInput input, Petition petition);
 }

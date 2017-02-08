@@ -48,7 +48,7 @@ public class ContactServiceImpl implements ContactService {
 		for (long id : contactIds) {
 			contactList.add(new Contact(id));
 		}
-		
+
 		contactRepository.delete(contactList);
 	}
 }

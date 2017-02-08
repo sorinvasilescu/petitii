@@ -78,7 +78,7 @@
             },
             processing: true,
             serverSide: true,
-            sDom: 'lrtip ',
+            stateSave: true,
             order: [[2, 'asc']],
             rowId: "id",
             ajax: {
@@ -100,44 +100,51 @@
                     },
                     sortable: false,
                     className: 'text-center',
-                    width: '15px'
+                    width: '15px',
+                    searchable: false
                 },
                 {
-                    name: 'regNo',
+                    name: 'regNo.number',
                     data: 'regNo',
-                    title: 'Număr înregistrare'
+                    title: 'Număr înregistrare',
+                    searchable: true
                 },
                 {
                     name: 'deadline',
                     data: 'deadline',
-                    title: 'Termen'
+                    title: 'Termen',
+                    searchable: false
                 },
                 {
-                    name: 'petitioner.lastName',
+                    name: 'petitionerName',
                     data: 'petitionerName',
                     title: 'Nume petent',
                     render: function (data) {
                         return strLimit(data, 30);
-                    }
+                    },
+                    searchable: true
                 },
                 {
                     name: 'petitionerEmail',
                     data: 'petitionerEmail',
-                    title: 'Email petent'
+                    title: 'Email petent',
+                    searchable: true
                 },
                 {
-                    name: '_abstract',
-                    data: '_abstract',
+                    name: 'subject',
+                    data: 'subject',
                     title: 'Rezumat petiție',
                     render: function (data) {
                         return strLimit(data, 70);
                     },
-                    sortable: false
+                    sortable: false,
+                    searchable: true
                 },
                 {
                     name: 'status',
                     data: 'status',
-                    title: 'Status'
+                    title: 'Status',
+                    searchable: false
                 },
                 {
                     data: null,
@@ -151,16 +158,21 @@
                     },
                     sortable: false,
                     'className': 'text-center',
-                    'width': '80px'
+                    'width': '80px',
+                    searchable: false
                 }
             ],
             rowCallback: function (row, data) {
                 if (data.alertStatus === "red") {
-                    $('td', row).css('background-color', '#ffb699');
+                    $('td', row).css('background-color', '#FFB699');
                 }
 
                 if (data.alertStatus === "yellow") {
                     $('td', row).css('background-color', '#FFFACD');
+                }
+
+                if (data.alertStatus === "green") {
+                    $('td', row).css('background-color', '#DAF7A6');
                 }
             }
         });

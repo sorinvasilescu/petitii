@@ -3,16 +3,20 @@ package ro.petitii.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.datatables.mapping.Column;
+import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import ro.petitii.config.DeadlineConfig;
 import ro.petitii.config.DefaultsConfig;
 import ro.petitii.model.*;
+import ro.petitii.model.Petition_;
+import ro.petitii.model.datatables.PetitionConverter;
 import ro.petitii.model.datatables.PetitionResponse;
 import ro.petitii.repository.PetitionRepository;
 import ro.petitii.service.email.ImapService;
@@ -20,18 +24,17 @@ import ro.petitii.util.DateUtil;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static ro.petitii.util.DateUtil.alertStatus;
-import static ro.petitii.util.StringUtil.prepareForView;
 
 @Service
 public class PetitionServiceImpl implements PetitionService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ImapService.class);
-    private static final DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
 
     @Autowired
     private PetitionRepository petitionRepository;
@@ -52,9 +55,6 @@ public class PetitionServiceImpl implements PetitionService {
     private PetitionStatusService psService;
 
     @Autowired
-    private MessageSource messageSource;
-
-    @Autowired
     private AttachmentService attachmentService;
 
     @Autowired
@@ -62,6 +62,9 @@ public class PetitionServiceImpl implements PetitionService {
 
     @Autowired
     private DeadlineConfig deadlineConfig;
+
+    @Autowired
+    private PetitionConverter converter;
 
     @Override
     public Petition save(Petition petition) {
@@ -175,39 +178,50 @@ public class PetitionServiceImpl implements PetitionService {
     }
 
     @Override
-    public List<Petition> findAllByResponsible(User user) {
-        return petitionRepository.findByResponsible(user);
+    public List<Petition> findAllByResponsible(User responsible) {
+        return petitionRepository.findByResponsible(responsible);
     }
 
     @Override
-    public DataTablesOutput<PetitionResponse> getTableContent(User user, List<PetitionStatus.Status> statuses,
-                                                              PageRequest p) {
-        Page<Petition> petitions;
-        if (user != null) {
-            if (statuses == null) {
-                petitions = petitionRepository.findByResponsible(user, p);
-            } else {
-                petitions = petitionRepository.findByResponsibleAndCurrentStatusIn(user, statuses, p);
-            }
-        } else {
-            if (statuses == null) {
-                petitions = petitionRepository.findAll(p);
-            } else {
-                petitions = petitionRepository.findByCurrentStatusIn(statuses, p);
-            }
-        }
-        DataTablesOutput<PetitionResponse> response = new DataTablesOutput<>();
-        response.setData(convert(petitions));
-        Long count;
-        if (user != null) {
-            count = petitionRepository.countByResponsible(user);
-        } else {
-            count = petitionRepository.count();
-        }
-        response.setRecordsTotal(count);
-        response.setRecordsFiltered(count);
+    public DataTablesOutput<PetitionResponse> getTableContent(DataTablesInput input, User user, List<PetitionStatus.Status> statuses) {
+        DataTablesOutput<PetitionResponse> petitions;
+        Specification<Petition> spec = null;
 
-        return response;
+        input.getColumns().replaceAll(column -> {
+            switch (column.getData()) {
+                case "regNo":
+                    column.setData("regNo.number");
+                    break;
+                case "petitionerEmail":
+                    column.setData("petitioner.email");
+                    break;
+                case "petitionerName":
+                    column.setData("petitioner.lastName");
+            }
+            return column;
+        });
+
+        if (user != null) {
+            if (statuses == null) {
+                spec = (Root<Petition> root, CriteriaQuery<?> q, CriteriaBuilder cb) -> cb.equal(root.get(Petition_.responsible),user);
+            } else {
+                // filter by responsible and status
+                spec = (Root<Petition> root, CriteriaQuery<?> q, CriteriaBuilder cb) -> {
+                    Predicate responsible = cb.equal(root.get(Petition_.responsible),user);
+                    Predicate status = cb.isTrue(root.get(Petition_.currentStatus).in(statuses));
+                    return cb.and(responsible,status);
+                };
+            }
+        } else {
+            if (statuses != null) {
+                // filter by status
+                spec = (Root<Petition> root, CriteriaQuery<?> q, CriteriaBuilder cb) -> cb.isTrue(root.get(Petition_.currentStatus).in(statuses));
+            }
+        }
+
+        petitions = petitionRepository.findAll(input, null, spec, converter);
+
+        return petitions;
     }
 
     @Override
@@ -263,19 +277,6 @@ public class PetitionServiceImpl implements PetitionService {
     }
 
     private PetitionResponse convert(Petition petition) {
-        PetitionResponse element = new PetitionResponse();
-        element.setId(petition.getId());
-        element.set_abstract(prepareForView(petition.getSubject(), 100));
-        element.setPetitionerEmail(petition.getPetitioner().getEmail());
-        element.setPetitionerName(prepareForView(petition.getPetitioner().getFullName(), 30));
-        element.setUser(petition.getResponsible().getFullName());
-        element.setReceivedDate(df.format(petition.getReceivedDate()));
-        element.setLastUpdateDate(df.format(petition.getLastUpdateDate()));
-        element.setRegNo(petition.getRegNo().getNumber());
-        element.setStatus(messageSource.getMessage(petition.statusString(), null, new Locale("ro")));
-        DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
-        element.setDeadline(df.format(petition.getDeadline()));
-        element.setAlertStatus(alertStatus(new Date(), petition.getDeadline(), deadlineConfig));
-        return element;
+        return converter.convert(petition);
     }
 }
