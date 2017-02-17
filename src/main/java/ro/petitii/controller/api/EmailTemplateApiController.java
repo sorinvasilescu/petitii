@@ -4,12 +4,8 @@ import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
-
-import ro.petitii.controller.BaseController;
 import ro.petitii.model.EmailTemplate;
 import ro.petitii.model.Petition;
 import ro.petitii.service.EmailTemplateService;
@@ -21,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-public class EmailTemplateApiController extends BaseController{
+public class EmailTemplateApiController extends ApiController {
     @Autowired
     private EmailTemplateService emailTemplateService;
 
@@ -35,7 +31,6 @@ public class EmailTemplateApiController extends BaseController{
     @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping(value = "/api/emailTemplates", method = {RequestMethod.GET, RequestMethod.POST})
     public DataTablesOutput<EmailTemplate> getEmailTemplates(@Valid DataTablesInput input) {
-    	//TODO: catch exceptions, add  error/success message
         return emailTemplateService.findAll(input);
     }
 
@@ -45,10 +40,10 @@ public class EmailTemplateApiController extends BaseController{
     @ResponseBody
     @RequestMapping(value = "/api/emailTemplate/{tid}/petition/{pid}", method = RequestMethod.GET)
     public String compileByPetition(@PathVariable("tid") Long tid, @PathVariable("pid") Long pid) {
-    	//TODO: catch exceptions, add  error/success message
         Petition petition = petitionService.findById(pid);
         if (petition == null) {
-            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+            // the error will be handled by the caller
+            return null;
         }
 
         Map<String, Object> variables = new HashMap<>();

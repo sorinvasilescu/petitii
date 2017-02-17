@@ -5,8 +5,10 @@ import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 
 import ro.petitii.model.Contact;
 
+import java.util.List;
+
 public interface ContactService {
-    Iterable<Contact> getAllContacts();
+    List<Contact> getAllContacts();
 
     DataTablesOutput<Contact> findAll(DataTablesInput input);
 

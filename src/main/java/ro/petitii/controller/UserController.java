@@ -1,39 +1,35 @@
 package ro.petitii.controller;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import javax.mail.MessagingException;
-import javax.validation.Valid;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import ro.petitii.config.SmtpConfig;
 import ro.petitii.model.Email;
 import ro.petitii.model.User;
 import ro.petitii.service.UserService;
 import ro.petitii.service.email.SmtpService;
 import ro.petitii.service.template.EmailTemplateProcessorService;
+import ro.petitii.util.ToastMaster;
+
+import javax.mail.MessagingException;
+import javax.validation.Valid;
+import java.util.*;
+
+import static org.springframework.util.StringUtils.isEmpty;
+import static ro.petitii.validation.ValidationUtil.*;
 
 @Controller
 @PreAuthorize("hasAuthority('ADMIN')")
 public class UserController extends ViewController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
-
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
     private UserService userService;
@@ -59,14 +55,17 @@ public class UserController extends ViewController {
         return modelAndView;
     }
 
+    private ModelAndView editUser(User user) {
+        ModelAndView modelAndView = new ModelAndView("users_crud");
+        modelAndView.addObject("user", user);
+        return modelAndView;
+    }
+
     @RequestMapping(path = "/user/{id}/edit", method = RequestMethod.GET)
     public ModelAndView editUser(@PathVariable("id") Long id) {
-        ModelAndView modelAndView = new ModelAndView("users_crud");
-        //TODO: catch exceptions, add  error/success message
         User user = userService.findById(id);
-        modelAndView.addObject("user", user);
-
-        return modelAndView;
+        check(assertNotNull(user, i18n("controller.user.invalid_user")), logger, redirect("users"));
+        return editUser(user);
     }
 
     @RequestMapping(path = "/user/{id}/suspend", method = RequestMethod.GET)
@@ -74,26 +73,26 @@ public class UserController extends ViewController {
         User user = userService.findById(id);
         user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
         user.setRole(User.UserRole.SUSPENDED);
-        //TODO: catch exceptions, add  error/success message
-        userService.save(user);
-        attr.addFlashAttribute("toast", i18nToast("controller.user.account_disabled", ToastType.success));
-        return new ModelAndView("redirect:/users");
+
+        failOnException(() -> userService.save(user), i18n("controller.user.account_disabled_failed"))
+                .logMessages(logger, "Failed to save suspended user = " + id).failIfInvalid(redirect("users"));
+
+        return successAndRedirect(i18n("controller.user.account_disabled_success"), "users", attr);
     }
 
     @RequestMapping(path = "/user/{id}/reset", method = RequestMethod.GET)
     public ModelAndView resetPasswordUser(@PathVariable("id") Long id, final RedirectAttributes attr) {
-    	//TODO: catch exceptions, add  error/success message
         User user = userService.findById(id);
+        check(assertNotNull(user, i18n("controller.user.invalid_user")), logger, redirect("users"));
         String newPassword = UUID.randomUUID().toString();
         user.setPassword(passwordEncoder.encode(newPassword));
-        //TODO: catch exceptions, add  error/success message
-        userService.save(user);
+        check(failOnException(() -> userService.save(user), i18n("controller.user.account_password_reset.failure")), logger, editUser(user));
 
-        //TODO: catch exceptions, add  error/success message
-        String subject = i18n("controller.user.password_reset_success");
-        List<Map<String, String>> toasts = sendUserPasswordReset("reset_password", subject, newPassword, user);
-        attr.addFlashAttribute("toasts", toasts);
-        return new ModelAndView("redirect:/users");
+        String subject = i18n("controller.user.account_password_reset.success");
+        List<ToastMaster.Toast> toasts = sendUserPasswordReset("reset_password", subject, newPassword, user);
+        check(toasts, logger, editUser(user));
+        toasts.add(i18nToast("controller.user.account_password_reset.success", ToastMaster.ToastType.success));
+        return successAndRedirect(toasts, "users", attr);
     }
 
 
@@ -110,14 +109,10 @@ public class UserController extends ViewController {
     private String setNewPassword(User user) {
         String newPassword = null;
         if (user.getChangePassword()) {
-            if (!StringUtils.isEmpty(user.getPassword())
-                    && !StringUtils.isEmpty(user.getPasswordCopy()) &&
-                    user.getPassword().equals(user.getPasswordCopy())) {
-                newPassword = user.getPassword();
-                user.setPassword(passwordEncoder.encode(user.getPassword()));
-            } else {
-                throw new RuntimeException("Password not provided");
-            }
+            boolean condition = !isEmpty(user.getPassword()) && !isEmpty(user.getPasswordCopy()) && Objects.equals(user.getPassword(), user.getPasswordCopy());
+            check(assertTrue(condition, i18n("controller.user.invalid_password")), logger, editUser(user));
+            newPassword = user.getPassword();
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
         } else {
             if (user.getId() == null) {
                 //set some random temporary password
@@ -125,7 +120,6 @@ public class UserController extends ViewController {
                 user.setPassword(passwordEncoder.encode(newPassword));
             } else {
                 //set the previous password
-            	//TODO: catch exceptions, add  error/success message
                 user.setPassword(userService.findById(user.getId()).getPassword());
             }
         }
@@ -137,33 +131,32 @@ public class UserController extends ViewController {
         boolean newUser = user.getId() == null;
         String newPassword = setNewPassword(user);
 
-        //TODO: catch exceptions, add  error/success message
         List<User> existingUser = userService.findUserByEmail(user.getEmail());
-        if (newUser && existingUser != null && !existingUser.isEmpty()) {
-            attr.addFlashAttribute("toast", i18nToast("controller.user.email_address_exists", ToastType.danger));
-        } else {
-        	//TODO: catch exceptions, add  error/success message
-            userService.save(user);
-            if (newUser) {
-                String subject = i18n("controller.user.welcome");
-                List<Map<String, String>> toasts = sendUserPasswordReset("welcome_user", subject, newPassword, user);
-                attr.addFlashAttribute("toasts", toasts);
-            }
-        }
+        check(assertFalse(newUser && existingUser != null && !existingUser.isEmpty(), i18n("controller.user.email_address_exists")), logger, editUser(user));
 
-        return new ModelAndView("redirect:/users");
+        check(failOnException(() -> userService.save(user), i18n("controller.user.save.failed")), logger, editUser(user));
+
+        if (newUser) {
+            String subject = i18n("controller.user.welcome");
+            List<ToastMaster.Toast> toasts = sendUserPasswordReset("welcome_user", subject, newPassword, user);
+            attr.addFlashAttribute("toasts", toasts);
+            check(toasts, logger, editUser(user));
+            toasts.add(i18nToast("controller.user.save.success", ToastMaster.ToastType.success));
+            return successAndRedirect(toasts, "users", attr);
+        } else {
+            return successAndRedirect(i18n("controller.user.save.success"), "users", attr);
+        }
     }
 
-    private List<Map<String, String>> sendUserPasswordReset(String template, String subject, String password, User user) {
-        List<Map<String, String>> toasts = new LinkedList<>();
-
+    private List<ToastMaster.Toast> sendUserPasswordReset(String template, String subject, String password, User user) {
+        List<ToastMaster.Toast> toasts = new LinkedList<>();
         Map<String, Object> vars = new HashMap<>();
         vars.put("pass", password);
         vars.put("user", user);
         String emailBody = emailTemplateProcessorService.processStaticTemplate(template, vars);
         if (emailBody == null) {
-            LOGGER.error("Could not compile the reset password for user = " + user.getEmail());
-            toasts.add(i18nToast("controller.user.reset_password_email_failed", ToastType.danger));
+            logger.error("Could not compile the reset password for user = " + user.getEmail());
+            toasts.add(i18nToast("controller.user.reset_password_email_failed", ToastMaster.ToastType.danger));
         } else {
             Email email = new Email();
             email.setSender(config.getUsername());
@@ -171,12 +164,12 @@ public class UserController extends ViewController {
             email.setRecipients(user.getEmail());
             email.setBody(emailBody);
             try {
-                LOGGER.info("Sending reset password email" + emailBody);
+                logger.info("Sending reset password email" + emailBody);
                 smtpService.send(email);
-                toasts.add(i18nToast("controller.user.reset_password_email_sent", ToastType.success));
+                toasts.add(i18nToast("controller.user.reset_password_email_sent", ToastMaster.ToastType.success));
             } catch (MessagingException e) {
-                LOGGER.error("Could not send email with password reset for user = " + user.getEmail(), e);
-                toasts.add(i18nToast("controller.user.reset_password_email_failed_with_error" , ToastType.danger, e.getMessage()));
+                logger.error("Could not send email with password reset for user = " + user.getEmail(), e);
+                toasts.add(i18nToast("controller.user.reset_password_email_failed_with_error", ToastMaster.ToastType.danger, e.getMessage()));
             }
         }
         return toasts;

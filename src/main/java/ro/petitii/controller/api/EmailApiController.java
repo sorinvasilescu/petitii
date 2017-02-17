@@ -9,8 +9,6 @@ import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
-
-import ro.petitii.controller.BaseController;
 import ro.petitii.model.Attachment;
 import ro.petitii.model.Email;
 import ro.petitii.model.datatables.EmailResponse;
@@ -26,27 +24,23 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 @RestController
-public class EmailApiController extends BaseController{
+public class EmailApiController extends ApiController {
+    private static final Logger logger = LoggerFactory.getLogger(EmailApiController.class);
+
     @Autowired
     private EmailService emailService;
 
     @Autowired
     private ImapService imapService;
 
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(EmailApiController.class);
-
     @RequestMapping(value = "/api/emails", method = RequestMethod.POST)
     @ResponseBody
     public DataTablesOutput<EmailResponse> getInbox(@Valid DataTablesInput input) {
         int sequenceNo = input.getDraw();
-        //TODO: catch exceptions, add  error/success message
         DataTablesOutput<EmailResponse> response = emailService.getTableContent(input, Email.EmailType.Inbox);
         response.setDraw(sequenceNo);
         return response;
@@ -56,8 +50,6 @@ public class EmailApiController extends BaseController{
     @ResponseBody
     public DataTablesOutput<EmailResponse> getSpam(@Valid DataTablesInput input) {
         int sequenceNo = input.getDraw();
-
-        //TODO: catch exceptions, add  error/success message
         DataTablesOutput<EmailResponse> response = emailService.getTableContent(input, Email.EmailType.Spam);
         response.setDraw(sequenceNo);
         return response;
@@ -65,7 +57,7 @@ public class EmailApiController extends BaseController{
 
     @RequestMapping(value = "/api/markAs/{type}/{id}", method = RequestMethod.POST)
     @ResponseBody
-    public String markSpam(@PathVariable("type") String type, @PathVariable("id") Long id) {
+    public ApiResult markSpam(@PathVariable("type") String type, @PathVariable("id") Long id) {
         Email.EmailType emailType = null;
         if ("email".equalsIgnoreCase(type)) {
             emailType = Email.EmailType.Inbox;
@@ -74,42 +66,39 @@ public class EmailApiController extends BaseController{
         }
 
         if (emailType == null) {
-            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+            return fail("api.controller.email.invalid_type");
         }
 
         Email email = emailService.searchById(id);
         if (email == null) {
-            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+            return fail("api.controller.email.invalid_id");
         }
         email.setType(emailType);
-        //TODO: catch exceptions, add  error/success message
-        emailService.save(email);
-        return "OK";
+        try {
+            emailService.save(email);
+            return success("api.controller.email.markSpam.success");
+        } catch (Exception e) {
+            logger.error("Could set email = " + id + "as " + emailType, e);
+            return fail("api.controller.email.markSpam.failed");
+        }
     }
 
     @RequestMapping("/api/refresh")
     @ResponseBody
-    public Map<String, String> inboxRefresh() {
-        Map<String, String> result = new HashMap<>();
+    public ApiResult inboxRefresh() {
         try {
             imapService.getMail();
+            return success("api.controller.email.refresh.success");
         } catch (Exception e) {
-        	LOGGER.error("Cannot read from inbox:", e);
-            result.put("error", e.getClass().getName());
-            result.put("errorMsg", e.getMessage());
+            logger.error("Cannot read from inbox:", e);
+            return fail("api.controller.email.refresh.failed", e.getMessage());
         }
-        if (!result.containsKey("error")) {
-            result.put("success", "true");
-        } else {
-            result.put("success", "false");
-        }
-        return result;
     }
 
     @RequestMapping("/api/email/{id}/attachments/zip")
     public void downloadAllFromEmail(@PathVariable("id") Long id, HttpServletResponse response) {
         try {
-        	Email email = emailService.searchById(id);
+            Email email = emailService.searchById(id);
             if (email == null) {
                 throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
             }
@@ -126,15 +115,14 @@ public class EmailApiController extends BaseController{
             is.close();
             response.flushBuffer();
         } catch (IOException e) {
-            LOGGER.error("Could not find attachment with id " + id + " on disk", e);
+            logger.error("Could not find attachment with id " + id + " on disk", e);
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
         } catch (EntityNotFoundException e) {
-            LOGGER.error("Could not find attachment with id " + id, e);
+            logger.error("Could not find attachment with id " + id, e);
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            LOGGER.error("Could not download attachment with id " + id, e);
+            logger.error("Could not download attachment with id " + id, e);
             throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        
     }
 }

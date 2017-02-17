@@ -17,7 +17,6 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
 import ro.petitii.config.SmtpConfig;
-import ro.petitii.controller.BaseController;
 import ro.petitii.model.*;
 import ro.petitii.model.datatables.AttachmentResponse;
 import ro.petitii.model.datatables.CommentResponse;
@@ -31,7 +30,6 @@ import ro.petitii.util.ZipUtils;
 
 import javax.mail.MessagingException;
 import javax.persistence.EntityNotFoundException;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
@@ -50,11 +48,10 @@ import static ro.petitii.controller.api.DatatableUtils.pageRequest;
 import static ro.petitii.util.StringUtil.cleanHtml;
 
 @Controller
-@ControllerAdvice
 // url base for all class methods
 @RequestMapping("/api/petitions")
-public class PetitionApiController extends BaseController{
-    private static final Logger LOGGER = LoggerFactory.getLogger(PetitionApiController.class);
+public class PetitionApiController extends ApiController {
+    private static final Logger logger = LoggerFactory.getLogger(PetitionApiController.class);
 
     @Autowired
     private UserService userService;
@@ -97,7 +94,6 @@ public class PetitionApiController extends BaseController{
         int sequenceNo = input.getDraw();
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        //TODO: catch exceptions, add  error/success message
         User user = userService.findUserByEmail(auth.getName()).get(0);
 
         List<PetitionStatus.Status> pStatus = parseStatus(status);
@@ -113,7 +109,6 @@ public class PetitionApiController extends BaseController{
     public DataTablesOutput<PetitionResponse> getAllPetitions(@Valid DataTablesInput input, String status) {
         int sequenceNo = input.getDraw();
         List<PetitionStatus.Status> pStatus = parseStatus(status);
-        //TODO: catch exceptions, add  error/success message
         DataTablesOutput<PetitionResponse> response = petitionService.getTableContent(input, null, pStatus);
         response.setDraw(sequenceNo);
         return response;
@@ -121,35 +116,28 @@ public class PetitionApiController extends BaseController{
 
     @RequestMapping(value = "{id}/by/petitioner", method = RequestMethod.POST)
     @ResponseBody
-    public DataTablesOutput<PetitionResponse> getPetitionsByPetitioner(@Valid DataTablesInput input,
-                                                                       @PathVariable("id") long id) {
+    public DataTablesOutput<PetitionResponse> getPetitionsByPetitioner(@Valid DataTablesInput input, @PathVariable("id") long id) {
         int sequenceNo = input.getDraw();
-        //TODO: catch exceptions, add  error/success message
         Petition petition = petitionService.findById(id);
         if (petition == null) {
-            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+            return new DataTablesOutput<>();
         }
 
-        //TODO: catch exceptions, add  error/success message
-        DataTablesOutput<PetitionResponse> response = petitionService
-                .getTableContent(petition, petition.getPetitioner(), pageRequest(input, PetitionResponse.sortMapping));
+        DataTablesOutput<PetitionResponse> response = petitionService.getTableContent(petition, petition.getPetitioner(),
+                                                                                      pageRequest(input, PetitionResponse.sortMapping));
         response.setDraw(sequenceNo);
         return response;
     }
 
     @RequestMapping(value = "{id}/linked", method = RequestMethod.POST)
     @ResponseBody
-    public DataTablesOutput<PetitionResponse> getLinkedPetitions(@Valid DataTablesInput input,
-                                                                 @PathVariable("id") long id) {
+    public DataTablesOutput<PetitionResponse> getLinkedPetitions(@Valid DataTablesInput input, @PathVariable("id") long id) {
         int sequenceNo = input.getDraw();
-        //TODO: catch exceptions, add  error/success message
         Petition petition = petitionService.findById(id);
         if (petition == null) {
-            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+            return new DataTablesOutput<>();
         }
-        //TODO: catch exceptions, add  error/success message
-        DataTablesOutput<PetitionResponse> response = petitionService
-                .getTableLinkedPetitions(petition, pageRequest(input, PetitionResponse.sortMapping));
+        DataTablesOutput<PetitionResponse> response = petitionService.getTableLinkedPetitions(petition, pageRequest(input, PetitionResponse.sortMapping));
         response.setDraw(sequenceNo);
         return response;
     }
@@ -158,12 +146,10 @@ public class PetitionApiController extends BaseController{
     @ResponseBody
     public DataTablesOutput<EmailResponse> getEmails(@Valid DataTablesInput input, @PathVariable("id") long id) {
         int sequenceNo = input.getDraw();
-        //TODO: catch exceptions, add  error/success message
         Petition petition = petitionService.findById(id);
         if (petition == null) {
-            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+            return new DataTablesOutput<>();
         }
-        //TODO: catch exceptions, add  error/success message
         DataTablesOutput<EmailResponse> response = emailService.getTableContent(input, petition);
         response.setDraw(sequenceNo);
         return response;
@@ -171,37 +157,47 @@ public class PetitionApiController extends BaseController{
 
     @RequestMapping(value = "/{id}/attachments", method = RequestMethod.POST)
     @ResponseBody
-    public DataTablesOutput<AttachmentResponse> getAllAttachments(@PathVariable("id") Long id,
-                                                                  @Valid DataTablesInput input) {
+    public DataTablesOutput<AttachmentResponse> getAllAttachments(@PathVariable("id") Long id, @Valid DataTablesInput input) {
         int sequenceNo = input.getDraw();
-        //TODO: catch exceptions, add  error/success message
         Petition petition = petitionService.findById(id);
         if (petition == null) {
-            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+            return new DataTablesOutput<>();
         }
 
-        DataTablesOutput<AttachmentResponse> response = attachmentService
-                .getTableContent(petition, pageRequest(input, AttachmentResponse.sortMapping));
+        DataTablesOutput<AttachmentResponse> response = attachmentService.getTableContent(petition, pageRequest(input, AttachmentResponse.sortMapping));
         response.setDraw(sequenceNo);
         return response;
     }
 
     @RequestMapping(value = "/{id}/attachment/add", method = RequestMethod.POST)
     @ResponseBody
-    public void addAttachment(@RequestParam("files") MultipartFile[] files,
-                              @PathVariable("id") Long petitionId) throws IOException {
+    public ApiResult addAttachment(@RequestParam("files") MultipartFile[] files, @PathVariable("id") Long petitionId) throws IOException {
+    	try {
+            attachmentService.saveFromForm(files, petitionId);
+            return success();
+        } catch (Exception e) {
+    	    logger.error("Could not save attachment for petition = " + petitionId, e);
+    	    return fail("api.controller.petition.attachment.adding.failed");
+        }
+    }
 
-    	//TODO: catch exceptions, add  error/success message
-        attachmentService.saveFromForm(files, petitionId);
+    @RequestMapping(value = "/{pid}/attachment/{aid}/delete", method = RequestMethod.POST)
+    @ResponseBody
+    public ApiResult deleteAttachment(@PathVariable("aid") Long id) {
+        try {
+            attachmentService.deleteFromPetition(id);
+            return success();
+        } catch (Exception e) {
+            logger.error("Could not delete attachment = " + id, e);
+            return fail("api.controller.petition.attachment.delete.failed");
+        }
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     @ResponseStatus(value = HttpStatus.PRECONDITION_FAILED)
     @ResponseBody
-    protected ResponseEntity<String> handleMaxUploadSizeExceededException(HttpServletRequest request,
-                                                                          HttpServletResponse response,
-                                                                          Throwable e) throws IOException {
-        LOGGER.warn("Max upload size exceeded", e);
+    protected ResponseEntity<String> handleMaxUploadSizeExceededException(Throwable e) throws IOException {
+        logger.warn("Max upload size exceeded", e);
         String message = i18n("api.controller.petition.attachment_size_exceeded");
         return ResponseEntity.unprocessableEntity().body(message);
     }
@@ -209,17 +205,14 @@ public class PetitionApiController extends BaseController{
     @ExceptionHandler(MultipartException.class)
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
-    protected ResponseEntity<String> handleGenericMultipartException(final HttpServletRequest request,
-                                                                     final HttpServletResponse response,
-                                                                     final Throwable e) throws IOException {
+    protected ResponseEntity<String> handleGenericMultipartException(final Throwable e) throws IOException {
         Throwable rootCause = e;
         Throwable cause = e.getCause();
         while (cause != null && !cause.equals(rootCause)) {
             rootCause = cause;
             cause = cause.getCause();
         }
-        LOGGER.error(rootCause.getMessage(), e);
-        //TODO: verify if appropriate message
+        logger.error(rootCause.getMessage(), e);
         String message = i18n("api.controller.petition.attachment_size_exceeded");
         return ResponseEntity.unprocessableEntity().body(message);
     }
@@ -244,20 +237,12 @@ public class PetitionApiController extends BaseController{
             is.close();
             response.flushBuffer();
         } catch (IOException e) {
-            LOGGER.error("Could not find attachment with id " + id + " on disk", e);
+            logger.error("Could not find attachment with id " + id + " on disk", e);
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
         } catch (EntityNotFoundException e) {
-            LOGGER.error("Could not find attachment with id " + id, e);
+            logger.error("Could not find attachment with id " + id, e);
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
         }
-    }
-
-    @RequestMapping(value = "/{pid}/attachment/{aid}/delete", method = RequestMethod.POST)
-    @ResponseBody
-    public String deleteAttachment(@PathVariable("aid") Long id) {
-    	//TODO: catch exceptions, add  error/success message
-        attachmentService.deleteFromPetition(id);
-        return "done";
     }
 
     private List<PetitionStatus.Status> parseStatus(String status) {
@@ -275,12 +260,10 @@ public class PetitionApiController extends BaseController{
     @ResponseBody
     public DataTablesOutput<CommentResponse> getAllComments(@PathVariable("id") Long id, @Valid DataTablesInput input) {
         int sequenceNo = input.getDraw();
-        //TODO: catch exceptions, add  error/success message
         Petition petition = petitionService.findById(id);
         if (petition == null) {
-            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+            return new DataTablesOutput<>();
         }
-        //TODO: catch exceptions, add  error/success message
         DataTablesOutput<CommentResponse> response = commentService.getTableContent(petition, pageRequest(input));
         response.setDraw(sequenceNo);
         return response;
@@ -288,134 +271,142 @@ public class PetitionApiController extends BaseController{
 
     @RequestMapping(value = "/{id}/comment/add", method = RequestMethod.POST)
     @ResponseBody
-    public String addComment(@PathVariable("id") Long id, @RequestBody String commentBody) {
-    	//TODO: catch exceptions, add  error/success message
+    public ApiResult addComment(@PathVariable("id") Long id, @RequestBody String commentBody) {
         Petition petition = petitionService.findById(id);
         if (petition == null) {
-            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+            return fail("api.controller.petition.invalid_petition_id");
         }
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        //TODO: catch exceptions, add  error/success message
         List<User> users = userService.findUserByEmail(auth.getName());
         if (users.isEmpty()) {
-            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+            return fail("api.controller.petition.invalid_user");
         }
         User user = users.get(0);
 
-        //TODO: catch exceptions, add  error/success message
-        commentService.createAndSave(user, petition, cleanHtml(commentBody));
-        return "done";
+        try {
+            commentService.createAndSave(user, petition, cleanHtml(commentBody));
+            return success();
+        } catch (Exception e) {
+            logger.error("Could not add comment to petition = " + id, e);
+            return fail("api.controller.petition.comment.add.failed");
+        }
     }
 
     @RequestMapping(value = "/{pid}/comment/{cid}/delete", method = RequestMethod.POST)
     @ResponseBody
-    public String deleteComment(@PathVariable("cid") Long cid) {
-    	//TODO: catch exceptions, add  error/success message
-        commentService.delete(cid);
-        return "done";
+    public ApiResult deleteComment(@PathVariable("cid") Long cid) {
+    	try {
+            commentService.delete(cid);
+            return success();
+        } catch (Exception e) {
+    	    logger.error("Could not delete comment = " + cid, e);
+    	    return fail("api.controller.petition.comment.delete.failed");
+        }
     }
 
     @RequestMapping(value = "/{pid}/link/{vid}", method = RequestMethod.POST)
     @ResponseBody
-    public String linkPetitions(@PathVariable("pid") Long pid, @PathVariable("vid") Long vid) {
-    	//TODO: catch exceptions, add  error/success message
+    public ApiResult linkPetitions(@PathVariable("pid") Long pid, @PathVariable("vid") Long vid) {
         Petition petition = petitionService.findById(pid);
         if (petition == null) {
-            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+            return fail("api.controller.petition.invalid_petition_id");
         }
-        //TODO: catch exceptions, add  error/success message
         Petition vassal = petitionService.findById(vid);
         if (vassal == null) {
-            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+            return fail("api.controller.petition.invalid_petition_id");
         }
 
-        //TODO: catch exceptions, add  error/success message
-        connectionService.link(petition, vassal);
-        return "done";
+        try {
+            connectionService.link(petition, vassal);
+            return success();
+        } catch (Exception e) {
+            logger.error("Cannot link petition = " + petition + " -> " + vid, e);
+            return fail("api.controller.petition.link.add.failed");
+        }
     }
 
     @RequestMapping(value = "/{pid}/unlink/{vid}", method = RequestMethod.POST)
     @ResponseBody
-    public String unlinkPetitions(@PathVariable("pid") Long pid, @PathVariable("vid") Long vid) {
-    	//TODO: catch exceptions, add  error/success message
+    public ApiResult unlinkPetitions(@PathVariable("pid") Long pid, @PathVariable("vid") Long vid) {
         Petition petition = petitionService.findById(pid);
         if (petition == null) {
-            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+            return fail("api.controller.petition.invalid_petition_id");
         }
-        //TODO: catch exceptions, add  error/success message
         Petition vassal = petitionService.findById(vid);
         if (vassal == null) {
-            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+            return fail("api.controller.petition.invalid_petition_id");
         }
 
-        //TODO: catch exceptions, add  error/success message
-        connectionService.unlink(petition, vassal);
-        return "done";
+        try {
+            connectionService.unlink(petition, vassal);
+            return success();
+        } catch (Exception e) {
+            logger.error("Cannot unlink petition = " + petition + " -> " + vid, e);
+            return fail("api.controller.petition.link.delete.failed");
+        }
     }
 
     @RequestMapping(value = "/start-work", method = RequestMethod.POST)
     @ResponseBody
-    public Map<String, String> startWork(@RequestParam("petitions[]") long[] petitionIds) {
-        Map<String, String> result = new HashMap<>();
+    public ApiResult startWork(@RequestParam("petitions[]") long[] petitionIds) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        //TODO: catch exceptions, add  error/success message
         User user = userService.findUserByEmail(auth.getName()).get(0);
+        if (user == null) {
+            return fail("api.controller.petition.invalid_user");
+        }
         List<String> errors = new LinkedList<>();
+        String warning = null;
 
-        //TODO: catch exceptions, add  error/success message
         EmailTemplate emailTemplate = emailTemplateService.findOneByCategory(EmailTemplate.Category.start_work);
         if (emailTemplate == null) {
-            LOGGER.error("Email template not found for start work, using standard text messages ...");
-            result.put("warnMsg", i18n("api.controller.petition.email_template_config_error"));
+            logger.error("Email template not found for start work, using standard text messages ...");
+            warning = i18n("api.controller.petition.email_template_config_error");
         }
 
         for (long id : petitionIds) {
-        	//TODO: catch exceptions, add  error/success message
             Petition pet = petitionService.findById(id);
             if (pet == null) {
-                throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
-            }
-            if (pet.getCurrentStatus().equals(PetitionStatus.Status.RECEIVED)) {
-                statusService.create(PetitionStatus.Status.IN_PROGRESS, pet, user);
-                Email email = new Email();
-                email.setSender(config.getUsername());
-                email.setSubject(i18n("api.controller.petition.registered_email_subject"));
-                email.setRecipients(pet.getPetitioner().getEmail());
-
-                try {
-                    if (emailTemplate == null) {
-                        email.setBody(createDefaultEmail(pet));
-                    } else {
-                        Map<String, Object> vars = new HashMap<>();
-                        vars.put("pet", pet);
-                        vars.put("petition", pet);
-                        String body = emailTemplateProcessorService.processTemplateWithId(emailTemplate.getId(), vars);
-                        if (body == null) {
-                            body = createDefaultEmail(pet);
-                        }
-                        LOGGER.info("Sending start-work email: " + body);
-                        email.setBody(body);
-                    }
-                    smtpService.send(email);
-                } catch (MessagingException e) {
-                    LOGGER.error("Could not send email with registration number " + pet.getRegNo().toString(), e);
-                }
+                errors.add("" + id);
             } else {
-                errors.add(pet.getRegNo().getNumber());
+                if (pet.getCurrentStatus().equals(PetitionStatus.Status.RECEIVED)) {
+                    statusService.create(PetitionStatus.Status.IN_PROGRESS, pet, user);
+                    Email email = new Email();
+                    email.setSender(config.getUsername());
+                    email.setSubject(i18n("api.controller.petition.registered_email_subject"));
+                    email.setRecipients(pet.getPetitioner().getEmail());
+
+                    try {
+                        if (emailTemplate == null) {
+                            email.setBody(createDefaultEmail(pet));
+                        } else {
+                            Map<String, Object> vars = new HashMap<>();
+                            vars.put("pet", pet);
+                            vars.put("petition", pet);
+                            String body = emailTemplateProcessorService
+                                    .processTemplateWithId(emailTemplate.getId(), vars);
+                            if (body == null) {
+                                body = createDefaultEmail(pet);
+                            }
+                            logger.info("Sending start-work email: " + body);
+                            email.setBody(body);
+                        }
+                        smtpService.send(email);
+                    } catch (MessagingException e) {
+                        logger.error("Could not send email with registration number " + pet.getRegNo().toString(), e);
+                    }
+                } else {
+                    errors.add(pet.getRegNo().getNumber());
+                }
             }
         }
 
         if (errors.size() > 0) {
-            result.put("success", "false");
             String errorList = errors.stream().collect(Collectors.joining(", "));
-            result.put("errorMsg", i18n("api.controller.petition.status_not_updated") + ": " + errorList);
+            return fail("api.controller.petition.status_not_updated", errorList, warning);
         } else {
-            result.put("success", "true");
-            result.put("errorMsg", i18n("api.controller.petition.status_updated"));
+            return success("api.controller.petition.status_updated");
         }
-
-        return result;
     }
 
     private String createDefaultEmail(Petition petition) {
